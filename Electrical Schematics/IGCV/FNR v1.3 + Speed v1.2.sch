@@ -7582,13 +7582,16 @@ R</text>
 </net>
 <net name="N$4" class="0">
 <segment>
+<wire x1="134.62" y1="93.98" x2="129.54" y2="93.98" width="0.1524" layer="91" curve="180"/>
+<wire x1="134.62" y1="93.98" x2="134.62" y2="91.44" width="0.1524" layer="91"/>
 <pinref part="Q4" gate="G$1" pin="S"/>
 <wire x1="134.62" y1="91.44" x2="147.32" y2="91.44" width="0.1524" layer="91"/>
-<wire x1="134.62" y1="91.44" x2="129.54" y2="91.44" width="0.1524" layer="91" curve="180"/>
-<wire x1="129.54" y1="91.44" x2="78.74" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="129.54" y1="93.98" x2="81.28" y2="93.98" width="0.1524" layer="91"/>
+<wire x1="81.28" y1="93.98" x2="81.28" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="73.66" y1="91.44" x2="78.74" y2="91.44" width="0.1524" layer="91" curve="-180"/>
 <pinref part="SW3" gate="G$1" pin="1"/>
 <wire x1="71.12" y1="91.44" x2="73.66" y2="91.44" width="0.1524" layer="91"/>
-<wire x1="73.66" y1="91.44" x2="78.74" y2="91.44" width="0.1524" layer="91" curve="-180"/>
+<wire x1="81.28" y1="91.44" x2="78.74" y2="91.44" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$100" class="0">
