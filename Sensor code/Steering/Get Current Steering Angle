@@ -1,0 +1,16 @@
+#include <math.h>
+/*Just an estimate value for the distance between the two sensors (needs to be updated)*/
+#define WIDTH 1.0
+#define PI 3.14159
+#define STEERBOX A0
+
+/* This function assumes straight ahead (north) is 90 degrees, 
+  with a 90 degree turn to the right (east) being 0 degrees,
+  and a 90 degree turn left (West) being 180 degrees.
+ */
+pinMode(STEERBOX, INPUT);
+
+double getCurrentSteeringAngle(){
+  double result = .9016*pow(analogRead(STEERBOX), 0.8139);
+  return result;
+}
