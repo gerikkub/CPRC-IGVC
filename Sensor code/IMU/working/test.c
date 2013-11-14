@@ -4,6 +4,8 @@
 #include <math.h>
 #include <stdlib.h>
 
+
+/* Jordan, I am too lazy to edit this code, axe me with any questions - Joe */
 using std::cerr;
 using std::cout;
 using std::endl;
