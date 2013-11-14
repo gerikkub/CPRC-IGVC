@@ -55,9 +55,9 @@ int distance()
 {
   long duration0;
   digitalWrite(trigPin0, LOW);  
-  digitalWrite(trigPin0, HIGH);
+  digitalWrite(trigPin0, HIGH); //PING
   digitalWrite(trigPin0, LOW); 
-  duration0 = pulseIn(echoPin0, HIGH); 
+  duration0 = pulseIn(echoPin0, HIGH); //read response
   int distance = (duration0 / 2) / 29.1; //shamwow convert to CM with a little magic number
   Serial.println(distance);
   return distance;
