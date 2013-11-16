@@ -52,12 +52,11 @@ void loop()
  *    one for left
  *    two for right
  */
-int sideAngleToWall (int side)
+float sideAngleToWall (int side)
 {
   //distance0 - distance of front-side
   //distance1 - distance of back-side
   int distance0, distance1;
-  int angle;
   
   if (side == 1)
   {
@@ -71,7 +70,7 @@ int sideAngleToWall (int side)
   }
   
   //20 - sensor distance (cm)
-  return angle = (atan((distanceA-distanceB)/20) * RAD2DEG)+90;
+  return (atan(((float)distanceA-(float)distanceB)/20) * RAD2DEG)+90;
 }
  
 /**
