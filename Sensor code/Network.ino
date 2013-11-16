@@ -45,8 +45,10 @@ void loop()
  * Returns the angle of the golfcart to the wall
  * Golfcart side compared to wall
  *    Parallel - 90 degs
- *    Nose towards wall - "fill it in louie"
- *    Back towards wall - "   ^   ^   ^   "
+ *    Nose towards wall - less than 90
+ *    Back towards wall - greater than 90
+ *
+ * Optimal range would be 30 to 35 deg offset from 90
  *
  * int side determines which side to use
  *    one for left
@@ -60,13 +62,13 @@ float sideAngleToWall (int side)
   
   if (side == 1)
   {
-    distance0 = readUSensor(/*left-front*/);
-    distance1 = readUSensor(/*left-back*/);
+    distance0 = readUSensor(6);
+    distance1 = readUSensor(2);
   }
   else
   {
-    distance0 = readUSensor(/*right-front*/);
-    distance1 = readUSensor(/*right-back*/);
+    distance0 = readUSensor(3);
+    distance1 = readUSensor(4);
   }
   
   //20 - sensor distance (cm)
