@@ -1,16 +1,25 @@
+//US1
 //Maxbotix FRONT left analog pin A0
+//US5
 //Maxbotix FRONT right analog pin A1
-//Hobby US LEFT front TRIG digital pin 2
-//Hobby US LEFT front ECHO digital pin 3
-//Hobby US LEFT back TRIG digital pin 4
-//Hobby US LEFT back ECHO digital pin 5
-//Hobby US RIGHT front TRIG digital pin 6
-//Hobby US RIGHT front ECHO digital pin 7
-//Hobby US RIGHT back TRIG digital pin 8
-//Hobby US RIGHT back ECHO digital pin 9
-//Hall Effects sensor analog pin A2
-//Steering Linear Actuator on pin 10
-//AMS sensor pin digital pin 11
+//STEERING
+//Steering Linear Actuator on pin A2
+//US 6
+//Hobby US LEFT front TRIG digital pin D0
+//Hobby US LEFT front ECHO digital pin D1
+//US 2
+//Hobby US LEFT back TRIG digital pin D2
+//Hobby US LEFT back ECHO digital pin D3
+//US 3
+//Hobby US RIGHT front TRIG digital pin D4
+//Hobby US RIGHT front ECHO digital pin D5
+//US 4 
+//Hobby US RIGHT back TRIG digital pin D6
+//Hobby US RIGHT back ECHO digital pin D7
+//Hall Effects
+//Hall Effects sensor D8
+//AMS
+//AMS sensor pin digital D9
 #include <NewPing.h>
 
 int tic; 
@@ -36,15 +45,15 @@ void loop()
  * Echo pin plugged into PIN + 1.
  * For example, if Trig pin is plugged into pin 4, echo should be on pin 5
  */
-int readUSensor(int pin)
+int readUSensor(int sensor)
 {
   int readValue = -1; //value that is read
   /** If the sensor is the MaxBotix sensor */
-  if (pin == 1)
+  if (sensor == 1)
   {
     readValue = analogRead(A0);
   }
-  else if (pin == 2)
+  else if (sensor == 5)
   {
     readValue = analogRead(A1);
   }
@@ -52,7 +61,7 @@ int readUSensor(int pin)
   {
     /** Taken from Angle Detection - Louie Thiros */
     /** Trig pin is sensor number, echo should be in sensor number + 1 */
-    NewPing sonar(pin, pin + 1, 200); //create a new Ping object
+    NewPing sonar(sensor, sensor + 1, 200); //create a new Ping object
     readValue = sonar.ping_median(3); //Ping 3 times, take median, Joe found that 3 pings was sufficient in debounce days
     /** I will restore higher if inconsistent data occurs, but for now, 10 is way to high */
     readValue /=58.77; //sound wave takes 58.77 us to make a 1cm round trip (2cm)
@@ -75,7 +84,8 @@ int readSteering(int pin)
 /** Written by Derek and Alex */
 /** Decomposed by Joe */
 /** Derek and Alex, please explain this magic nonsense - Joe */
-  int readValue = analogRead(pin);
+  //pin should be A2
+  int readValue = analogRead(A2);
   readValue = pow(readValue, .8139);
   readValue *= .9016; 
   return readValue;
@@ -138,19 +148,41 @@ int readAMS(int pin)
 }  
 String toJSON()
 {
+  //US1
+//Maxbotix FRONT left analog pin A0
+//US5
+//Maxbotix FRONT right analog pin A1
+//STEERING
+//Steering Linear Actuator on pin A2
+//US 6
+//Hobby US LEFT front TRIG digital pin D0
+//Hobby US LEFT front ECHO digital pin D1
+//US 2
+//Hobby US LEFT back TRIG digital pin D2
+//Hobby US LEFT back ECHO digital pin D3
+//US 3
+//Hobby US RIGHT front TRIG digital pin D4
+//Hobby US RIGHT front ECHO digital pin D5
+//US 4 
+//Hobby US RIGHT back TRIG digital pin D6
+//Hobby US RIGHT back ECHO digital pin D7
+//Hall Effects
+//Hall Effects sensor D8
+//AMS
+//AMS sensor pin digital D9
   /** Read in Ultrasonic sensors */
-  int US1 = readUSensor(0); //FRONT left
-  int US2 = readUSensor(1); //FRONT right
-  int US3 = readUSensor(2); //LEFT front
-  int US4 = readUSensor(4); //LEFT back
-  int US5 = readUSensor(6); //RIGHT front
-  int US6 = readUSensor(2); //RIGHT back
+  int US1 = readUSensor(1); 
+  int US2 = readUSensor(5); 
+  int US3 = readUSensor(4); 
+  int US4 = readUSensor(6); 
+  int US5 = readUSensor(5); 
+  int US6 = readUSensor(0); 
   /** Read in steering degrees */
-  int STEERING = readSteering(10);
+  int STEERING = readSteering(0);
   /** Read in hall effects */
-  double HE = readHallEffects(2);
+  double HE = readHallEffects(8);
   /** Read in if auto mode is on */
-  int AMS = readAMS(11);
+  int AMS = readAMS(9);
    
   /** Create the string */
   String JSON = "{";
