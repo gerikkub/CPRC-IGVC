@@ -11,3 +11,5 @@ STEERING - Reading from Linear Encoder for steer degrees (cm)
 HE - Reading from Hall Effects (m/s)
 AMS - Reading from AMS representing if Auto mode is on
 
+Example:
+{US1:40,US2:39,US3:256,US4:256,US5:256,US6:256,STEERING:87,HE:.063,AMS:1}
