@@ -39,7 +39,41 @@ void loop()
   Serial.println(JSON);
   delay(500);
 }
-
+/**
+ * Still need to include side sensors inorder to use
+ *
+ * Returns the angle of the golfcart to the wall
+ * Golfcart side compared to wall
+ *    Parallel - 90 degs
+ *    Nose towards wall - "fill it in louie"
+ *    Back towards wall - "   ^   ^   ^   "
+ *
+ * int side determines which side to use
+ *    one for left
+ *    two for right
+ */
+int sideAngleToWall (int side)
+{
+  //distance0 - distance of front-side
+  //distance1 - distance of back-side
+  int distance0, distance1;
+  int angle;
+  
+  if (side == 1)
+  {
+    distance0 = readUSensor(/*left-front*/);
+    distance1 = readUSensor(/*left-back*/);
+  }
+  else
+  {
+    distance0 = readUSensor(/*right-front*/);
+    distance1 = readUSensor(/*right-back*/);
+  }
+  
+  //20 - sensor distance (cm)
+  return angle = (atan((distanceA-distanceB)/20) * RAD2DEG)+90;
+}
+ 
 /**
  * Read in Ultrasonic sensor with TRIG pin located at defined pin
  * Echo pin plugged into PIN + 1.
