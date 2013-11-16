@@ -8,7 +8,7 @@ US4 - Reading from Ultrasonic 4 (cm) Left back
 US5- Reading from Ultrasonic 5 (cm) Right front
 US6 - Reading from Ultrasonic 6 (cm) Right back
 STEERING - Reading from Linear Encoder for steer degrees (cm)
-HE - Reading from Hall Effects (m/s)
+HE - Reading from Hall Effects (cm/s)
 AMS - Reading from AMS representing if Auto mode is on
 
 Example:
