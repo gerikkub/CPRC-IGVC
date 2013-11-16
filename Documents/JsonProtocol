@@ -1,13 +1,13 @@
 To transmit data, we will be using a JSON format. 
 Data for milestone 2 will be in the following order
 
-Reading from Ultrasonic 1 (cm) FRONT left
-Reading from Ultrasonic 2 (cm) FRONT right
-Reading from Ultrasonic 3 (cm) Left front
-Reading from Ultrasonic 4 (cm) Left back
-Reading from Ultrasonic 5 (cm) Right front
-Reading from Ultrasonic 6 (cm) Right back
-Reading from Linear Encoder for steer degrees (cm)
-Reading from Hall Effects (m/s)
-Reading from AMS representing if Auto mode is on
+US1 - Reading from Ultrasonic 1 (cm) FRONT left
+US2 - Reading from Ultrasonic 2 (cm) FRONT right
+US3 - Reading from Ultrasonic 3 (cm) Left front
+US4 - Reading from Ultrasonic 4 (cm) Left back
+US5- Reading from Ultrasonic 5 (cm) Right front
+US6 - Reading from Ultrasonic 6 (cm) Right back
+STEERING - Reading from Linear Encoder for steer degrees (cm)
+HE - Reading from Hall Effects (m/s)
+AMS - Reading from AMS representing if Auto mode is on
 
