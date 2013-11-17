@@ -30,51 +30,68 @@ void setup()
   tic = 0;
   hasBeenRead = false;
   time = 0;
-  Serial.begin(9600);
+  Serial.begin(115200);
+  for (int i = 0; i < 14; i++)
+  {
+    pinMode(i, OUTPUT);
+  }
+}
+
+void setFNR(int FNR)
+{
+  if (FNR == 1)
+  {
+    digitalWrite(11, LOW);
+    delay(200);
+    digitalWrite(10, HIGH);
+  }
+  else if (FNR == 0)
+  {
+    digitalWrite(11, LOW);
+    digitalWrite(10, LOW);
+    digitalWrite(13, HIGH);
+  }
+  else if (FNR == -1)
+  {
+    digitalWrite(10, LOW);
+    delay(100);
+    digitalWrite(11, HIGH);
+  }
+}
+
+void gotoSteer(int steeringDegree)
+{
+  //Robert code
+}
+  
+void dealWithInput()
+{
+  if (Serial.find("FNR:"))
+  {
+    int FNR = Serial.parseInt();
+    digitalWrite(13, HIGH);
+    setFNR(FNR);  
+  }
+  if (Serial.find("STEER:"))
+  {
+    int Steer = Serial.parseInt();
+    digitalWrite(13, HIGH);
+    gotoSteer(Steer);
+  }
+  
 }
 
 void loop()
 {
   String JSON = toJSON();
   Serial.println(JSON);
-  delay(500);
-}
-/**
- * Still need to include side sensors inorder to use
- *
- * Returns the angle of the golfcart to the wall
- * Golfcart side compared to wall
- *    Parallel - 90 degs
- *    Nose towards wall - less than 90
- *    Back towards wall - greater than 90
- *
- * Optimal range would be 30 to 35 deg offset from 90
- *
- * int side determines which side to use
- *    one for left
- *    two for right
- */
-float sideAngleToWall (int side)
-{
-  //distance0 - distance of front-side
-  //distance1 - distance of back-side
-  int distance0, distance1;
-  
-  if (side == 1)
+  if (Serial.available())
   {
-    distance0 = readUSensor(6);
-    distance1 = readUSensor(2);
+    digitalWrite(12, HIGH);
+    dealWithInput();
   }
-  else
-  {
-    distance0 = readUSensor(3);
-    distance1 = readUSensor(4);
-  }
-  
-  //20 - sensor distance (cm)
-  return (atan(((float)distanceA-(float)distanceB)/20) * RAD2DEG)+90;
 }
- 
+
 /**
  * Read in Ultrasonic sensor with TRIG pin located at defined pin
  * Echo pin plugged into PIN + 1.
@@ -236,7 +253,7 @@ String toJSON()
   JSON += ",STEERING:";
   JSON += STEERING;
   JSON += ",HE:";
-  JSON += (int) (HE * 100);
+  JSON += 42; //(int) (HE * 100);
   JSON += ",AMS:";
   JSON += (int) AMS;
   JSON += "}";
