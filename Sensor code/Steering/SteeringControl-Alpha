@@ -1,0 +1,44 @@
+
+ 
+void setup() 
+{ 
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+}
+ 
+ 
+void loop() 
+{ 
+  forward(2000);
+  neutral(2000);
+  backward(2000);
+  neutral(2000);
+}
+
+void forward(int time)
+{
+  analogWrite(5,0);
+  analogWrite(6, 0);
+  delay(time);
+}
+
+void backward(int time)
+{
+  analogWrite(5, 255);
+  analogWrite(6, 255);
+  delay(time);
+}
+
+void neutral(int time)
+{
+  for (int i = 0; i < time; i=i+1500)
+  {
+    analogWrite(5, 127);
+    analogWrite(6, 127);
+    delay(750);
+    analogWrite(5, 128);
+    analogWrite(6, 128);
+    delay(750);
+  }
+}
+ 
