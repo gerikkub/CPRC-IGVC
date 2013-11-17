@@ -14,4 +14,5 @@
 #define LEFT_DISPLAY 0x0800
 #define RIGHT_DISPLAY 0x0F00
 
-void updateDisplay(char FNR, int throttle, int steering, char FLR);
+int updateDisplay(int FNR, int throttle, int steering, char FLR);
+void driveDisplay(int outputDisplay);
