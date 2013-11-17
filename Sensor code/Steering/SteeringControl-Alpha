@@ -1,44 +1,45 @@
-
- 
+@author Joe Leija
+@version Alpha
 void setup() 
 { 
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
+  pinMode(5, OUTPUT); //S1 to digital port 5
+  pinMode(6, OUTPUT); //S2 to digital port 6
 }
  
  
 void loop() 
 { 
-  forward(2000);
-  neutral(2000);
-  backward(2000);
-  neutral(2000);
+  forward(2000); //run forward for 2 seconds
+  neutral(2000); //chill
+  backward(2000); //run backwards
+  neutral(2000); //chill
 }
 
 void forward(int time)
 {
-  analogWrite(5,0);
+  analogWrite(5,0); //send both signals forwards 0-255 0 is one way
   analogWrite(6, 0);
-  delay(time);
+  delay(time); //wait for specified time
 }
 
 void backward(int time)
 {
-  analogWrite(5, 255);
+  analogWrite(5, 255); //send both signals backwards 0-255 255 is another way
   analogWrite(6, 255);
-  delay(time);
+  delay(time); //wait for specified time
 }
 
 void neutral(int time)
 {
-  for (int i = 0; i < time; i=i+1500)
+ /** Makes a nice B flat tone */
+  for (int i = 0; i < time; i=i+2) /Will update delay in future versions
   {
-    analogWrite(5, 127);
+    analogWrite(5, 127); //Write both forward
     analogWrite(6, 127);
-    delay(750);
-    analogWrite(5, 128);
+    delay(1); //wait a ms
+    analogWrite(5, 128); //write both backward
     analogWrite(6, 128);
-    delay(750);
+    delay(1); //wait a ms
   }
 }
  
