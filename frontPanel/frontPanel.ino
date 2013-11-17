@@ -1,4 +1,4 @@
-#include <frontPanel.h>
+#include "frontPanel.h"
 
 int updateDisplay(int FNR, int throttle, int steering, char FLR) {
   int outputDisplay=0;
@@ -8,7 +8,7 @@ int updateDisplay(int FNR, int throttle, int steering, char FLR) {
       break;
     case 0: 
       outputDisplay |= NEUTRAL_DISPLAY;
-      break
+      break;
     case -1:
       outputDisplay |= REVERSE_DISPLAY;
       break;
@@ -33,7 +33,7 @@ int updateDisplay(int FNR, int throttle, int steering, char FLR) {
   } else if(steering < 120) {
     outputDisplay |= STEERING_90_DISPLAY;
     if(steering >= 105) outputDisplay |= STEERING_120_DISPLAY;
-  } else if(steering < 150)
+  } else if(steering < 150) {
     outputDisplay |= STEERING_120_DISPLAY;
     if(steering >=135) outputDisplay |= STEERING_150_DISPLAY;
   } else {
@@ -74,16 +74,37 @@ void driveDisplay(int outputDisplay) {
 }
 
 void clearDisplay() {
-  for(int i =39; i<=53) {
+  for(int i=39;i<=53;i++) {
     digitalWrite(i, LOW);
   };
 }
 
 void setup() {
-  driveDisplay(updateDisplay(-1, 40, 75, 'F');
+  clearDisplay();
 }
 
 void loop() {
-  //empty
+  int throttle=0;
+  driveDisplay(updateDisplay(1, 0, 0, 'F'));
+  delay(600);
+  clearDisplay();
+  driveDisplay(updateDisplay(0,0,0,'N'));
+  delay(600);
+  clearDisplay();
+  driveDisplay(updateDisplay(-1,0,0,'R'));
+  delay(600);
+  clearDisplay();
+  
+  for(throttle=0;throttle<=100;throttle+=25) {
+    driveDisplay(updateDisplay(0,throttle,0,'N'));
+    delay(600);
+    clearDisplay();
+  };
+  
+  for(int steering=0;steering<=150;steering+=15) {
+    driveDisplay(updateDisplay(0,0,steering,'N'));
+    delay(600);
+    clearDisplay();
+  };
 }
 
