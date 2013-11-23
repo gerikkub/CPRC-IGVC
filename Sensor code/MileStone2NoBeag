@@ -1,4 +1,14 @@
 #include <NewPing.h>
+#include <math.h>
+#include <Math2.h>
+#include <PID.h>
+#include <Arduino.h>
+
+
+#define WIDTH 1.0
+#define PI 3.14159
+#define LEFTTURN 110
+#define RIGHTTURN  70
 //Joe Leija
 //Wiring:
 //US1
@@ -25,11 +35,11 @@
 //AMS sensor pin digital D9
 //controls:
 //FNR
-//FNR-forward : D10
-//FNR-backward: D11
+//FNR-forward : D12
+//FNR-backward: D13
 //Steering
-//IN1: D12
-//IN2: D13
+//IN1: D10
+//IN2: D11
 
 /* Ultrasonic front left pin input*/
 int usFLpin = A0;
@@ -39,6 +49,7 @@ int usFRpin = A1;
 
 /** Linear actuator input */
 int LEpin = A2;
+
 
 /** ultrasonic left front trig ouput */
 int usLfTrigPin = 0;
@@ -67,17 +78,21 @@ int HEpin = A3;
 int AMSpin = 9;
 
 /** FNR forward output */
-int FNRforwardPin = 10;
+int FNRforwardPin = 12;
 /** FNR backward output */
-int FNRbackwardPin = 11;
+int FNRbackwardPin = 13;
 
 /**Steering motor output IN1 */
-int SteerIN1pin = 12;
+int SteerIN1pin = 10;
 /** Steering motor output IN2 */
-int SteerIN2pin = 13;
+int SteerIN2pin = 11;
 
-/** FNR and SteerDegrees are the last read inputs */
-int tic, FNR, SteerDegrees; 
+/**PID do not play with the magic numbers - Robert Hulbert**/
+PID steerAngle(0.0245,0.008,0.001,2,20,1,122,58);
+int delta = 1;
+
+/** FNR and currentAngle are the last read inputs */
+int tic, FNR, currentAngle; 
 boolean hasBeenRead;
 int time;
 void setup()
@@ -132,7 +147,7 @@ void loop()
    delay(500);
    setFNR(-1);
    delay(3000);
-   turnLeft(1000);
+   turnLeft(LEFTTURN);
    setFNR(0);
    delay(500);
    setFNR(1);
@@ -142,8 +157,7 @@ void loop()
  Go forward */
  else if (US5 < 100)
  {
-   setFNR(0);
-   turnLeft(1000);
+   turnLeft(LEFTTURN);
    setFNR(1);
  }
  /** If only something is sensed on left side
@@ -151,13 +165,13 @@ void loop()
  Go forward */
  else if (US1 < 100)
  {
-   setFNR(0);
-   turnRight(1000);
+   turnRight(RIGHTTURN);
    setFNR(1);
- }
+  }
  /** Else go forward */
  else
  {
+   Straighten();
    setFNR(1);
  }
 }
@@ -183,34 +197,14 @@ void setFNR(int FNR)
   }
 }
 
-void turnLeft(int time)
+void turnLeft(int Degrees)
 {
-  //turning code that turns tires for time ms
+   SetSteeringAngle(Degrees);
 }
 
-void turnRight(int time)
+void turnRight(int Degrees)
 {
-  //turning code that turns tires for time ms
-}
-
-void gotoSteer(int steerDegrees)
-{
-  if (steerDegrees > 90)
-  {
-    digitalWrite(SteerIN1pin, LOW);
-    digitalWrite(SteerIN2pin, HIGH);
-  }
-  else if (steerDegrees < 90)
-  {
-    digitalWrite(SteerIN1pin, LOW);
-    digitalWrite(SteerIN2pin, HIGH);
-  }
-  else
-  {
-    digitalWrite(SteerIN1pin, LOW);
-    digitalWrite(SteerIN2pin, LOW);
-  }
-  //Robert code
+  SetSteeringAngle(Degrees);
 }
   
 int dealWithInput()
@@ -224,11 +218,82 @@ int dealWithInput()
   
   if (Serial.find("STEER:"))
   {
-    SteerDegrees = Serial.parseInt();
-    gotoSteer(SteerDegrees);
+    currentAngle = Serial.parseInt();
+    //gotoSteer(currentAngle);
   }
   
 }
+////Helper Functions////
+
+/*
+ turn inputs:
+   (float) input
+  
+ turn function:
+    turns left or right if input is less than 66 and greater than 66, respectively
+ */
+
+void turn(float input) {
+   analogWrite(SteerIN1pin, input);
+   analogWrite(SteerIN2pin, input);
+}
+
+/* 
+  SetSteeringAngle input:
+    (float) targetAngle
+    
+  SetSteeringAngle function:
+     corrects steering to get desired Angle  
+    
+  */
+
+void SetSteeringAngle(int targetAngle){
+  if(targetAngle < (currentAngle+delta) && targetAngle > (currentAngle-delta))
+    return;
+  
+     steerAngle.calculateCorrection(currentAngle,targetAngle);
+     
+    
+     steerAngle.result = -steerAngle.result;
+
+     if(signum(steerAngle.result) == 1) 
+      steerAngle.result = (steerAngle.result*30)+72;
+      
+     if(signum(steerAngle.result) == -1) 
+      steerAngle.result = (steerAngle.result*35)+68;  
+      
+    turn(steerAngle.result);  
+}
+
+/* 
+  Straighten input:
+    none
+    
+  Straighten function:
+     corrects steering to get to 90 degrees  
+    
+  */
+
+void Straighten() {
+   if(currentAngle < 92 && currentAngle > 88)
+    return;
+   
+   steerAngle.calculateCorrection(currentAngle,90);
+   
+   steerAngle.result = -steerAngle.result;
+
+   if(signum(steerAngle.result) == 1) 
+      steerAngle.result = (steerAngle.result*30)+72;
+      
+   if(signum(steerAngle.result) == -1) 
+      steerAngle.result = (steerAngle.result*35)+68; 
+ 
+   turn(steerAngle.result);
+}
+
+
+
+////Sensor Functions/////
 
 
 /**
