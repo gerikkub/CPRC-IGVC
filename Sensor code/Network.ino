@@ -1,3 +1,6 @@
+#include <NewPing.h>
+//Joe Leija
+//Wiring:
 //US1
 //Maxbotix FRONT left analog pin A0
 //US5
@@ -17,12 +20,64 @@
 //Hobby US RIGHT back TRIG digital pin D6
 //Hobby US RIGHT back ECHO digital pin D7
 //Hall Effects
-//Hall Effects sensor D8
+//Hall Effects sensor A3
 //AMS
 //AMS sensor pin digital D9
-#include <NewPing.h>
+//controls:
+//FNR
+//FNR-forward : D10
+//FNR-backward: D11
+//Steering
+//IN1: D12
+//IN2: D13
 
-int tic; 
+/* Ultrasonic front left pin input*/
+int usFLpin = A0;
+
+/* Ultrasonic front right pin input */
+int usFRpin = A1;
+
+/** Linear actuator input */
+int LEpin = A2;
+
+/** ultrasonic left front trig ouput */
+int usLfTrigPin = 0;
+/** ultrasonic left front echo input */
+int usLfEchoPin = 1;
+
+/** ultrasonic left back trig ouput */
+int usLbTrigPin = 2;
+/** ultrasonic left back echo input */
+int usLbEchoPin = 3;
+
+/** ultrasonic right front trig ouput */
+int usRfTrigPin = 4;
+/** ultrasonic right front echo input */
+int usRfEchoPin = 5;
+
+/** ultrasonic right back trig ouput */
+int usRbTrigPin = 6;
+/** ultrasonic right back echo input */
+int usRbEchoPin = 7;
+
+/** hall effects sensor */
+int HEpin = A3;
+
+/** AMS input pin */
+int AMSpin = 9;
+
+/** FNR forward output */
+int FNRforwardPin = 10;
+/** FNR backward output */
+int FNRbackwardPin = 11;
+
+/**Steering motor output IN1 */
+int SteerIN1pin = 12;
+/** Steering motor output IN2 */
+int SteerIN2pin = 13;
+
+/** FNR and SteerDegrees are the last read inputs */
+int tic, FNR, SteerDegrees; 
 boolean hasBeenRead;
 int time;
 void setup()
@@ -31,66 +86,121 @@ void setup()
   hasBeenRead = false;
   time = 0;
   Serial.begin(115200);
-  for (int i = 0; i < 14; i++)
+  pinMode(FNRforwardPin, OUTPUT);
+  pinMode(FNRbackwardPin, OUTPUT);
+  pinMode(SteerIN1pin, OUTPUT);
+  pinMode(SteerIN2pin, OUTPUT);
+  pinMode(usLfTrigPin, OUTPUT);
+  pinMode(usLfEchoPin, INPUT);
+  pinMode(usLbTrigPin, OUTPUT);
+  pinMode(usLbEchoPin, INPUT);
+  pinMode(usRfTrigPin, OUTPUT);
+  pinMode(usRfEchoPin, INPUT);
+  pinMode(usRbTrigPin, OUTPUT);
+  pinMode(usRbEchoPin, INPUT);
+  pinMode(AMSpin, INPUT);
+  Serial.setTimeout(200);
+}
+
+void loop()
+{
+  /* This is the original network code that will light up LEDs corresponding to JSON input 
+  String JSON = toJSON();
+  Serial.println(JSON);
+  if (Serial.available())
   {
-    pinMode(i, OUTPUT);
+    dealWithInput();
   }
+  */
+  
+  /* This is the code that merely tests for Serial input 
+  HOW IT WORKS: 
+    Abstract: prints NOTFOUND until the character 'c' is inputed
+    
+  Not - Abstract:
+  */
+  char string[100]; //create a new array
+  int index = 0; //start index at 0
+  /** As long as serial is available, put characters into the string array */
+  while(Serial.available())
+  {
+    string[index++] = Serial.read(); //incremenet index postfix
+  }
+  string[index] = '\0'; //add null character to make it a string
+  delay(100); //chill out
+  /** If the character c is in the string then print it out FOUND forever */
+  for (int i = 0; i < index; i++)
+  {
+    if (string[i] == 'c')
+    {
+      while(1)
+      {
+        Serial.println("FOUND THE C!");
+      }
+    }
+  }
+  /** If loop is broken i.e. c is not contained, then print out not found */
+  Serial.println("not found");
 }
 
 void setFNR(int FNR)
 {
   if (FNR == 1)
   {
-    digitalWrite(11, LOW);
+    digitalWrite(FNRbackwardPin, LOW);
     delay(200);
-    digitalWrite(10, HIGH);
+    digitalWrite(FNRforwardPin, HIGH);
   }
   else if (FNR == 0)
   {
-    digitalWrite(11, LOW);
-    digitalWrite(10, LOW);
-    digitalWrite(13, HIGH);
+    digitalWrite(FNRbackwardPin, LOW);
+    digitalWrite(FNRforwardPin, LOW);
   }
   else if (FNR == -1)
   {
-    digitalWrite(10, LOW);
+    digitalWrite(FNRforwardPin, LOW);
     delay(100);
-    digitalWrite(11, HIGH);
+    digitalWrite(FNRbackwardPin, HIGH);
   }
 }
 
-void gotoSteer(int steeringDegree)
+void gotoSteer(int steerDegrees)
 {
+  if (steerDegrees > 90)
+  {
+    digitalWrite(SteerIN1pin, LOW);
+    digitalWrite(SteerIN2pin, HIGH);
+  }
+  else if (steerDegrees < 90)
+  {
+    digitalWrite(SteerIN1pin, LOW);
+    digitalWrite(SteerIN2pin, HIGH);
+  }
+  else
+  {
+    digitalWrite(SteerIN1pin, LOW);
+    digitalWrite(SteerIN2pin, LOW);
+  }
   //Robert code
 }
   
-void dealWithInput()
+int dealWithInput()
 {
+    
   if (Serial.find("FNR:"))
   {
-    int FNR = Serial.parseInt();
-    digitalWrite(13, HIGH);
+    FNR = Serial.parseInt();
     setFNR(FNR);  
   }
+  
   if (Serial.find("STEER:"))
   {
-    int Steer = Serial.parseInt();
-    digitalWrite(13, HIGH);
-    gotoSteer(Steer);
+    SteerDegrees = Serial.parseInt();
+    gotoSteer(SteerDegrees);
   }
   
 }
 
-void loop()
-{
-  String JSON = toJSON();
-  Serial.println(JSON);
-  if (Serial.available())
-  {
-    digitalWrite(12, HIGH);
-    dealWithInput();
-  }
-}
 
 /**
  * Read in Ultrasonic sensor with TRIG pin located at defined pin
@@ -103,11 +213,11 @@ int readUSensor(int sensor)
   /** If the sensor is the MaxBotix sensor */
   if (sensor == 1)
   {
-    readValue = analogRead(A0);
+    readValue = analogRead(usFLpin);
   }
   else if (sensor == 5)
   {
-    readValue = analogRead(A1);
+    readValue = analogRead(usFRpin);
   }
   else
   {
@@ -123,10 +233,11 @@ int readUSensor(int sensor)
 
 /**
  * Read in Linear Encoder located on defined pin 
- * For now there exists only one encoder
+ * For now there exists only one encoder.
+ * Allows for more because of int pin parameter
  * assumes straight ahead (north) is 90 degrees, 
  * with a 90 degree turn to the right (east) being 0 degrees,
- * and a 90 degree turn left (West) being 180 degrees.
+ * and a 90 degree turn left (West) being 180 degrees
  * @return Degree of steering wheel
  */
 int readSteering(int pin)
@@ -137,7 +248,7 @@ int readSteering(int pin)
 /** Decomposed by Joe */
 /** Derek and Alex, please explain this magic nonsense - Joe */
   //pin should be A2
-  int readValue = analogRead(A2);
+  int readValue = analogRead(HEpin);
   readValue = pow(readValue, .8139);
   readValue *= .9016; 
   return readValue;
@@ -146,9 +257,9 @@ int readSteering(int pin)
 /**
  * Reads in hall effects sensor plugged into Analog ports at pin # (pin)
  * @param pin The Analog port the pin is plugged into
- * @return Speed read from hall effects sensor
+ * @return Speed read from hall effects sensor in cm/s
  */
-double readHallEffects(int pin)
+int readHallEffects(int pin)
 {
   int third = .465; //third of the circumference of the wheel
   
@@ -189,6 +300,7 @@ double readHallEffects(int pin)
     /** Then a value hasnt been read */
     hasBeenRead = false;
   }
+  return velocity * 100;
 }
 
 /**
@@ -200,29 +312,9 @@ int readAMS(int pin)
 }  
 String toJSON()
 {
-  //US1
-//Maxbotix FRONT left analog pin A0
-//US5
-//Maxbotix FRONT right analog pin A1
-//STEERING
-//Steering Linear Actuator on pin A2
-//US 6
-//Hobby US LEFT front TRIG digital pin D0
-//Hobby US LEFT front ECHO digital pin D1
-//US 2
-//Hobby US LEFT back TRIG digital pin D2
-//Hobby US LEFT back ECHO digital pin D3
-//US 3
-//Hobby US RIGHT front TRIG digital pin D4
-//Hobby US RIGHT front ECHO digital pin D5
-//US 4 
-//Hobby US RIGHT back TRIG digital pin D6
-//Hobby US RIGHT back ECHO digital pin D7
-//Hall Effects
-//Hall Effects sensor D8
-//AMS
-//AMS sensor pin digital D9
   /** Read in Ultrasonic sensors */
+  /** This sensor mapping is horrible */
+  /** It's just the way it worked out */
   int US1 = readUSensor(1); 
   int US2 = readUSensor(5); 
   int US3 = readUSensor(4); 
@@ -232,9 +324,9 @@ String toJSON()
   /** Read in steering degrees */
   int STEERING = readSteering(0);
   /** Read in hall effects */
-  double HE = readHallEffects(8);
+  int HE = readHallEffects(HEpin);
   /** Read in if auto mode is on */
-  int AMS = readAMS(9);
+  int AMS = readAMS(AMSpin);
    
   /** Create the string */
   String JSON = "{";
@@ -253,9 +345,9 @@ String toJSON()
   JSON += ",STEERING:";
   JSON += STEERING;
   JSON += ",HE:";
-  JSON += 42; //(int) (HE * 100);
+  JSON += HE;
   JSON += ",AMS:";
-  JSON += (int) AMS;
+  JSON += AMS;
   JSON += "}";
   return JSON;
 }  
