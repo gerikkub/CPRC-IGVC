@@ -1,2 +1,2 @@
 This is the code repository for the CPRC IGVC project.
-New line
+Before you commit any changes, please follow the format and inform Jordan Lin
