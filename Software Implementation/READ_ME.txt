@@ -3,6 +3,10 @@
 
 2. Anything that you assume will work and need to be tested, put it into the ToBeTested folder.  The file to tested should be "insertName.c" and just be a function that could be copy and pasted to the main code.  Reference the guideline.c file.
 
-3.  For anything put into the ToBeTested folder, please update the FunctionsTest spreadsheet.  The TestedWorking folder will be updated every Sat after your code is tested.
+3. For anything put into the ToBeTested folder, please update the FunctionsTest spreadsheet.  The TestedWorking folder will be updated every Sat after your code is tested.
+
+4. Our coding style will follow Staley's guidelines,
+   the link can be found here: 
+   http://users.csc.calpoly.edu/~grade_cstaley/General/Styles/CStyle.htm
 
 Thanks, if there are any questions contact Jordan Lin.
