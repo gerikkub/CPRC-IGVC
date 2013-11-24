@@ -2,7 +2,7 @@
 #define WIDTH 102
 /*Set to one meter for now*/
 #define LIMIT 100
-#define LOWER_LIMIT 2
+#define LOWER_LIMIT 20
 #define LEFT_TURN 107
 #define RIGHT_TURN 73
 #include <math.h>
