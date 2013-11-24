@@ -1,3 +1,11 @@
+#include <math.h>
+#define WIDTH_BUFFER 132
+#define WIDTH 102
+/*Set to one meter for now*/
+#define LIMIT 100
+#define LEFT_TURN 107
+#define RIGHT_TURN 73
+
 /* This function is used to make a movement decision when an object is hit by
  * either the left sensor, the right sensor, or both.
  */ 
