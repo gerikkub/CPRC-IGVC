@@ -9,6 +9,7 @@
 #define PI 3.14159
 #define LEFTTURN 110
 #define RIGHTTURN  70
+#define MIN_DIST 500
 //Joe Leija
 //Wiring:
 //US1
@@ -129,7 +130,7 @@ void loop()
   int US5 = readUSensor(5); 
   int US6 = readUSensor(0); 
   /** Read in steering degrees */
-  int STEERING = readSteering(0);
+  currentAngle = readSteering(0);
   /** Read in hall effects */
   int HE = readHallEffects(HEpin);
   /** Read in if auto mode is on */
@@ -141,7 +142,7 @@ void loop()
  3. turn wheels to go left
  4. move forward(turn left)
  */
- if (US5 < 100 && US1 < 100)
+ if (US5 < MIN_DIST && US1 < MIN_DIST)
  {
    setFNR(0);
    delay(500);
@@ -155,7 +156,7 @@ void loop()
  /** If only something is sensed on right side
  Turn left
  Go forward */
- else if (US5 < 100)
+ else if (US5 < MIN_DIST)
  {
    turnLeft(LEFTTURN);
    setFNR(1);
@@ -163,7 +164,7 @@ void loop()
  /** If only something is sensed on left side
  Turn right
  Go forward */
- else if (US1 < 100)
+ else if (US1 < MIN_DIST)
  {
    turnRight(RIGHTTURN);
    setFNR(1);
@@ -174,6 +175,29 @@ void loop()
    Straighten();
    setFNR(1);
  }
+ String info = "";
+  info += "US1:";
+  info += US1;
+  info += ",US2:"; 
+  info += US2;
+  info += ",US3:";
+  info += US3;
+  info += ",US4:";
+  info += US4;
+  info += ",US5:";
+  info += US5;
+  info += ",US6:";
+  info += US6;
+  info += ",currentAngle:";
+  info += currentAngle;
+  info += ",HE:";
+  info += HE;
+  info += ",AMS:";
+  info += AMS;
+  info += ",FNR";
+  info += FNR;
+  info += "}";
+ Serial.println(info);
 }
 
 void setFNR(int FNR)
@@ -315,12 +339,18 @@ int readUSensor(int sensor)
   }
   else
   {
+    //digitalWrite(sensor, LOW);
+    //digitalWrite(sensor, HIGH);
+    //digitalWrite(sensor, LOW);
+    //readValue = pulseIn(sensor + 1, HIGH, 100);
+    readValue = 777;
+    
     /** Taken from Angle Detection - Louie Thiros */
     /** Trig pin is sensor number, echo should be in sensor number + 1 */
-    NewPing sonar(sensor, sensor + 1, 200); //create a new Ping object
-    readValue = sonar.ping_median(3); //Ping 3 times, take median, Joe found that 3 pings was sufficient in debounce days
+    //NewPing sonar(sensor, sensor + 1, 200); //create a new Ping object
+    //readValue = sonar.ping_median(3); //Ping 3 times, take median, Joe found that 3 pings was sufficient in debounce days
     /** I will restore higher if inconsistent data occurs, but for now, 10 is way to high */
-    readValue /=58.77; //sound wave takes 58.77 us to make a 1cm round trip (2cm)
+    //readValue /=58.77; //sound wave takes 58.77 us to make a 1cm round trip (2cm)
   }
   return readValue;
 }
