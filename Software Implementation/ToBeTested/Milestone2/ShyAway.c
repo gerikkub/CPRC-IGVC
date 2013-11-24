@@ -10,7 +10,7 @@
 /* This function is used to make a movement decision when an object is hit by
  * either the left sensor, the right sensor, or both.
  */ 
-void shyAway (double left, double right, double center, int* angle) {
+void ShyAway (double left, double right, double center, int* angle) {
    static int turningLeft = 0;
    static int turningRight = 0;
    static int centerBehaveLeft = 0;
