@@ -6,21 +6,30 @@
 
 #define MAX_PAYLOAD_SIZE 32
 
+#define ULTRASONIC_GROUP 0x01
+#define SPEED_GROUP 0x02
+#define STEERING_GROUP 0x03
+#define FNR_GROUP 0x04
+#define BRAKES_GROUP 0x05
+#define BATTERY_GROUP 0x06
+#define LIGHTS_GROUP 0x07
+#define ERROR_GROUP 0x08
+
 struct __attribute__ ((__packed__)) command {
    char groupID;
    char cmd;
    char crc;
    char payload[MAX_PAYLOAD_SIZE];
-}
+};
 
 struct __attribute__ ((__packed__)) response {
    char commandBack;
    char size;
    char payload[MAX_PAYLOAD_SIZE];
-}
+};
 
-typedef struct response Response;
 typedef struct command Command;
+typedef struct response Response;
 
 //Ultrasonic group
 
@@ -35,7 +44,7 @@ char getCertainSensor(char sensor, int* sensorResponse) {
 //takes in 6 int array to store response, returns success
 char getAllSensors(int* sensorResponse) {
    for(char i = 0; i < 6; i++) {
-      getCertainSensor(i, &sensorResponse[i])
+      getCertainSensor(i, &sensorResponse[i]);
    }
    //no error checking for now, return success
    return 1;
@@ -169,6 +178,51 @@ char getSteeringVoltage(char *sensorResponse) {
 char setLight(char lightTarget) {
    //dummy function, nothing happens
    //return success
+   return 1;
 }
 
 //specs make no mention of a getLight
+
+//function to CRC the command structure
+char commandIntegCheck(Command *command) {
+   //CRC the command with 0x00 in place of the CRC
+   //return success for now
+   return 1;
+}
+
+//Function that will take in a command (as char array) and process it into a
+//correct response to be stored into response
+char processCommand(Command *command, Response *response) {
+   if(commandIntegCheck(command)) {
+      switch(command->groupID) {
+         case ULTRASONIC_GROUP:
+            /*do ultrasonic things*/
+            break;
+         case SPEED_GROUP:
+            /*do speed things*/
+            break;
+         case STEERING_GROUP:
+            /*do steering things*/
+            break;
+         case FNR_GROUP:
+            /*do FRN things*/
+            break;
+         case BRAKES_GROUP:
+            /*do brakes things*/
+            break;
+         case BATTERY_GROUP:
+            /*do battery things*/
+            break;
+         case LIGHTS_GROUP:
+            /*do light things*/
+            break;
+         case ERROR_GROUP:
+            /*do error things*/
+            break;
+      }
+      //return a dummy success for now
+      return 1;
+   } else {
+      return 0;
+   }
+}
