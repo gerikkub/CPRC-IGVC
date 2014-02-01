@@ -1,0 +1,1752 @@
+   1               		.file	"port.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+ 152               	.global	pxPortInitialiseStack
+ 154               	pxPortInitialiseStack:
+ 155               		.stabd	46,0,0
+   1:port.c        **** /*
+   2:port.c        ****     FreeRTOS V7.3.0 - Copyright (C) 2012 Real Time Engineers Ltd.
+   3:port.c        **** 
+   4:port.c        ****     FEATURES AND PORTS ARE ADDED TO FREERTOS ALL THE TIME.  PLEASE VISIT
+   5:port.c        ****     http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
+   6:port.c        **** 
+   7:port.c        ****     ***************************************************************************
+   8:port.c        ****      *                                                                       *
+   9:port.c        ****      *    FreeRTOS tutorial books are available in pdf and paperback.        *
+  10:port.c        ****      *    Complete, revised, and edited pdf reference manuals are also       *
+  11:port.c        ****      *    available.                                                         *
+  12:port.c        ****      *                                                                       *
+  13:port.c        ****      *    Purchasing FreeRTOS documentation will not only help you, by       *
+  14:port.c        ****      *    ensuring you get running as quickly as possible and with an        *
+  15:port.c        ****      *    in-depth knowledge of how to use FreeRTOS, it will also help       *
+  16:port.c        ****      *    the FreeRTOS project to continue with its mission of providing     *
+  17:port.c        ****      *    professional grade, cross platform, de facto standard solutions    *
+  18:port.c        ****      *    for microcontrollers - completely free of charge!                  *
+  19:port.c        ****      *                                                                       *
+  20:port.c        ****      *    >>> See http://www.FreeRTOS.org/Documentation for details. <<<     *
+  21:port.c        ****      *                                                                       *
+  22:port.c        ****      *    Thank you for using FreeRTOS, and thank you for your support!      *
+  23:port.c        ****      *                                                                       *
+  24:port.c        ****     ***************************************************************************
+  25:port.c        **** 
+  26:port.c        **** 
+  27:port.c        ****     This file is part of the FreeRTOS distribution.
+  28:port.c        **** 
+  29:port.c        ****     FreeRTOS is free software; you can redistribute it and/or modify it under
+  30:port.c        ****     the terms of the GNU General Public License (version 2) as published by the
+  31:port.c        ****     Free Software Foundation AND MODIFIED BY the FreeRTOS exception.
+  32:port.c        ****     >>>NOTE<<< The modification to the GPL is included to allow you to
+  33:port.c        ****     distribute a combined work that includes FreeRTOS without being obliged to
+  34:port.c        ****     provide the source code for proprietary components outside of the FreeRTOS
+  35:port.c        ****     kernel.  FreeRTOS is distributed in the hope that it will be useful, but
+  36:port.c        ****     WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  37:port.c        ****     or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+  38:port.c        ****     more details. You should have received a copy of the GNU General Public
+  39:port.c        ****     License and the FreeRTOS license exception along with FreeRTOS; if not it
+  40:port.c        ****     can be viewed here: http://www.freertos.org/a00114.html and also obtained
+  41:port.c        ****     by writing to Richard Barry, contact details for whom are available on the
+  42:port.c        ****     FreeRTOS WEB site.
+  43:port.c        **** 
+  44:port.c        ****     1 tab == 4 spaces!
+  45:port.c        **** 
+  46:port.c        ****     ***************************************************************************
+  47:port.c        ****      *                                                                       *
+  48:port.c        ****      *    Having a problem?  Start by reading the FAQ "My application does   *
+  49:port.c        ****      *    not run, what could be wrong?"                                     *
+  50:port.c        ****      *                                                                       *
+  51:port.c        ****      *    http://www.FreeRTOS.org/FAQHelp.html                               *
+  52:port.c        ****      *                                                                       *
+  53:port.c        ****     ***************************************************************************
+  54:port.c        **** 
+  55:port.c        **** 
+  56:port.c        ****     http://www.FreeRTOS.org - Documentation, training, latest versions, license
+  57:port.c        ****     and contact details.
+  58:port.c        **** 
+  59:port.c        ****     http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
+  60:port.c        ****     including FreeRTOS+Trace - an indispensable productivity tool.
+  61:port.c        **** 
+  62:port.c        ****     Real Time Engineers ltd license FreeRTOS to High Integrity Systems, who sell
+  63:port.c        ****     the code with commercial support, indemnification, and middleware, under
+  64:port.c        ****     the OpenRTOS brand: http://www.OpenRTOS.com.  High Integrity Systems also
+  65:port.c        ****     provide a safety engineered and independently SIL3 certified version under
+  66:port.c        ****     the SafeRTOS brand: http://www.SafeRTOS.com.
+  67:port.c        **** */
+  68:port.c        **** 
+  69:port.c        **** /*
+  70:port.c        **** 
+  71:port.c        **** Changes from V2.6.0
+  72:port.c        **** 
+  73:port.c        **** 	+ AVR port - Replaced the inb() and outb() functions with direct memory
+  74:port.c        **** 	  access.  This allows the port to be built with the 20050414 build of
+  75:port.c        **** 	  WinAVR.
+  76:port.c        **** */
+  77:port.c        **** 
+  78:port.c        **** /*
+  79:port.c        **** Changes for FiFiSMSer
+  80:port.c        ****     Made the Scheduler Timer selectable (Between Timer0, Timer1 & Timer3)
+  81:port.c        ****     Richard Barry
+  82:port.c        ****     http://o28.sischa.net/fimser/svn/branches/yfe_rtos/port.c
+  83:port.c        **** */
+  84:port.c        **** 
+  85:port.c        **** #include <stdlib.h>
+  86:port.c        **** #include <avr/interrupt.h>
+  87:port.c        **** 
+  88:port.c        **** #include "FreeRTOS.h"
+  89:port.c        **** #include "task.h"
+  90:port.c        **** 
+  91:port.c        **** #include "ext_ram.h"
+  92:port.c        **** 
+  93:port.c        **** /*-----------------------------------------------------------
+  94:port.c        ****  * Implementation of functions defined in portable.h for the AVR port.
+  95:port.c        ****  *----------------------------------------------------------*/
+  96:port.c        **** 
+  97:port.c        **** 
+  98:port.c        **** 
+  99:port.c        **** /* Start tasks with interrupts enabled. */
+ 100:port.c        **** #define portFLAGS_INT_ENABLED			( ( portSTACK_TYPE ) 0x80 )
+ 101:port.c        **** 
+ 102:port.c        **** #if defined( portUSE_TIMER0 )
+ 103:port.c        **** /* Hardware constants for Timer0. */
+ 104:port.c        ****     #define portCLEAR_COUNTER_ON_MATCH			        ( ( unsigned portCHAR ) (1<<WGM01) )
+ 105:port.c        ****     #define portPRESCALE_1024     			            ( ( unsigned portCHAR ) ((1<<CS02)|(1<<CS00)) )
+ 106:port.c        ****     #define portCLOCK_PRESCALER				            ( ( unsigned portLONG ) 1024 )
+ 107:port.c        ****     #define portCOMPARE_MATCH_A_INTERRUPT_ENABLE	    ( ( unsigned portCHAR ) (1<<OCIE0A) )
+ 108:port.c        ****     #define portOCRL                                	OCR0A
+ 109:port.c        ****     #define portTCCRa                               	TCCR0A
+ 110:port.c        ****     #define portTCCRb                               	TCCR0B
+ 111:port.c        ****     #define portTIMSK                               	TIMSK0
+ 112:port.c        **** 
+ 113:port.c        **** #elif defined( portUSE_TIMER1 )
+ 114:port.c        **** /* Hardware constants for Timer1. */
+ 115:port.c        **** 	#define portCLEAR_COUNTER_ON_MATCH			    ( ( unsigned portCHAR ) (1<<WGM12) )
+ 116:port.c        **** 	#define portPRESCALE_64				            ( ( unsigned portCHAR ) ((1<<CS11)|(1<<CS10)) )
+ 117:port.c        **** 	#define portCLOCK_PRESCALER				        ( ( unsigned portLONG ) 64 )
+ 118:port.c        **** 	#define portCOMPARE_MATCH_A_INTERRUPT_ENABLE	( ( unsigned portCHAR ) (1<<OCIE1A) )
+ 119:port.c        **** 	#define portOCRL                              	OCR1AL
+ 120:port.c        **** 	#define portOCRH                                OCR1AH
+ 121:port.c        **** 	#define portTCCRa                               TCCR1A
+ 122:port.c        **** 	#define portTCCRb                              	TCCR1B
+ 123:port.c        **** 	#define portTIMSK                               TIMSK1
+ 124:port.c        **** 
+ 125:port.c        **** #elif defined( portUSE_TIMER3 )
+ 126:port.c        **** /* Hardware constants for Timer3. */
+ 127:port.c        **** 	#define portCLEAR_COUNTER_ON_MATCH			    ( ( unsigned portCHAR ) (1<<WGM32) )
+ 128:port.c        **** 	#define portPRESCALE_64				            ( ( unsigned portCHAR ) ((1<<CS31)|(1<<CS30)) )
+ 129:port.c        **** 	#define portCLOCK_PRESCALER				        ( ( unsigned portLONG ) 64 )
+ 130:port.c        **** 	#define portCOMPARE_MATCH_A_INTERRUPT_ENABLE	( ( unsigned portCHAR ) (1<<OCIE3A) )
+ 131:port.c        **** 	#define portOCRL                              	OCR3AL
+ 132:port.c        **** 	#define portOCRH                                OCR3AH
+ 133:port.c        **** 	#define portTCCRa                               TCCR3A
+ 134:port.c        **** 	#define portTCCRb                              	TCCR3B
+ 135:port.c        **** 	#define portTIMSK                               TIMSK3
+ 136:port.c        **** 
+ 137:port.c        **** #endif
+ 138:port.c        **** 
+ 139:port.c        **** /*-----------------------------------------------------------*/
+ 140:port.c        **** 
+ 141:port.c        **** /* We require the address of the pxCurrentTCB variable, but don't want to know
+ 142:port.c        **** any details of its type. */
+ 143:port.c        **** typedef void tskTCB;
+ 144:port.c        **** extern volatile tskTCB * volatile pxCurrentTCB;
+ 145:port.c        **** 
+ 146:port.c        **** /*-----------------------------------------------------------*/
+ 147:port.c        **** 
+ 148:port.c        **** /*
+ 149:port.c        ****  * Macro to save all the general purpose registers, the save the stack pointer
+ 150:port.c        ****  * into the TCB.
+ 151:port.c        ****  *
+ 152:port.c        ****  * The first thing we do is save the flags then disable interrupts.  This is to
+ 153:port.c        ****  * guard our stack against having a context switch interrupt after we have already
+ 154:port.c        ****  * pushed the registers onto the stack - causing the 32 registers to be on the
+ 155:port.c        ****  * stack twice.
+ 156:port.c        ****  *
+ 157:port.c        ****  * r1 is set to zero as the compiler expects it to be thus, however some
+ 158:port.c        ****  * of the math routines make use of R1.
+ 159:port.c        ****  *
+ 160:port.c        ****  * The interrupts will have been disabled during the call to portSAVE_CONTEXT()
+ 161:port.c        ****  * so we need not worry about reading/writing to the stack pointer.
+ 162:port.c        ****  */
+ 163:port.c        **** #if defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
+ 164:port.c        **** /* 3-Byte PC Save */
+ 165:port.c        **** #define portSAVE_CONTEXT()									\
+ 166:port.c        **** 	asm volatile (	"push	r0						\n\t"	\
+ 167:port.c        **** 					"in		r0, __SREG__			\n\t"	\
+ 168:port.c        **** 					"cli							\n\t"	\
+ 169:port.c        **** 					"push	r0						\n\t"	\
+ 170:port.c        **** 					"in		r0, 0x3b				\n\t"	\
+ 171:port.c        **** 					"push	r0						\n\t"	\
+ 172:port.c        **** 					"in		r0, 0x3c				\n\t"	\
+ 173:port.c        **** 					"push	r0						\n\t"	\
+ 174:port.c        **** 					"push	r1						\n\t"	\
+ 175:port.c        **** 					"clr	r1						\n\t"	\
+ 176:port.c        **** 					"push	r2						\n\t"	\
+ 177:port.c        **** 					"push	r3						\n\t"	\
+ 178:port.c        **** 					"push	r4						\n\t"	\
+ 179:port.c        **** 					"push	r5						\n\t"	\
+ 180:port.c        **** 					"push	r6						\n\t"	\
+ 181:port.c        **** 					"push	r7						\n\t"	\
+ 182:port.c        **** 					"push	r8						\n\t"	\
+ 183:port.c        **** 					"push	r9						\n\t"	\
+ 184:port.c        **** 					"push	r10						\n\t"	\
+ 185:port.c        **** 					"push	r11						\n\t"	\
+ 186:port.c        **** 					"push	r12						\n\t"	\
+ 187:port.c        **** 					"push	r13						\n\t"	\
+ 188:port.c        **** 					"push	r14						\n\t"	\
+ 189:port.c        **** 					"push	r15						\n\t"	\
+ 190:port.c        **** 					"push	r16						\n\t"	\
+ 191:port.c        **** 					"push	r17						\n\t"	\
+ 192:port.c        **** 					"push	r18						\n\t"	\
+ 193:port.c        **** 					"push	r19						\n\t"	\
+ 194:port.c        **** 					"push	r20						\n\t"	\
+ 195:port.c        **** 					"push	r21						\n\t"	\
+ 196:port.c        **** 					"push	r22						\n\t"	\
+ 197:port.c        **** 					"push	r23						\n\t"	\
+ 198:port.c        **** 					"push	r24						\n\t"	\
+ 199:port.c        **** 					"push	r25						\n\t"	\
+ 200:port.c        **** 					"push	r26						\n\t"	\
+ 201:port.c        **** 					"push	r27						\n\t"	\
+ 202:port.c        **** 					"push	r28						\n\t"	\
+ 203:port.c        **** 					"push	r29						\n\t"	\
+ 204:port.c        **** 					"push	r30						\n\t"	\
+ 205:port.c        **** 					"push	r31						\n\t"	\
+ 206:port.c        **** 					"lds	r26, pxCurrentTCB		\n\t"	\
+ 207:port.c        **** 					"lds	r27, pxCurrentTCB + 1	\n\t"	\
+ 208:port.c        **** 					"in		r0, 0x3d				\n\t"	\
+ 209:port.c        **** 					"st		x+, r0					\n\t"	\
+ 210:port.c        **** 					"in		r0, 0x3e				\n\t"	\
+ 211:port.c        **** 					"st		x+, r0					\n\t"	\
+ 212:port.c        **** 				);
+ 213:port.c        **** #else
+ 214:port.c        **** /* 2-Byte PC Save */
+ 215:port.c        **** #define portSAVE_CONTEXT()									\
+ 216:port.c        **** 	asm volatile (	"push	r0						\n\t"	\
+ 217:port.c        **** 					"in		r0, __SREG__			\n\t"	\
+ 218:port.c        **** 					"cli							\n\t"	\
+ 219:port.c        **** 					"push	r0						\n\t"	\
+ 220:port.c        **** 					"push	r1						\n\t"	\
+ 221:port.c        **** 					"clr	r1						\n\t"	\
+ 222:port.c        **** 					"push	r2						\n\t"	\
+ 223:port.c        **** 					"push	r3						\n\t"	\
+ 224:port.c        **** 					"push	r4						\n\t"	\
+ 225:port.c        **** 					"push	r5						\n\t"	\
+ 226:port.c        **** 					"push	r6						\n\t"	\
+ 227:port.c        **** 					"push	r7						\n\t"	\
+ 228:port.c        **** 					"push	r8						\n\t"	\
+ 229:port.c        **** 					"push	r9						\n\t"	\
+ 230:port.c        **** 					"push	r10						\n\t"	\
+ 231:port.c        **** 					"push	r11						\n\t"	\
+ 232:port.c        **** 					"push	r12						\n\t"	\
+ 233:port.c        **** 					"push	r13						\n\t"	\
+ 234:port.c        **** 					"push	r14						\n\t"	\
+ 235:port.c        **** 					"push	r15						\n\t"	\
+ 236:port.c        **** 					"push	r16						\n\t"	\
+ 237:port.c        **** 					"push	r17						\n\t"	\
+ 238:port.c        **** 					"push	r18						\n\t"	\
+ 239:port.c        **** 					"push	r19						\n\t"	\
+ 240:port.c        **** 					"push	r20						\n\t"	\
+ 241:port.c        **** 					"push	r21						\n\t"	\
+ 242:port.c        **** 					"push	r22						\n\t"	\
+ 243:port.c        **** 					"push	r23						\n\t"	\
+ 244:port.c        **** 					"push	r24						\n\t"	\
+ 245:port.c        **** 					"push	r25						\n\t"	\
+ 246:port.c        **** 					"push	r26						\n\t"	\
+ 247:port.c        **** 					"push	r27						\n\t"	\
+ 248:port.c        **** 					"push	r28						\n\t"	\
+ 249:port.c        **** 					"push	r29						\n\t"	\
+ 250:port.c        **** 					"push	r30						\n\t"	\
+ 251:port.c        **** 					"push	r31						\n\t"	\
+ 252:port.c        **** 					"lds	r26, pxCurrentTCB		\n\t"	\
+ 253:port.c        **** 					"lds	r27, pxCurrentTCB + 1	\n\t"	\
+ 254:port.c        **** 					"in		r0, 0x3d				\n\t"	\
+ 255:port.c        **** 					"st		x+, r0					\n\t"	\
+ 256:port.c        **** 					"in		r0, 0x3e				\n\t"	\
+ 257:port.c        **** 					"st		x+, r0					\n\t"	\
+ 258:port.c        **** 				);
+ 259:port.c        **** #endif
+ 260:port.c        **** 
+ 261:port.c        **** 
+ 262:port.c        **** 
+ 263:port.c        **** 
+ 264:port.c        **** /*
+ 265:port.c        ****  * Opposite to portSAVE_CONTEXT().  Interrupts will have been disabled during
+ 266:port.c        ****  * the context save so we can write to the stack pointer.
+ 267:port.c        ****  */
+ 268:port.c        **** #if defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
+ 269:port.c        **** /* 3-Byte PC Restore */
+ 270:port.c        **** #define portRESTORE_CONTEXT()								\
+ 271:port.c        **** 	asm volatile (	"lds	r26, pxCurrentTCB		\n\t"	\
+ 272:port.c        **** 					"lds	r27, pxCurrentTCB + 1	\n\t"	\
+ 273:port.c        **** 					"ld		r28, x+					\n\t"	\
+ 274:port.c        **** 					"out	__SP_L__, r28			\n\t"	\
+ 275:port.c        **** 					"ld		r29, x+					\n\t"	\
+ 276:port.c        **** 					"out	__SP_H__, r29			\n\t"	\
+ 277:port.c        **** 					"pop	r31						\n\t"	\
+ 278:port.c        **** 					"pop	r30						\n\t"	\
+ 279:port.c        **** 					"pop	r29						\n\t"	\
+ 280:port.c        **** 					"pop	r28						\n\t"	\
+ 281:port.c        **** 					"pop	r27						\n\t"	\
+ 282:port.c        **** 					"pop	r26						\n\t"	\
+ 283:port.c        **** 					"pop	r25						\n\t"	\
+ 284:port.c        **** 					"pop	r24						\n\t"	\
+ 285:port.c        **** 					"pop	r23						\n\t"	\
+ 286:port.c        **** 					"pop	r22						\n\t"	\
+ 287:port.c        **** 					"pop	r21						\n\t"	\
+ 288:port.c        **** 					"pop	r20						\n\t"	\
+ 289:port.c        **** 					"pop	r19						\n\t"	\
+ 290:port.c        **** 					"pop	r18						\n\t"	\
+ 291:port.c        **** 					"pop	r17						\n\t"	\
+ 292:port.c        **** 					"pop	r16						\n\t"	\
+ 293:port.c        **** 					"pop	r15						\n\t"	\
+ 294:port.c        **** 					"pop	r14						\n\t"	\
+ 295:port.c        **** 					"pop	r13						\n\t"	\
+ 296:port.c        **** 					"pop	r12						\n\t"	\
+ 297:port.c        **** 					"pop	r11						\n\t"	\
+ 298:port.c        **** 					"pop	r10						\n\t"	\
+ 299:port.c        **** 					"pop	r9						\n\t"	\
+ 300:port.c        **** 					"pop	r8						\n\t"	\
+ 301:port.c        **** 					"pop	r7						\n\t"	\
+ 302:port.c        **** 					"pop	r6						\n\t"	\
+ 303:port.c        **** 					"pop	r5						\n\t"	\
+ 304:port.c        **** 					"pop	r4						\n\t"	\
+ 305:port.c        **** 					"pop	r3						\n\t"	\
+ 306:port.c        **** 					"pop	r2						\n\t"	\
+ 307:port.c        **** 					"pop	r1						\n\t"	\
+ 308:port.c        **** 					"pop	r0						\n\t"	\
+ 309:port.c        **** 					"out	0x3c, r0				\n\t"	\
+ 310:port.c        **** 					"pop	r0						\n\t"	\
+ 311:port.c        **** 					"out	0x3b, r0				\n\t"	\
+ 312:port.c        **** 					"pop	r0						\n\t"	\
+ 313:port.c        **** 					"out	__SREG__, r0			\n\t"	\
+ 314:port.c        **** 					"pop	r0						\n\t"	\
+ 315:port.c        **** 				);
+ 316:port.c        **** #else
+ 317:port.c        **** /* 2-Byte PC Restore */
+ 318:port.c        **** #define portRESTORE_CONTEXT()								\
+ 319:port.c        **** 	asm volatile (	"lds	r26, pxCurrentTCB		\n\t"	\
+ 320:port.c        **** 					"lds	r27, pxCurrentTCB + 1	\n\t"	\
+ 321:port.c        **** 					"ld		r28, x+					\n\t"	\
+ 322:port.c        **** 					"out	__SP_L__, r28			\n\t"	\
+ 323:port.c        **** 					"ld		r29, x+					\n\t"	\
+ 324:port.c        **** 					"out	__SP_H__, r29			\n\t"	\
+ 325:port.c        **** 					"pop	r31						\n\t"	\
+ 326:port.c        **** 					"pop	r30						\n\t"	\
+ 327:port.c        **** 					"pop	r29						\n\t"	\
+ 328:port.c        **** 					"pop	r28						\n\t"	\
+ 329:port.c        **** 					"pop	r27						\n\t"	\
+ 330:port.c        **** 					"pop	r26						\n\t"	\
+ 331:port.c        **** 					"pop	r25						\n\t"	\
+ 332:port.c        **** 					"pop	r24						\n\t"	\
+ 333:port.c        **** 					"pop	r23						\n\t"	\
+ 334:port.c        **** 					"pop	r22						\n\t"	\
+ 335:port.c        **** 					"pop	r21						\n\t"	\
+ 336:port.c        **** 					"pop	r20						\n\t"	\
+ 337:port.c        **** 					"pop	r19						\n\t"	\
+ 338:port.c        **** 					"pop	r18						\n\t"	\
+ 339:port.c        **** 					"pop	r17						\n\t"	\
+ 340:port.c        **** 					"pop	r16						\n\t"	\
+ 341:port.c        **** 					"pop	r15						\n\t"	\
+ 342:port.c        **** 					"pop	r14						\n\t"	\
+ 343:port.c        **** 					"pop	r13						\n\t"	\
+ 344:port.c        **** 					"pop	r12						\n\t"	\
+ 345:port.c        **** 					"pop	r11						\n\t"	\
+ 346:port.c        **** 					"pop	r10						\n\t"	\
+ 347:port.c        **** 					"pop	r9						\n\t"	\
+ 348:port.c        **** 					"pop	r8						\n\t"	\
+ 349:port.c        **** 					"pop	r7						\n\t"	\
+ 350:port.c        **** 					"pop	r6						\n\t"	\
+ 351:port.c        **** 					"pop	r5						\n\t"	\
+ 352:port.c        **** 					"pop	r4						\n\t"	\
+ 353:port.c        **** 					"pop	r3						\n\t"	\
+ 354:port.c        **** 					"pop	r2						\n\t"	\
+ 355:port.c        **** 					"pop	r1						\n\t"	\
+ 356:port.c        **** 					"pop	r0						\n\t"	\
+ 357:port.c        **** 					"out	__SREG__, r0			\n\t"	\
+ 358:port.c        **** 					"pop	r0						\n\t"	\
+ 359:port.c        **** 				);
+ 360:port.c        **** #endif
+ 361:port.c        **** /*-----------------------------------------------------------*/
+ 362:port.c        **** 
+ 363:port.c        **** /*
+ 364:port.c        ****  * Perform hardware setup to enable ticks from timer 0/3, compare match A.
+ 365:port.c        ****  */
+ 366:port.c        **** static void prvSetupTimerInterrupt( void );
+ 367:port.c        **** /*-----------------------------------------------------------*/
+ 368:port.c        **** 
+ 369:port.c        **** /*
+ 370:port.c        ****  * See header file for description.
+ 371:port.c        ****  */
+ 372:port.c        **** portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE pxCode, void *pvPa
+ 373:port.c        **** {
+ 157               	.LM0:
+ 158               	.LFBB1:
+ 159 0000 CF93      		push r28
+ 160 0002 DF93      		push r29
+ 161 0004 CDB7      		in r28,__SP_L__
+ 162 0006 DEB7      		in r29,__SP_H__
+ 163 0008 2897      		sbiw r28,8
+ 164 000a 0FB6      		in __tmp_reg__,__SREG__
+ 165 000c F894      		cli
+ 166 000e DEBF      		out __SP_H__,r29
+ 167 0010 0FBE      		out __SREG__,__tmp_reg__
+ 168 0012 CDBF      		out __SP_L__,r28
+ 169               	/* prologue: function */
+ 170               	/* frame size = 8 */
+ 171               	/* stack size = 10 */
+ 172               	.L__stack_usage = 10
+ 173 0014 9C83      		std Y+4,r25
+ 174 0016 8B83      		std Y+3,r24
+ 175 0018 7E83      		std Y+6,r23
+ 176 001a 6D83      		std Y+5,r22
+ 177 001c 5887      		std Y+8,r21
+ 178 001e 4F83      		std Y+7,r20
+ 374:port.c        **** unsigned short usAddress;
+ 375:port.c        **** 
+ 376:port.c        **** #if defined (portQUAD_RAM) || defined (portMEGA_RAM)
+ 377:port.c        **** 	// This function just here to ensure the library is included.
+ 378:port.c        **** 	// Can go anywhere, as it is just to ensure that the .init3 code is included
+ 379:port.c        **** 	extRAMcheck(); // This function just returns XMCRA. SRE is set if extended RAM enabled.
+ 380:port.c        **** #warning "Ext RAM Enabled."
+ 381:port.c        **** #endif
+ 382:port.c        **** 
+ 383:port.c        **** 	/* Place a few bytes of known values on the bottom of the stack.
+ 384:port.c        **** 	This is just useful for debugging. */
+ 385:port.c        **** 
+ 386:port.c        **** 	*pxTopOfStack = 0x11;
+ 180               	.LM1:
+ 181 0020 8B81      		ldd r24,Y+3
+ 182 0022 9C81      		ldd r25,Y+4
+ 183 0024 21E1      		ldi r18,lo8(17)
+ 184 0026 FC01      		movw r30,r24
+ 185 0028 2083      		st Z,r18
+ 387:port.c        **** 	pxTopOfStack--;
+ 187               	.LM2:
+ 188 002a 8B81      		ldd r24,Y+3
+ 189 002c 9C81      		ldd r25,Y+4
+ 190 002e 0197      		sbiw r24,1
+ 191 0030 9C83      		std Y+4,r25
+ 192 0032 8B83      		std Y+3,r24
+ 388:port.c        **** 	*pxTopOfStack = 0x22;
+ 194               	.LM3:
+ 195 0034 8B81      		ldd r24,Y+3
+ 196 0036 9C81      		ldd r25,Y+4
+ 197 0038 22E2      		ldi r18,lo8(34)
+ 198 003a FC01      		movw r30,r24
+ 199 003c 2083      		st Z,r18
+ 389:port.c        **** 	pxTopOfStack--;
+ 201               	.LM4:
+ 202 003e 8B81      		ldd r24,Y+3
+ 203 0040 9C81      		ldd r25,Y+4
+ 204 0042 0197      		sbiw r24,1
+ 205 0044 9C83      		std Y+4,r25
+ 206 0046 8B83      		std Y+3,r24
+ 390:port.c        **** 	*pxTopOfStack = 0x33;
+ 208               	.LM5:
+ 209 0048 8B81      		ldd r24,Y+3
+ 210 004a 9C81      		ldd r25,Y+4
+ 211 004c 23E3      		ldi r18,lo8(51)
+ 212 004e FC01      		movw r30,r24
+ 213 0050 2083      		st Z,r18
+ 391:port.c        **** 	pxTopOfStack--;
+ 215               	.LM6:
+ 216 0052 8B81      		ldd r24,Y+3
+ 217 0054 9C81      		ldd r25,Y+4
+ 218 0056 0197      		sbiw r24,1
+ 219 0058 9C83      		std Y+4,r25
+ 220 005a 8B83      		std Y+3,r24
+ 392:port.c        **** 
+ 393:port.c        **** 	/* Simulate how the stack would look after a call to vPortYield() generated by
+ 394:port.c        **** 	the compiler. */
+ 395:port.c        **** 
+ 396:port.c        **** 	/*lint -e950 -e611 -e923 Lint doesn't like this much - but nothing I can do about it. */
+ 397:port.c        **** 
+ 398:port.c        **** 	/* The start of the task code will be popped off the stack last, so place
+ 399:port.c        **** 	it on first. */
+ 400:port.c        **** 
+ 401:port.c        **** #if defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
+ 402:port.c        **** 	/* The AVR ATmega2560/ATmega2561 have 256KBytes of program memory and a 17-bit
+ 403:port.c        **** 	 * program counter.  When a code address is stored on the stack, it takes 3 bytes
+ 404:port.c        **** 	 * instead of 2 for the other ATmega* chips.
+ 405:port.c        **** 	 *
+ 406:port.c        **** 	 * Store 0 as the top byte since we force all task routines to the bottom 128K
+ 407:port.c        **** 	 * of flash. We do this by adding the .task label in the linker script.
+ 408:port.c        **** 	 *
+ 409:port.c        **** 	 * In order to do this properly, we would need to get a full 3-byte pointer to
+ 410:port.c        **** 	 * pxCode.  That requires a change to GCC.  Not likely to happen any time soon.
+ 411:port.c        **** 	 */
+ 412:port.c        **** 	usAddress = ( unsigned portSHORT ) pxCode;
+ 222               	.LM7:
+ 223 005c 8D81      		ldd r24,Y+5
+ 224 005e 9E81      		ldd r25,Y+6
+ 225 0060 9A83      		std Y+2,r25
+ 226 0062 8983      		std Y+1,r24
+ 413:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned portSHORT ) 0x00ff );
+ 228               	.LM8:
+ 229 0064 2981      		ldd r18,Y+1
+ 230 0066 8B81      		ldd r24,Y+3
+ 231 0068 9C81      		ldd r25,Y+4
+ 232 006a FC01      		movw r30,r24
+ 233 006c 2083      		st Z,r18
+ 414:port.c        **** 	pxTopOfStack--;
+ 235               	.LM9:
+ 236 006e 8B81      		ldd r24,Y+3
+ 237 0070 9C81      		ldd r25,Y+4
+ 238 0072 0197      		sbiw r24,1
+ 239 0074 9C83      		std Y+4,r25
+ 240 0076 8B83      		std Y+3,r24
+ 415:port.c        **** 
+ 416:port.c        **** 	usAddress >>= 8;
+ 242               	.LM10:
+ 243 0078 8981      		ldd r24,Y+1
+ 244 007a 9A81      		ldd r25,Y+2
+ 245 007c 892F      		mov r24,r25
+ 246 007e 9927      		clr r25
+ 247 0080 9A83      		std Y+2,r25
+ 248 0082 8983      		std Y+1,r24
+ 417:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned portSHORT ) 0x00ff );
+ 250               	.LM11:
+ 251 0084 2981      		ldd r18,Y+1
+ 252 0086 8B81      		ldd r24,Y+3
+ 253 0088 9C81      		ldd r25,Y+4
+ 254 008a FC01      		movw r30,r24
+ 255 008c 2083      		st Z,r18
+ 418:port.c        **** 	pxTopOfStack--;
+ 257               	.LM12:
+ 258 008e 8B81      		ldd r24,Y+3
+ 259 0090 9C81      		ldd r25,Y+4
+ 260 0092 0197      		sbiw r24,1
+ 261 0094 9C83      		std Y+4,r25
+ 262 0096 8B83      		std Y+3,r24
+ 419:port.c        **** 
+ 420:port.c        **** 	*pxTopOfStack = 0;
+ 264               	.LM13:
+ 265 0098 8B81      		ldd r24,Y+3
+ 266 009a 9C81      		ldd r25,Y+4
+ 267 009c FC01      		movw r30,r24
+ 268 009e 1082      		st Z,__zero_reg__
+ 421:port.c        **** 	pxTopOfStack--;
+ 270               	.LM14:
+ 271 00a0 8B81      		ldd r24,Y+3
+ 272 00a2 9C81      		ldd r25,Y+4
+ 273 00a4 0197      		sbiw r24,1
+ 274 00a6 9C83      		std Y+4,r25
+ 275 00a8 8B83      		std Y+3,r24
+ 422:port.c        **** #else
+ 423:port.c        **** 	usAddress = ( unsigned short ) pxCode;
+ 424:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned short ) 0x00ff );
+ 425:port.c        **** 	pxTopOfStack--;
+ 426:port.c        **** 
+ 427:port.c        **** 	usAddress >>= 8;
+ 428:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned short ) 0x00ff );
+ 429:port.c        **** 	pxTopOfStack--;
+ 430:port.c        **** #endif
+ 431:port.c        **** 
+ 432:port.c        **** 	/* Next simulate the stack as if after a call to portSAVE_CONTEXT().
+ 433:port.c        **** 	portSAVE_CONTEXT places the flags on the stack immediately after r0
+ 434:port.c        **** 	to ensure the interrupts get disabled as soon as possible, and so ensuring
+ 435:port.c        **** 	the stack use is minimal should a context switch interrupt occur. */
+ 436:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x00;	/* R0 */
+ 277               	.LM15:
+ 278 00aa 8B81      		ldd r24,Y+3
+ 279 00ac 9C81      		ldd r25,Y+4
+ 280 00ae FC01      		movw r30,r24
+ 281 00b0 1082      		st Z,__zero_reg__
+ 437:port.c        **** 	pxTopOfStack--;
+ 283               	.LM16:
+ 284 00b2 8B81      		ldd r24,Y+3
+ 285 00b4 9C81      		ldd r25,Y+4
+ 286 00b6 0197      		sbiw r24,1
+ 287 00b8 9C83      		std Y+4,r25
+ 288 00ba 8B83      		std Y+3,r24
+ 438:port.c        **** 	*pxTopOfStack = portFLAGS_INT_ENABLED;
+ 290               	.LM17:
+ 291 00bc 8B81      		ldd r24,Y+3
+ 292 00be 9C81      		ldd r25,Y+4
+ 293 00c0 20E8      		ldi r18,lo8(-128)
+ 294 00c2 FC01      		movw r30,r24
+ 295 00c4 2083      		st Z,r18
+ 439:port.c        **** 	pxTopOfStack--;
+ 297               	.LM18:
+ 298 00c6 8B81      		ldd r24,Y+3
+ 299 00c8 9C81      		ldd r25,Y+4
+ 300 00ca 0197      		sbiw r24,1
+ 301 00cc 9C83      		std Y+4,r25
+ 302 00ce 8B83      		std Y+3,r24
+ 440:port.c        **** 
+ 441:port.c        **** #if defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
+ 442:port.c        **** 
+ 443:port.c        **** 	/* If we have an ATmega256x, we are also saving the RAMPZ and EIND registers.
+ 444:port.c        **** 	 * We should default those to 0.
+ 445:port.c        **** 	 */
+ 446:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x00;	/* EIND */
+ 304               	.LM19:
+ 305 00d0 8B81      		ldd r24,Y+3
+ 306 00d2 9C81      		ldd r25,Y+4
+ 307 00d4 FC01      		movw r30,r24
+ 308 00d6 1082      		st Z,__zero_reg__
+ 447:port.c        **** 	pxTopOfStack--;
+ 310               	.LM20:
+ 311 00d8 8B81      		ldd r24,Y+3
+ 312 00da 9C81      		ldd r25,Y+4
+ 313 00dc 0197      		sbiw r24,1
+ 314 00de 9C83      		std Y+4,r25
+ 315 00e0 8B83      		std Y+3,r24
+ 448:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x00;	/* RAMPZ */
+ 317               	.LM21:
+ 318 00e2 8B81      		ldd r24,Y+3
+ 319 00e4 9C81      		ldd r25,Y+4
+ 320 00e6 FC01      		movw r30,r24
+ 321 00e8 1082      		st Z,__zero_reg__
+ 449:port.c        **** 	pxTopOfStack--;
+ 323               	.LM22:
+ 324 00ea 8B81      		ldd r24,Y+3
+ 325 00ec 9C81      		ldd r25,Y+4
+ 326 00ee 0197      		sbiw r24,1
+ 327 00f0 9C83      		std Y+4,r25
+ 328 00f2 8B83      		std Y+3,r24
+ 450:port.c        **** 
+ 451:port.c        **** #endif
+ 452:port.c        **** 
+ 453:port.c        **** 	/* Now the remaining registers.   The compiler expects R1 to be 0. */
+ 454:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x00;	/* R1 */
+ 330               	.LM23:
+ 331 00f4 8B81      		ldd r24,Y+3
+ 332 00f6 9C81      		ldd r25,Y+4
+ 333 00f8 FC01      		movw r30,r24
+ 334 00fa 1082      		st Z,__zero_reg__
+ 455:port.c        **** 	pxTopOfStack--;
+ 336               	.LM24:
+ 337 00fc 8B81      		ldd r24,Y+3
+ 338 00fe 9C81      		ldd r25,Y+4
+ 339 0100 0197      		sbiw r24,1
+ 340 0102 9C83      		std Y+4,r25
+ 341 0104 8B83      		std Y+3,r24
+ 456:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x02;	/* R2 */
+ 343               	.LM25:
+ 344 0106 8B81      		ldd r24,Y+3
+ 345 0108 9C81      		ldd r25,Y+4
+ 346 010a 22E0      		ldi r18,lo8(2)
+ 347 010c FC01      		movw r30,r24
+ 348 010e 2083      		st Z,r18
+ 457:port.c        **** 	pxTopOfStack--;
+ 350               	.LM26:
+ 351 0110 8B81      		ldd r24,Y+3
+ 352 0112 9C81      		ldd r25,Y+4
+ 353 0114 0197      		sbiw r24,1
+ 354 0116 9C83      		std Y+4,r25
+ 355 0118 8B83      		std Y+3,r24
+ 458:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x03;	/* R3 */
+ 357               	.LM27:
+ 358 011a 8B81      		ldd r24,Y+3
+ 359 011c 9C81      		ldd r25,Y+4
+ 360 011e 23E0      		ldi r18,lo8(3)
+ 361 0120 FC01      		movw r30,r24
+ 362 0122 2083      		st Z,r18
+ 459:port.c        **** 	pxTopOfStack--;
+ 364               	.LM28:
+ 365 0124 8B81      		ldd r24,Y+3
+ 366 0126 9C81      		ldd r25,Y+4
+ 367 0128 0197      		sbiw r24,1
+ 368 012a 9C83      		std Y+4,r25
+ 369 012c 8B83      		std Y+3,r24
+ 460:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x04;	/* R4 */
+ 371               	.LM29:
+ 372 012e 8B81      		ldd r24,Y+3
+ 373 0130 9C81      		ldd r25,Y+4
+ 374 0132 24E0      		ldi r18,lo8(4)
+ 375 0134 FC01      		movw r30,r24
+ 376 0136 2083      		st Z,r18
+ 461:port.c        **** 	pxTopOfStack--;
+ 378               	.LM30:
+ 379 0138 8B81      		ldd r24,Y+3
+ 380 013a 9C81      		ldd r25,Y+4
+ 381 013c 0197      		sbiw r24,1
+ 382 013e 9C83      		std Y+4,r25
+ 383 0140 8B83      		std Y+3,r24
+ 462:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x05;	/* R5 */
+ 385               	.LM31:
+ 386 0142 8B81      		ldd r24,Y+3
+ 387 0144 9C81      		ldd r25,Y+4
+ 388 0146 25E0      		ldi r18,lo8(5)
+ 389 0148 FC01      		movw r30,r24
+ 390 014a 2083      		st Z,r18
+ 463:port.c        **** 	pxTopOfStack--;
+ 392               	.LM32:
+ 393 014c 8B81      		ldd r24,Y+3
+ 394 014e 9C81      		ldd r25,Y+4
+ 395 0150 0197      		sbiw r24,1
+ 396 0152 9C83      		std Y+4,r25
+ 397 0154 8B83      		std Y+3,r24
+ 464:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x06;	/* R6 */
+ 399               	.LM33:
+ 400 0156 8B81      		ldd r24,Y+3
+ 401 0158 9C81      		ldd r25,Y+4
+ 402 015a 26E0      		ldi r18,lo8(6)
+ 403 015c FC01      		movw r30,r24
+ 404 015e 2083      		st Z,r18
+ 465:port.c        **** 	pxTopOfStack--;
+ 406               	.LM34:
+ 407 0160 8B81      		ldd r24,Y+3
+ 408 0162 9C81      		ldd r25,Y+4
+ 409 0164 0197      		sbiw r24,1
+ 410 0166 9C83      		std Y+4,r25
+ 411 0168 8B83      		std Y+3,r24
+ 466:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x07;	/* R7 */
+ 413               	.LM35:
+ 414 016a 8B81      		ldd r24,Y+3
+ 415 016c 9C81      		ldd r25,Y+4
+ 416 016e 27E0      		ldi r18,lo8(7)
+ 417 0170 FC01      		movw r30,r24
+ 418 0172 2083      		st Z,r18
+ 467:port.c        **** 	pxTopOfStack--;
+ 420               	.LM36:
+ 421 0174 8B81      		ldd r24,Y+3
+ 422 0176 9C81      		ldd r25,Y+4
+ 423 0178 0197      		sbiw r24,1
+ 424 017a 9C83      		std Y+4,r25
+ 425 017c 8B83      		std Y+3,r24
+ 468:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x08;	/* R8 */
+ 427               	.LM37:
+ 428 017e 8B81      		ldd r24,Y+3
+ 429 0180 9C81      		ldd r25,Y+4
+ 430 0182 28E0      		ldi r18,lo8(8)
+ 431 0184 FC01      		movw r30,r24
+ 432 0186 2083      		st Z,r18
+ 469:port.c        **** 	pxTopOfStack--;
+ 434               	.LM38:
+ 435 0188 8B81      		ldd r24,Y+3
+ 436 018a 9C81      		ldd r25,Y+4
+ 437 018c 0197      		sbiw r24,1
+ 438 018e 9C83      		std Y+4,r25
+ 439 0190 8B83      		std Y+3,r24
+ 470:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x09;	/* R9 */
+ 441               	.LM39:
+ 442 0192 8B81      		ldd r24,Y+3
+ 443 0194 9C81      		ldd r25,Y+4
+ 444 0196 29E0      		ldi r18,lo8(9)
+ 445 0198 FC01      		movw r30,r24
+ 446 019a 2083      		st Z,r18
+ 471:port.c        **** 	pxTopOfStack--;
+ 448               	.LM40:
+ 449 019c 8B81      		ldd r24,Y+3
+ 450 019e 9C81      		ldd r25,Y+4
+ 451 01a0 0197      		sbiw r24,1
+ 452 01a2 9C83      		std Y+4,r25
+ 453 01a4 8B83      		std Y+3,r24
+ 472:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x10;	/* R10 */
+ 455               	.LM41:
+ 456 01a6 8B81      		ldd r24,Y+3
+ 457 01a8 9C81      		ldd r25,Y+4
+ 458 01aa 20E1      		ldi r18,lo8(16)
+ 459 01ac FC01      		movw r30,r24
+ 460 01ae 2083      		st Z,r18
+ 473:port.c        **** 	pxTopOfStack--;
+ 462               	.LM42:
+ 463 01b0 8B81      		ldd r24,Y+3
+ 464 01b2 9C81      		ldd r25,Y+4
+ 465 01b4 0197      		sbiw r24,1
+ 466 01b6 9C83      		std Y+4,r25
+ 467 01b8 8B83      		std Y+3,r24
+ 474:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x11;	/* R11 */
+ 469               	.LM43:
+ 470 01ba 8B81      		ldd r24,Y+3
+ 471 01bc 9C81      		ldd r25,Y+4
+ 472 01be 21E1      		ldi r18,lo8(17)
+ 473 01c0 FC01      		movw r30,r24
+ 474 01c2 2083      		st Z,r18
+ 475:port.c        **** 	pxTopOfStack--;
+ 476               	.LM44:
+ 477 01c4 8B81      		ldd r24,Y+3
+ 478 01c6 9C81      		ldd r25,Y+4
+ 479 01c8 0197      		sbiw r24,1
+ 480 01ca 9C83      		std Y+4,r25
+ 481 01cc 8B83      		std Y+3,r24
+ 476:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x12;	/* R12 */
+ 483               	.LM45:
+ 484 01ce 8B81      		ldd r24,Y+3
+ 485 01d0 9C81      		ldd r25,Y+4
+ 486 01d2 22E1      		ldi r18,lo8(18)
+ 487 01d4 FC01      		movw r30,r24
+ 488 01d6 2083      		st Z,r18
+ 477:port.c        **** 	pxTopOfStack--;
+ 490               	.LM46:
+ 491 01d8 8B81      		ldd r24,Y+3
+ 492 01da 9C81      		ldd r25,Y+4
+ 493 01dc 0197      		sbiw r24,1
+ 494 01de 9C83      		std Y+4,r25
+ 495 01e0 8B83      		std Y+3,r24
+ 478:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x13;	/* R13 */
+ 497               	.LM47:
+ 498 01e2 8B81      		ldd r24,Y+3
+ 499 01e4 9C81      		ldd r25,Y+4
+ 500 01e6 23E1      		ldi r18,lo8(19)
+ 501 01e8 FC01      		movw r30,r24
+ 502 01ea 2083      		st Z,r18
+ 479:port.c        **** 	pxTopOfStack--;
+ 504               	.LM48:
+ 505 01ec 8B81      		ldd r24,Y+3
+ 506 01ee 9C81      		ldd r25,Y+4
+ 507 01f0 0197      		sbiw r24,1
+ 508 01f2 9C83      		std Y+4,r25
+ 509 01f4 8B83      		std Y+3,r24
+ 480:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x14;	/* R14 */
+ 511               	.LM49:
+ 512 01f6 8B81      		ldd r24,Y+3
+ 513 01f8 9C81      		ldd r25,Y+4
+ 514 01fa 24E1      		ldi r18,lo8(20)
+ 515 01fc FC01      		movw r30,r24
+ 516 01fe 2083      		st Z,r18
+ 481:port.c        **** 	pxTopOfStack--;
+ 518               	.LM50:
+ 519 0200 8B81      		ldd r24,Y+3
+ 520 0202 9C81      		ldd r25,Y+4
+ 521 0204 0197      		sbiw r24,1
+ 522 0206 9C83      		std Y+4,r25
+ 523 0208 8B83      		std Y+3,r24
+ 482:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x15;	/* R15 */
+ 525               	.LM51:
+ 526 020a 8B81      		ldd r24,Y+3
+ 527 020c 9C81      		ldd r25,Y+4
+ 528 020e 25E1      		ldi r18,lo8(21)
+ 529 0210 FC01      		movw r30,r24
+ 530 0212 2083      		st Z,r18
+ 483:port.c        **** 	pxTopOfStack--;
+ 532               	.LM52:
+ 533 0214 8B81      		ldd r24,Y+3
+ 534 0216 9C81      		ldd r25,Y+4
+ 535 0218 0197      		sbiw r24,1
+ 536 021a 9C83      		std Y+4,r25
+ 537 021c 8B83      		std Y+3,r24
+ 484:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x16;	/* R16 */
+ 539               	.LM53:
+ 540 021e 8B81      		ldd r24,Y+3
+ 541 0220 9C81      		ldd r25,Y+4
+ 542 0222 26E1      		ldi r18,lo8(22)
+ 543 0224 FC01      		movw r30,r24
+ 544 0226 2083      		st Z,r18
+ 485:port.c        **** 	pxTopOfStack--;
+ 546               	.LM54:
+ 547 0228 8B81      		ldd r24,Y+3
+ 548 022a 9C81      		ldd r25,Y+4
+ 549 022c 0197      		sbiw r24,1
+ 550 022e 9C83      		std Y+4,r25
+ 551 0230 8B83      		std Y+3,r24
+ 486:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x17;	/* R17 */
+ 553               	.LM55:
+ 554 0232 8B81      		ldd r24,Y+3
+ 555 0234 9C81      		ldd r25,Y+4
+ 556 0236 27E1      		ldi r18,lo8(23)
+ 557 0238 FC01      		movw r30,r24
+ 558 023a 2083      		st Z,r18
+ 487:port.c        **** 	pxTopOfStack--;
+ 560               	.LM56:
+ 561 023c 8B81      		ldd r24,Y+3
+ 562 023e 9C81      		ldd r25,Y+4
+ 563 0240 0197      		sbiw r24,1
+ 564 0242 9C83      		std Y+4,r25
+ 565 0244 8B83      		std Y+3,r24
+ 488:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x18;	/* R18 */
+ 567               	.LM57:
+ 568 0246 8B81      		ldd r24,Y+3
+ 569 0248 9C81      		ldd r25,Y+4
+ 570 024a 28E1      		ldi r18,lo8(24)
+ 571 024c FC01      		movw r30,r24
+ 572 024e 2083      		st Z,r18
+ 489:port.c        **** 	pxTopOfStack--;
+ 574               	.LM58:
+ 575 0250 8B81      		ldd r24,Y+3
+ 576 0252 9C81      		ldd r25,Y+4
+ 577 0254 0197      		sbiw r24,1
+ 578 0256 9C83      		std Y+4,r25
+ 579 0258 8B83      		std Y+3,r24
+ 490:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x19;	/* R19 */
+ 581               	.LM59:
+ 582 025a 8B81      		ldd r24,Y+3
+ 583 025c 9C81      		ldd r25,Y+4
+ 584 025e 29E1      		ldi r18,lo8(25)
+ 585 0260 FC01      		movw r30,r24
+ 586 0262 2083      		st Z,r18
+ 491:port.c        **** 	pxTopOfStack--;
+ 588               	.LM60:
+ 589 0264 8B81      		ldd r24,Y+3
+ 590 0266 9C81      		ldd r25,Y+4
+ 591 0268 0197      		sbiw r24,1
+ 592 026a 9C83      		std Y+4,r25
+ 593 026c 8B83      		std Y+3,r24
+ 492:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x20;	/* R20 */
+ 595               	.LM61:
+ 596 026e 8B81      		ldd r24,Y+3
+ 597 0270 9C81      		ldd r25,Y+4
+ 598 0272 20E2      		ldi r18,lo8(32)
+ 599 0274 FC01      		movw r30,r24
+ 600 0276 2083      		st Z,r18
+ 493:port.c        **** 	pxTopOfStack--;
+ 602               	.LM62:
+ 603 0278 8B81      		ldd r24,Y+3
+ 604 027a 9C81      		ldd r25,Y+4
+ 605 027c 0197      		sbiw r24,1
+ 606 027e 9C83      		std Y+4,r25
+ 607 0280 8B83      		std Y+3,r24
+ 494:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x21;	/* R21 */
+ 609               	.LM63:
+ 610 0282 8B81      		ldd r24,Y+3
+ 611 0284 9C81      		ldd r25,Y+4
+ 612 0286 21E2      		ldi r18,lo8(33)
+ 613 0288 FC01      		movw r30,r24
+ 614 028a 2083      		st Z,r18
+ 495:port.c        **** 	pxTopOfStack--;
+ 616               	.LM64:
+ 617 028c 8B81      		ldd r24,Y+3
+ 618 028e 9C81      		ldd r25,Y+4
+ 619 0290 0197      		sbiw r24,1
+ 620 0292 9C83      		std Y+4,r25
+ 621 0294 8B83      		std Y+3,r24
+ 496:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x22;	/* R22 */
+ 623               	.LM65:
+ 624 0296 8B81      		ldd r24,Y+3
+ 625 0298 9C81      		ldd r25,Y+4
+ 626 029a 22E2      		ldi r18,lo8(34)
+ 627 029c FC01      		movw r30,r24
+ 628 029e 2083      		st Z,r18
+ 497:port.c        **** 	pxTopOfStack--;
+ 630               	.LM66:
+ 631 02a0 8B81      		ldd r24,Y+3
+ 632 02a2 9C81      		ldd r25,Y+4
+ 633 02a4 0197      		sbiw r24,1
+ 634 02a6 9C83      		std Y+4,r25
+ 635 02a8 8B83      		std Y+3,r24
+ 498:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x23;	/* R23 */
+ 637               	.LM67:
+ 638 02aa 8B81      		ldd r24,Y+3
+ 639 02ac 9C81      		ldd r25,Y+4
+ 640 02ae 23E2      		ldi r18,lo8(35)
+ 641 02b0 FC01      		movw r30,r24
+ 642 02b2 2083      		st Z,r18
+ 499:port.c        **** 	pxTopOfStack--;
+ 644               	.LM68:
+ 645 02b4 8B81      		ldd r24,Y+3
+ 646 02b6 9C81      		ldd r25,Y+4
+ 647 02b8 0197      		sbiw r24,1
+ 648 02ba 9C83      		std Y+4,r25
+ 649 02bc 8B83      		std Y+3,r24
+ 500:port.c        **** 
+ 501:port.c        **** 	/* Place the parameter on the stack in the expected location. */
+ 502:port.c        **** 	usAddress = ( unsigned short ) pvParameters;
+ 651               	.LM69:
+ 652 02be 8F81      		ldd r24,Y+7
+ 653 02c0 9885      		ldd r25,Y+8
+ 654 02c2 9A83      		std Y+2,r25
+ 655 02c4 8983      		std Y+1,r24
+ 503:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned short ) 0x00ff );
+ 657               	.LM70:
+ 658 02c6 2981      		ldd r18,Y+1
+ 659 02c8 8B81      		ldd r24,Y+3
+ 660 02ca 9C81      		ldd r25,Y+4
+ 661 02cc FC01      		movw r30,r24
+ 662 02ce 2083      		st Z,r18
+ 504:port.c        **** 	pxTopOfStack--;
+ 664               	.LM71:
+ 665 02d0 8B81      		ldd r24,Y+3
+ 666 02d2 9C81      		ldd r25,Y+4
+ 667 02d4 0197      		sbiw r24,1
+ 668 02d6 9C83      		std Y+4,r25
+ 669 02d8 8B83      		std Y+3,r24
+ 505:port.c        **** 
+ 506:port.c        **** 	usAddress >>= 8;
+ 671               	.LM72:
+ 672 02da 8981      		ldd r24,Y+1
+ 673 02dc 9A81      		ldd r25,Y+2
+ 674 02de 892F      		mov r24,r25
+ 675 02e0 9927      		clr r25
+ 676 02e2 9A83      		std Y+2,r25
+ 677 02e4 8983      		std Y+1,r24
+ 507:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned short ) 0x00ff );
+ 679               	.LM73:
+ 680 02e6 2981      		ldd r18,Y+1
+ 681 02e8 8B81      		ldd r24,Y+3
+ 682 02ea 9C81      		ldd r25,Y+4
+ 683 02ec FC01      		movw r30,r24
+ 684 02ee 2083      		st Z,r18
+ 508:port.c        **** 	pxTopOfStack--;
+ 686               	.LM74:
+ 687 02f0 8B81      		ldd r24,Y+3
+ 688 02f2 9C81      		ldd r25,Y+4
+ 689 02f4 0197      		sbiw r24,1
+ 690 02f6 9C83      		std Y+4,r25
+ 691 02f8 8B83      		std Y+3,r24
+ 509:port.c        **** 
+ 510:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x26;	/* R26 X */
+ 693               	.LM75:
+ 694 02fa 8B81      		ldd r24,Y+3
+ 695 02fc 9C81      		ldd r25,Y+4
+ 696 02fe 26E2      		ldi r18,lo8(38)
+ 697 0300 FC01      		movw r30,r24
+ 698 0302 2083      		st Z,r18
+ 511:port.c        **** 	pxTopOfStack--;
+ 700               	.LM76:
+ 701 0304 8B81      		ldd r24,Y+3
+ 702 0306 9C81      		ldd r25,Y+4
+ 703 0308 0197      		sbiw r24,1
+ 704 030a 9C83      		std Y+4,r25
+ 705 030c 8B83      		std Y+3,r24
+ 512:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x27;	/* R27 */
+ 707               	.LM77:
+ 708 030e 8B81      		ldd r24,Y+3
+ 709 0310 9C81      		ldd r25,Y+4
+ 710 0312 27E2      		ldi r18,lo8(39)
+ 711 0314 FC01      		movw r30,r24
+ 712 0316 2083      		st Z,r18
+ 513:port.c        **** 	pxTopOfStack--;
+ 714               	.LM78:
+ 715 0318 8B81      		ldd r24,Y+3
+ 716 031a 9C81      		ldd r25,Y+4
+ 717 031c 0197      		sbiw r24,1
+ 718 031e 9C83      		std Y+4,r25
+ 719 0320 8B83      		std Y+3,r24
+ 514:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x28;	/* R28 Y */
+ 721               	.LM79:
+ 722 0322 8B81      		ldd r24,Y+3
+ 723 0324 9C81      		ldd r25,Y+4
+ 724 0326 28E2      		ldi r18,lo8(40)
+ 725 0328 FC01      		movw r30,r24
+ 726 032a 2083      		st Z,r18
+ 515:port.c        **** 	pxTopOfStack--;
+ 728               	.LM80:
+ 729 032c 8B81      		ldd r24,Y+3
+ 730 032e 9C81      		ldd r25,Y+4
+ 731 0330 0197      		sbiw r24,1
+ 732 0332 9C83      		std Y+4,r25
+ 733 0334 8B83      		std Y+3,r24
+ 516:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x29;	/* R29 */
+ 735               	.LM81:
+ 736 0336 8B81      		ldd r24,Y+3
+ 737 0338 9C81      		ldd r25,Y+4
+ 738 033a 29E2      		ldi r18,lo8(41)
+ 739 033c FC01      		movw r30,r24
+ 740 033e 2083      		st Z,r18
+ 517:port.c        **** 	pxTopOfStack--;
+ 742               	.LM82:
+ 743 0340 8B81      		ldd r24,Y+3
+ 744 0342 9C81      		ldd r25,Y+4
+ 745 0344 0197      		sbiw r24,1
+ 746 0346 9C83      		std Y+4,r25
+ 747 0348 8B83      		std Y+3,r24
+ 518:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x30;	/* R30 Z */
+ 749               	.LM83:
+ 750 034a 8B81      		ldd r24,Y+3
+ 751 034c 9C81      		ldd r25,Y+4
+ 752 034e 20E3      		ldi r18,lo8(48)
+ 753 0350 FC01      		movw r30,r24
+ 754 0352 2083      		st Z,r18
+ 519:port.c        **** 	pxTopOfStack--;
+ 756               	.LM84:
+ 757 0354 8B81      		ldd r24,Y+3
+ 758 0356 9C81      		ldd r25,Y+4
+ 759 0358 0197      		sbiw r24,1
+ 760 035a 9C83      		std Y+4,r25
+ 761 035c 8B83      		std Y+3,r24
+ 520:port.c        **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x031;	/* R31 */
+ 763               	.LM85:
+ 764 035e 8B81      		ldd r24,Y+3
+ 765 0360 9C81      		ldd r25,Y+4
+ 766 0362 21E3      		ldi r18,lo8(49)
+ 767 0364 FC01      		movw r30,r24
+ 768 0366 2083      		st Z,r18
+ 521:port.c        **** 	pxTopOfStack--;
+ 770               	.LM86:
+ 771 0368 8B81      		ldd r24,Y+3
+ 772 036a 9C81      		ldd r25,Y+4
+ 773 036c 0197      		sbiw r24,1
+ 774 036e 9C83      		std Y+4,r25
+ 775 0370 8B83      		std Y+3,r24
+ 522:port.c        **** 
+ 523:port.c        **** 	/*lint +e950 +e611 +e923 */
+ 524:port.c        **** 
+ 525:port.c        **** 	return pxTopOfStack;
+ 777               	.LM87:
+ 778 0372 8B81      		ldd r24,Y+3
+ 779 0374 9C81      		ldd r25,Y+4
+ 780               	/* epilogue start */
+ 526:port.c        **** }
+ 782               	.LM88:
+ 783 0376 2896      		adiw r28,8
+ 784 0378 0FB6      		in __tmp_reg__,__SREG__
+ 785 037a F894      		cli
+ 786 037c DEBF      		out __SP_H__,r29
+ 787 037e 0FBE      		out __SREG__,__tmp_reg__
+ 788 0380 CDBF      		out __SP_L__,r28
+ 789 0382 DF91      		pop r29
+ 790 0384 CF91      		pop r28
+ 791 0386 0895      		ret
+ 796               	.Lscope1:
+ 798               		.stabd	78,0,0
+ 800               	.global	xPortStartScheduler
+ 802               	xPortStartScheduler:
+ 803               		.stabd	46,0,0
+ 527:port.c        **** /*-----------------------------------------------------------*/
+ 528:port.c        **** 
+ 529:port.c        **** portBASE_TYPE xPortStartScheduler( void )
+ 530:port.c        **** {
+ 805               	.LM89:
+ 806               	.LFBB2:
+ 807 0388 CF93      		push r28
+ 808 038a DF93      		push r29
+ 809 038c CDB7      		in r28,__SP_L__
+ 810 038e DEB7      		in r29,__SP_H__
+ 811               	/* prologue: function */
+ 812               	/* frame size = 0 */
+ 813               	/* stack size = 2 */
+ 814               	.L__stack_usage = 2
+ 531:port.c        **** 	/* Setup the hardware to generate the tick. */
+ 532:port.c        **** 	prvSetupTimerInterrupt();
+ 816               	.LM90:
+ 817 0390 0E94 0000 		call prvSetupTimerInterrupt
+ 533:port.c        **** 
+ 534:port.c        **** 	/* Restore the context of the first task that is going to run. */
+ 535:port.c        **** 	portRESTORE_CONTEXT();
+ 819               	.LM91:
+ 820               	/* #APP */
+ 821               	 ;  535 "port.c" 1
+ 822 0394 A091 0000 		lds	r26, pxCurrentTCB		
+ 823 0398 B091 0000 		lds	r27, pxCurrentTCB + 1	
+ 824 039c CD91      		ld		r28, x+					
+ 825 039e CDBF      		out	__SP_L__, r28			
+ 826 03a0 DD91      		ld		r29, x+					
+ 827 03a2 DEBF      		out	__SP_H__, r29			
+ 828 03a4 FF91      		pop	r31						
+ 829 03a6 EF91      		pop	r30						
+ 830 03a8 DF91      		pop	r29						
+ 831 03aa CF91      		pop	r28						
+ 832 03ac BF91      		pop	r27						
+ 833 03ae AF91      		pop	r26						
+ 834 03b0 9F91      		pop	r25						
+ 835 03b2 8F91      		pop	r24						
+ 836 03b4 7F91      		pop	r23						
+ 837 03b6 6F91      		pop	r22						
+ 838 03b8 5F91      		pop	r21						
+ 839 03ba 4F91      		pop	r20						
+ 840 03bc 3F91      		pop	r19						
+ 841 03be 2F91      		pop	r18						
+ 842 03c0 1F91      		pop	r17						
+ 843 03c2 0F91      		pop	r16						
+ 844 03c4 FF90      		pop	r15						
+ 845 03c6 EF90      		pop	r14						
+ 846 03c8 DF90      		pop	r13						
+ 847 03ca CF90      		pop	r12						
+ 848 03cc BF90      		pop	r11						
+ 849 03ce AF90      		pop	r10						
+ 850 03d0 9F90      		pop	r9						
+ 851 03d2 8F90      		pop	r8						
+ 852 03d4 7F90      		pop	r7						
+ 853 03d6 6F90      		pop	r6						
+ 854 03d8 5F90      		pop	r5						
+ 855 03da 4F90      		pop	r4						
+ 856 03dc 3F90      		pop	r3						
+ 857 03de 2F90      		pop	r2						
+ 858 03e0 1F90      		pop	r1						
+ 859 03e2 0F90      		pop	r0						
+ 860 03e4 0CBE      		out	0x3c, r0				
+ 861 03e6 0F90      		pop	r0						
+ 862 03e8 0BBE      		out	0x3b, r0				
+ 863 03ea 0F90      		pop	r0						
+ 864 03ec 0FBE      		out	__SREG__, r0			
+ 865 03ee 0F90      		pop	r0						
+ 866               		
+ 867               	 ;  0 "" 2
+ 536:port.c        **** 
+ 537:port.c        **** 	/* Simulate a function call end as generated by the compiler.  We will now
+ 538:port.c        **** 	jump to the start of the task the context of which we have just restored. */
+ 539:port.c        **** 	asm volatile ( "ret" );
+ 869               	.LM92:
+ 870               	 ;  539 "port.c" 1
+ 871 03f0 0895      		ret
+ 872               	 ;  0 "" 2
+ 540:port.c        **** 
+ 541:port.c        **** 	/* Should not get here. */
+ 542:port.c        **** 	return pdTRUE;
+ 874               	.LM93:
+ 875               	/* #NOAPP */
+ 876 03f2 81E0      		ldi r24,lo8(1)
+ 877               	/* epilogue start */
+ 543:port.c        **** }
+ 879               	.LM94:
+ 880 03f4 DF91      		pop r29
+ 881 03f6 CF91      		pop r28
+ 882 03f8 0895      		ret
+ 884               	.Lscope2:
+ 886               		.stabd	78,0,0
+ 888               	.global	vPortEndScheduler
+ 890               	vPortEndScheduler:
+ 891               		.stabd	46,0,0
+ 544:port.c        **** /*-----------------------------------------------------------*/
+ 545:port.c        **** 
+ 546:port.c        **** void vPortEndScheduler( void )
+ 547:port.c        **** {
+ 893               	.LM95:
+ 894               	.LFBB3:
+ 895 03fa CF93      		push r28
+ 896 03fc DF93      		push r29
+ 897 03fe CDB7      		in r28,__SP_L__
+ 898 0400 DEB7      		in r29,__SP_H__
+ 899               	/* prologue: function */
+ 900               	/* frame size = 0 */
+ 901               	/* stack size = 2 */
+ 902               	.L__stack_usage = 2
+ 903               	/* epilogue start */
+ 548:port.c        **** 	/* It is unlikely that the AVR port will get stopped.  If required simply
+ 549:port.c        **** 	disable the tick interrupt here. */
+ 550:port.c        **** }
+ 905               	.LM96:
+ 906 0402 DF91      		pop r29
+ 907 0404 CF91      		pop r28
+ 908 0406 0895      		ret
+ 910               	.Lscope3:
+ 912               		.stabd	78,0,0
+ 914               	.global	vPortYield
+ 916               	vPortYield:
+ 917               		.stabd	46,0,0
+ 551:port.c        **** /*-----------------------------------------------------------*/
+ 552:port.c        **** 
+ 553:port.c        **** /*
+ 554:port.c        ****  * Manual context switch.  The first thing we do is save the registers so we
+ 555:port.c        ****  * can use a naked attribute.
+ 556:port.c        ****  */
+ 557:port.c        **** void vPortYield( void ) __attribute__ ( ( naked ) );
+ 558:port.c        **** void vPortYield( void )
+ 559:port.c        **** {
+ 919               	.LM97:
+ 920               	.LFBB4:
+ 921               	/* prologue: naked */
+ 922               	/* frame size = 0 */
+ 923               	/* stack size = 0 */
+ 924               	.L__stack_usage = 0
+ 560:port.c        **** 	portSAVE_CONTEXT();
+ 926               	.LM98:
+ 927               	/* #APP */
+ 928               	 ;  560 "port.c" 1
+ 929 0408 0F92      		push	r0						
+ 930 040a 0FB6      		in		r0, __SREG__			
+ 931 040c F894      		cli							
+ 932 040e 0F92      		push	r0						
+ 933 0410 0BB6      		in		r0, 0x3b				
+ 934 0412 0F92      		push	r0						
+ 935 0414 0CB6      		in		r0, 0x3c				
+ 936 0416 0F92      		push	r0						
+ 937 0418 1F92      		push	r1						
+ 938 041a 1124      		clr	r1						
+ 939 041c 2F92      		push	r2						
+ 940 041e 3F92      		push	r3						
+ 941 0420 4F92      		push	r4						
+ 942 0422 5F92      		push	r5						
+ 943 0424 6F92      		push	r6						
+ 944 0426 7F92      		push	r7						
+ 945 0428 8F92      		push	r8						
+ 946 042a 9F92      		push	r9						
+ 947 042c AF92      		push	r10						
+ 948 042e BF92      		push	r11						
+ 949 0430 CF92      		push	r12						
+ 950 0432 DF92      		push	r13						
+ 951 0434 EF92      		push	r14						
+ 952 0436 FF92      		push	r15						
+ 953 0438 0F93      		push	r16						
+ 954 043a 1F93      		push	r17						
+ 955 043c 2F93      		push	r18						
+ 956 043e 3F93      		push	r19						
+ 957 0440 4F93      		push	r20						
+ 958 0442 5F93      		push	r21						
+ 959 0444 6F93      		push	r22						
+ 960 0446 7F93      		push	r23						
+ 961 0448 8F93      		push	r24						
+ 962 044a 9F93      		push	r25						
+ 963 044c AF93      		push	r26						
+ 964 044e BF93      		push	r27						
+ 965 0450 CF93      		push	r28						
+ 966 0452 DF93      		push	r29						
+ 967 0454 EF93      		push	r30						
+ 968 0456 FF93      		push	r31						
+ 969 0458 A091 0000 		lds	r26, pxCurrentTCB		
+ 970 045c B091 0000 		lds	r27, pxCurrentTCB + 1	
+ 971 0460 0DB6      		in		r0, 0x3d				
+ 972 0462 0D92      		st		x+, r0					
+ 973 0464 0EB6      		in		r0, 0x3e				
+ 974 0466 0D92      		st		x+, r0					
+ 975               		
+ 976               	 ;  0 "" 2
+ 561:port.c        **** 	vTaskSwitchContext();
+ 978               	.LM99:
+ 979               	/* #NOAPP */
+ 980 0468 0E94 0000 		call vTaskSwitchContext
+ 562:port.c        **** 	portRESTORE_CONTEXT();
+ 982               	.LM100:
+ 983               	/* #APP */
+ 984               	 ;  562 "port.c" 1
+ 985 046c A091 0000 		lds	r26, pxCurrentTCB		
+ 986 0470 B091 0000 		lds	r27, pxCurrentTCB + 1	
+ 987 0474 CD91      		ld		r28, x+					
+ 988 0476 CDBF      		out	__SP_L__, r28			
+ 989 0478 DD91      		ld		r29, x+					
+ 990 047a DEBF      		out	__SP_H__, r29			
+ 991 047c FF91      		pop	r31						
+ 992 047e EF91      		pop	r30						
+ 993 0480 DF91      		pop	r29						
+ 994 0482 CF91      		pop	r28						
+ 995 0484 BF91      		pop	r27						
+ 996 0486 AF91      		pop	r26						
+ 997 0488 9F91      		pop	r25						
+ 998 048a 8F91      		pop	r24						
+ 999 048c 7F91      		pop	r23						
+ 1000 048e 6F91      		pop	r22						
+ 1001 0490 5F91      		pop	r21						
+ 1002 0492 4F91      		pop	r20						
+ 1003 0494 3F91      		pop	r19						
+ 1004 0496 2F91      		pop	r18						
+ 1005 0498 1F91      		pop	r17						
+ 1006 049a 0F91      		pop	r16						
+ 1007 049c FF90      		pop	r15						
+ 1008 049e EF90      		pop	r14						
+ 1009 04a0 DF90      		pop	r13						
+ 1010 04a2 CF90      		pop	r12						
+ 1011 04a4 BF90      		pop	r11						
+ 1012 04a6 AF90      		pop	r10						
+ 1013 04a8 9F90      		pop	r9						
+ 1014 04aa 8F90      		pop	r8						
+ 1015 04ac 7F90      		pop	r7						
+ 1016 04ae 6F90      		pop	r6						
+ 1017 04b0 5F90      		pop	r5						
+ 1018 04b2 4F90      		pop	r4						
+ 1019 04b4 3F90      		pop	r3						
+ 1020 04b6 2F90      		pop	r2						
+ 1021 04b8 1F90      		pop	r1						
+ 1022 04ba 0F90      		pop	r0						
+ 1023 04bc 0CBE      		out	0x3c, r0				
+ 1024 04be 0F90      		pop	r0						
+ 1025 04c0 0BBE      		out	0x3b, r0				
+ 1026 04c2 0F90      		pop	r0						
+ 1027 04c4 0FBE      		out	__SREG__, r0			
+ 1028 04c6 0F90      		pop	r0						
+ 1029               		
+ 1030               	 ;  0 "" 2
+ 563:port.c        **** 
+ 564:port.c        **** 	asm volatile ( "ret" );
+ 1032               	.LM101:
+ 1033               	 ;  564 "port.c" 1
+ 1034 04c8 0895      		ret
+ 1035               	 ;  0 "" 2
+ 1036               	/* epilogue start */
+ 565:port.c        **** }
+ 1038               	.LM102:
+ 1039               	/* #NOAPP */
+ 1041               	.Lscope4:
+ 1043               		.stabd	78,0,0
+ 1045               	.global	vPortYieldFromTick
+ 1047               	vPortYieldFromTick:
+ 1048               		.stabd	46,0,0
+ 566:port.c        **** /*-----------------------------------------------------------*/
+ 567:port.c        **** 
+ 568:port.c        **** /*
+ 569:port.c        ****  * Context switch function used by the tick.  This must be identical to
+ 570:port.c        ****  * vPortYield() from the call to vTaskSwitchContext() onwards.  The only
+ 571:port.c        ****  * difference from vPortYield() is the tick count is incremented as the
+ 572:port.c        ****  * call comes from the tick ISR.
+ 573:port.c        ****  */
+ 574:port.c        **** void vPortYieldFromTick( void ) __attribute__ ( ( naked ) );
+ 575:port.c        **** void vPortYieldFromTick( void )
+ 576:port.c        **** {
+ 1050               	.LM103:
+ 1051               	.LFBB5:
+ 1052               	/* prologue: naked */
+ 1053               	/* frame size = 0 */
+ 1054               	/* stack size = 0 */
+ 1055               	.L__stack_usage = 0
+ 577:port.c        **** 	portSAVE_CONTEXT();
+ 1057               	.LM104:
+ 1058               	/* #APP */
+ 1059               	 ;  577 "port.c" 1
+ 1060 04ca 0F92      		push	r0						
+ 1061 04cc 0FB6      		in		r0, __SREG__			
+ 1062 04ce F894      		cli							
+ 1063 04d0 0F92      		push	r0						
+ 1064 04d2 0BB6      		in		r0, 0x3b				
+ 1065 04d4 0F92      		push	r0						
+ 1066 04d6 0CB6      		in		r0, 0x3c				
+ 1067 04d8 0F92      		push	r0						
+ 1068 04da 1F92      		push	r1						
+ 1069 04dc 1124      		clr	r1						
+ 1070 04de 2F92      		push	r2						
+ 1071 04e0 3F92      		push	r3						
+ 1072 04e2 4F92      		push	r4						
+ 1073 04e4 5F92      		push	r5						
+ 1074 04e6 6F92      		push	r6						
+ 1075 04e8 7F92      		push	r7						
+ 1076 04ea 8F92      		push	r8						
+ 1077 04ec 9F92      		push	r9						
+ 1078 04ee AF92      		push	r10						
+ 1079 04f0 BF92      		push	r11						
+ 1080 04f2 CF92      		push	r12						
+ 1081 04f4 DF92      		push	r13						
+ 1082 04f6 EF92      		push	r14						
+ 1083 04f8 FF92      		push	r15						
+ 1084 04fa 0F93      		push	r16						
+ 1085 04fc 1F93      		push	r17						
+ 1086 04fe 2F93      		push	r18						
+ 1087 0500 3F93      		push	r19						
+ 1088 0502 4F93      		push	r20						
+ 1089 0504 5F93      		push	r21						
+ 1090 0506 6F93      		push	r22						
+ 1091 0508 7F93      		push	r23						
+ 1092 050a 8F93      		push	r24						
+ 1093 050c 9F93      		push	r25						
+ 1094 050e AF93      		push	r26						
+ 1095 0510 BF93      		push	r27						
+ 1096 0512 CF93      		push	r28						
+ 1097 0514 DF93      		push	r29						
+ 1098 0516 EF93      		push	r30						
+ 1099 0518 FF93      		push	r31						
+ 1100 051a A091 0000 		lds	r26, pxCurrentTCB		
+ 1101 051e B091 0000 		lds	r27, pxCurrentTCB + 1	
+ 1102 0522 0DB6      		in		r0, 0x3d				
+ 1103 0524 0D92      		st		x+, r0					
+ 1104 0526 0EB6      		in		r0, 0x3e				
+ 1105 0528 0D92      		st		x+, r0					
+ 1106               		
+ 1107               	 ;  0 "" 2
+ 578:port.c        **** 	vTaskIncrementTick();
+ 1109               	.LM105:
+ 1110               	/* #NOAPP */
+ 1111 052a 0E94 0000 		call vTaskIncrementTick
+ 579:port.c        **** 	vTaskSwitchContext();
+ 1113               	.LM106:
+ 1114 052e 0E94 0000 		call vTaskSwitchContext
+ 580:port.c        **** 	portRESTORE_CONTEXT();
+ 1116               	.LM107:
+ 1117               	/* #APP */
+ 1118               	 ;  580 "port.c" 1
+ 1119 0532 A091 0000 		lds	r26, pxCurrentTCB		
+ 1120 0536 B091 0000 		lds	r27, pxCurrentTCB + 1	
+ 1121 053a CD91      		ld		r28, x+					
+ 1122 053c CDBF      		out	__SP_L__, r28			
+ 1123 053e DD91      		ld		r29, x+					
+ 1124 0540 DEBF      		out	__SP_H__, r29			
+ 1125 0542 FF91      		pop	r31						
+ 1126 0544 EF91      		pop	r30						
+ 1127 0546 DF91      		pop	r29						
+ 1128 0548 CF91      		pop	r28						
+ 1129 054a BF91      		pop	r27						
+ 1130 054c AF91      		pop	r26						
+ 1131 054e 9F91      		pop	r25						
+ 1132 0550 8F91      		pop	r24						
+ 1133 0552 7F91      		pop	r23						
+ 1134 0554 6F91      		pop	r22						
+ 1135 0556 5F91      		pop	r21						
+ 1136 0558 4F91      		pop	r20						
+ 1137 055a 3F91      		pop	r19						
+ 1138 055c 2F91      		pop	r18						
+ 1139 055e 1F91      		pop	r17						
+ 1140 0560 0F91      		pop	r16						
+ 1141 0562 FF90      		pop	r15						
+ 1142 0564 EF90      		pop	r14						
+ 1143 0566 DF90      		pop	r13						
+ 1144 0568 CF90      		pop	r12						
+ 1145 056a BF90      		pop	r11						
+ 1146 056c AF90      		pop	r10						
+ 1147 056e 9F90      		pop	r9						
+ 1148 0570 8F90      		pop	r8						
+ 1149 0572 7F90      		pop	r7						
+ 1150 0574 6F90      		pop	r6						
+ 1151 0576 5F90      		pop	r5						
+ 1152 0578 4F90      		pop	r4						
+ 1153 057a 3F90      		pop	r3						
+ 1154 057c 2F90      		pop	r2						
+ 1155 057e 1F90      		pop	r1						
+ 1156 0580 0F90      		pop	r0						
+ 1157 0582 0CBE      		out	0x3c, r0				
+ 1158 0584 0F90      		pop	r0						
+ 1159 0586 0BBE      		out	0x3b, r0				
+ 1160 0588 0F90      		pop	r0						
+ 1161 058a 0FBE      		out	__SREG__, r0			
+ 1162 058c 0F90      		pop	r0						
+ 1163               		
+ 1164               	 ;  0 "" 2
+ 581:port.c        **** 
+ 582:port.c        **** 	asm volatile ( "ret" );
+ 1166               	.LM108:
+ 1167               	 ;  582 "port.c" 1
+ 1168 058e 0895      		ret
+ 1169               	 ;  0 "" 2
+ 1170               	/* epilogue start */
+ 583:port.c        **** }
+ 1172               	.LM109:
+ 1173               	/* #NOAPP */
+ 1175               	.Lscope5:
+ 1177               		.stabd	78,0,0
+ 1180               	prvSetupTimerInterrupt:
+ 1181               		.stabd	46,0,0
+ 584:port.c        **** /*-----------------------------------------------------------*/
+ 585:port.c        **** 
+ 586:port.c        **** /*
+ 587:port.c        ****  * Setup timer 0 or 3 or 1 compare match A to generate a tick interrupt.
+ 588:port.c        ****  */
+ 589:port.c        **** static void prvSetupTimerInterrupt( void )
+ 590:port.c        **** {
+ 1183               	.LM110:
+ 1184               	.LFBB6:
+ 1185 0590 CF93      		push r28
+ 1186 0592 DF93      		push r29
+ 1187 0594 00D0      		rcall .
+ 1188 0596 00D0      		rcall .
+ 1189 0598 CDB7      		in r28,__SP_L__
+ 1190 059a DEB7      		in r29,__SP_H__
+ 1191               	/* prologue: function */
+ 1192               	/* frame size = 6 */
+ 1193               	/* stack size = 8 */
+ 1194               	.L__stack_usage = 8
+ 591:port.c        **** unsigned portLONG ulCompareMatch;
+ 592:port.c        **** #ifdef portOCRH
+ 593:port.c        **** unsigned portCHAR ucHighByte;
+ 594:port.c        **** #endif
+ 595:port.c        **** unsigned portCHAR ucLowByte;
+ 596:port.c        **** 
+ 597:port.c        ****     /* Using 8bit Timer0 or 16bit Timer1 or Timer3 to generate the tick. */
+ 598:port.c        **** 
+ 599:port.c        ****     // ulCompareMatch 40,000 = 20,000,000 / 500; 20MHz
+ 600:port.c        ****     // ulCompareMatch 110,592 = 22,118,400 / 200; 22.1184 MHz
+ 601:port.c        ****     ulCompareMatch = configCPU_CLOCK_HZ / configTICK_RATE_HZ;
+ 1196               	.LM111:
+ 1197 059c 80E0      		ldi r24,0
+ 1198 059e 9DE7      		ldi r25,lo8(125)
+ 1199 05a0 A0E0      		ldi r26,0
+ 1200 05a2 B0E0      		ldi r27,0
+ 1201 05a4 8983      		std Y+1,r24
+ 1202 05a6 9A83      		std Y+2,r25
+ 1203 05a8 AB83      		std Y+3,r26
+ 1204 05aa BC83      		std Y+4,r27
+ 602:port.c        **** 
+ 603:port.c        ****     /* We only have 8 or 16 bits so have to scale 64 or 256 to get our required tick rate. */
+ 604:port.c        ****     //ulCompareMatch = 625 /= portCLOCK_PRESCALER; 20MHz with 64 prescale
+ 605:port.c        ****     //ulCompareMatch = 108 /= portCLOCK_PRESCALER; 22.1184 MHz with 1024 prescale
+ 606:port.c        ****     ulCompareMatch /= portCLOCK_PRESCALER;
+ 1206               	.LM112:
+ 1207 05ac 8981      		ldd r24,Y+1
+ 1208 05ae 9A81      		ldd r25,Y+2
+ 1209 05b0 AB81      		ldd r26,Y+3
+ 1210 05b2 BC81      		ldd r27,Y+4
+ 1211 05b4 6894      		set
+ 1212 05b6 15F8      		bld __zero_reg__,6-1
+ 1213               		1:
+ 1214 05b8 B695      		lsr r27
+ 1215 05ba A795      		ror r26
+ 1216 05bc 9795      		ror r25
+ 1217 05be 8795      		ror r24
+ 1218 05c0 1694      		lsr __zero_reg__
+ 1219 05c2 01F4      		brne 1b
+ 1220 05c4 8983      		std Y+1,r24
+ 1221 05c6 9A83      		std Y+2,r25
+ 1222 05c8 AB83      		std Y+3,r26
+ 1223 05ca BC83      		std Y+4,r27
+ 607:port.c        **** 
+ 608:port.c        ****     /* Adjust for correct value. */
+ 609:port.c        ****     ulCompareMatch -= ( unsigned portLONG ) 1;
+ 1225               	.LM113:
+ 1226 05cc 8981      		ldd r24,Y+1
+ 1227 05ce 9A81      		ldd r25,Y+2
+ 1228 05d0 AB81      		ldd r26,Y+3
+ 1229 05d2 BC81      		ldd r27,Y+4
+ 1230 05d4 0197      		sbiw r24,1
+ 1231 05d6 A109      		sbc r26,__zero_reg__
+ 1232 05d8 B109      		sbc r27,__zero_reg__
+ 1233 05da 8983      		std Y+1,r24
+ 1234 05dc 9A83      		std Y+2,r25
+ 1235 05de AB83      		std Y+3,r26
+ 1236 05e0 BC83      		std Y+4,r27
+ 610:port.c        **** 
+ 611:port.c        ****     /* Setup compare match value for compare match A.  Interrupts are disabled
+ 612:port.c        ****     before this is called so we need not worry here. */
+ 613:port.c        ****     ucLowByte = ( unsigned portCHAR ) ( ulCompareMatch & ( unsigned portLONG ) 0xff );
+ 1238               	.LM114:
+ 1239 05e2 8981      		ldd r24,Y+1
+ 1240 05e4 8D83      		std Y+5,r24
+ 614:port.c        **** 
+ 615:port.c        ****     //  OCR3AH = ucHighByte;
+ 616:port.c        ****     //  OCR3AL = ucLowByte;
+ 617:port.c        **** 
+ 618:port.c        ****     // the HiByte is only needed, if a 16 Bit counter is being utilized
+ 619:port.c        **** #ifdef portOCRH
+ 620:port.c        **** 
+ 621:port.c        ****     ulCompareMatch >>= 8;
+ 1242               	.LM115:
+ 1243 05e6 8981      		ldd r24,Y+1
+ 1244 05e8 9A81      		ldd r25,Y+2
+ 1245 05ea AB81      		ldd r26,Y+3
+ 1246 05ec BC81      		ldd r27,Y+4
+ 1247 05ee 892F      		mov r24,r25
+ 1248 05f0 9A2F      		mov r25,r26
+ 1249 05f2 AB2F      		mov r26,r27
+ 1250 05f4 BB27      		clr r27
+ 1251 05f6 8983      		std Y+1,r24
+ 1252 05f8 9A83      		std Y+2,r25
+ 1253 05fa AB83      		std Y+3,r26
+ 1254 05fc BC83      		std Y+4,r27
+ 622:port.c        ****     ucHighByte = ( unsigned portCHAR ) ( ulCompareMatch & ( unsigned portLONG ) 0xff );
+ 1256               	.LM116:
+ 1257 05fe 8981      		ldd r24,Y+1
+ 1258 0600 8E83      		std Y+6,r24
+ 623:port.c        ****     portOCRH = ucHighByte;
+ 1260               	.LM117:
+ 1261 0602 89E9      		ldi r24,lo8(-103)
+ 1262 0604 90E0      		ldi r25,0
+ 1263 0606 2E81      		ldd r18,Y+6
+ 1264 0608 FC01      		movw r30,r24
+ 1265 060a 2083      		st Z,r18
+ 624:port.c        **** 
+ 625:port.c        **** #endif
+ 626:port.c        **** 
+ 627:port.c        ****     portOCRL = ucLowByte;
+ 1267               	.LM118:
+ 1268 060c 88E9      		ldi r24,lo8(-104)
+ 1269 060e 90E0      		ldi r25,0
+ 1270 0610 2D81      		ldd r18,Y+5
+ 1271 0612 FC01      		movw r30,r24
+ 1272 0614 2083      		st Z,r18
+ 628:port.c        **** 
+ 629:port.c        **** #if defined( portUSE_TIMER0 )
+ 630:port.c        ****    /* Setup clock source and compare match behaviour. Assuming 328p (no Timer3) */
+ 631:port.c        ****    portTCCRa = portCLEAR_COUNTER_ON_MATCH;
+ 632:port.c        ****    portTCCRb = portPRESCALE_1024;
+ 633:port.c        **** 
+ 634:port.c        **** #elif defined( portUSE_TIMER1 )
+ 635:port.c        **** 	/* Setup clock source and compare match behaviour. Assuming 328p (with Timer1) */
+ 636:port.c        **** 	ucLowByte = portCLEAR_COUNTER_ON_MATCH | portPRESCALE_64;
+ 637:port.c        **** 	portTCCRb = ucLowByte;
+ 638:port.c        **** 
+ 639:port.c        **** #elif defined( portUSE_TIMER3 )
+ 640:port.c        **** 	/* Setup clock source and compare match behaviour. Assuming  640 / 1280 /1281 / 1284p / 2560 / 256
+ 641:port.c        **** 	ucLowByte = portCLEAR_COUNTER_ON_MATCH | portPRESCALE_64;
+ 1274               	.LM119:
+ 1275 0616 8BE0      		ldi r24,lo8(11)
+ 1276 0618 8D83      		std Y+5,r24
+ 642:port.c        **** 	portTCCRb = ucLowByte;
+ 1278               	.LM120:
+ 1279 061a 81E9      		ldi r24,lo8(-111)
+ 1280 061c 90E0      		ldi r25,0
+ 1281 061e 2D81      		ldd r18,Y+5
+ 1282 0620 FC01      		movw r30,r24
+ 1283 0622 2083      		st Z,r18
+ 643:port.c        **** #endif
+ 644:port.c        **** 
+ 645:port.c        ****     /* Enable the interrupt - this is okay as interrupt are currently globally
+ 646:port.c        **** 	disabled. */
+ 647:port.c        ****     ucLowByte = portTIMSK;
+ 1285               	.LM121:
+ 1286 0624 81E7      		ldi r24,lo8(113)
+ 1287 0626 90E0      		ldi r25,0
+ 1288 0628 FC01      		movw r30,r24
+ 1289 062a 8081      		ld r24,Z
+ 1290 062c 8D83      		std Y+5,r24
+ 648:port.c        ****     ucLowByte |= portCOMPARE_MATCH_A_INTERRUPT_ENABLE;
+ 1292               	.LM122:
+ 1293 062e 8D81      		ldd r24,Y+5
+ 1294 0630 8260      		ori r24,lo8(2)
+ 1295 0632 8D83      		std Y+5,r24
+ 649:port.c        ****     portTIMSK = ucLowByte;
+ 1297               	.LM123:
+ 1298 0634 81E7      		ldi r24,lo8(113)
+ 1299 0636 90E0      		ldi r25,0
+ 1300 0638 2D81      		ldd r18,Y+5
+ 1301 063a FC01      		movw r30,r24
+ 1302 063c 2083      		st Z,r18
+ 1303               	/* epilogue start */
+ 650:port.c        **** 
+ 651:port.c        **** }
+ 1305               	.LM124:
+ 1306 063e 2696      		adiw r28,6
+ 1307 0640 0FB6      		in __tmp_reg__,__SREG__
+ 1308 0642 F894      		cli
+ 1309 0644 DEBF      		out __SP_H__,r29
+ 1310 0646 0FBE      		out __SREG__,__tmp_reg__
+ 1311 0648 CDBF      		out __SP_L__,r28
+ 1312 064a DF91      		pop r29
+ 1313 064c CF91      		pop r28
+ 1314 064e 0895      		ret
+ 1321               	.Lscope6:
+ 1323               		.stabd	78,0,0
+ 1325               	.global	__vector_32
+ 1327               	__vector_32:
+ 1328               		.stabd	46,0,0
+ 652:port.c        **** 
+ 653:port.c        **** /*-----------------------------------------------------------*/
+ 654:port.c        **** 
+ 655:port.c        **** #if configUSE_PREEMPTION == 1
+ 656:port.c        **** 
+ 657:port.c        **** 	/*
+ 658:port.c        **** 	 * Tick ISR for preemptive scheduler.  We can use a naked attribute as
+ 659:port.c        **** 	 * the context is saved at the start of vPortYieldFromTick().  The tick
+ 660:port.c        **** 	 * count is incremented after the context is saved.
+ 661:port.c        **** 	 */
+ 662:port.c        **** 	#if defined( portUSE_TIMER0 )
+ 663:port.c        **** 		#warning "Timer0 used for PRE-EMPTIVE scheduler."
+ 664:port.c        **** 		ISR(TIMER0_COMPA_vect, ISR_NAKED)
+ 665:port.c        **** 		{
+ 666:port.c        **** 			vPortYieldFromTick();
+ 667:port.c        **** 			asm volatile ( "reti" );
+ 668:port.c        **** 		}
+ 669:port.c        **** 
+ 670:port.c        **** 	#elif defined( portUSE_TIMER1 )
+ 671:port.c        **** 		#warning "Timer1 used for PRE-EMPTIVE scheduler."
+ 672:port.c        **** 		ISR(TIMER1_COMPA_vect, ISR_NAKED)
+ 673:port.c        **** 		{
+ 674:port.c        **** 			vPortYieldFromTick();
+ 675:port.c        **** 			asm volatile ( "reti" );
+ 676:port.c        **** 		}
+ 677:port.c        **** 
+ 678:port.c        **** 	#elif defined( portUSE_TIMER3 )
+ 679:port.c        **** 		#warning "Timer3 used for PRE-EMPTIVE scheduler."
+ 680:port.c        **** 		ISR(TIMER3_COMPA_vect, ISR_NAKED)
+ 681:port.c        **** 		{
+ 1330               	.LM125:
+ 1331               	.LFBB7:
+ 1332               	/* prologue: naked */
+ 1333               	/* frame size = 0 */
+ 1334               	/* stack size = 0 */
+ 1335               	.L__stack_usage = 0
+ 682:port.c        **** 			vPortYieldFromTick();
+ 1337               	.LM126:
+ 1338 0650 0E94 0000 		call vPortYieldFromTick
+ 683:port.c        **** 			asm volatile ( "reti" );
+ 1340               	.LM127:
+ 1341               	/* #APP */
+ 1342               	 ;  683 "port.c" 1
+ 1343 0654 1895      		reti
+ 1344               	 ;  0 "" 2
+ 1345               	/* epilogue start */
+ 684:port.c        **** 		}
+ 1347               	.LM128:
+ 1348               	/* #NOAPP */
+ 1350               	.Lscope7:
+ 1352               		.stabd	78,0,0
+ 1354               	.Letext0:
+ 1355               		.ident	"GCC: (GNU) 4.8.2"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 port.c
+     /tmp/ccvdkGCx.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccvdkGCx.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccvdkGCx.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccvdkGCx.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccvdkGCx.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccvdkGCx.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccvdkGCx.s:154    .text:0000000000000000 pxPortInitialiseStack
+     /tmp/ccvdkGCx.s:802    .text:0000000000000388 xPortStartScheduler
+     /tmp/ccvdkGCx.s:1180   .text:0000000000000590 prvSetupTimerInterrupt
+     /tmp/ccvdkGCx.s:890    .text:00000000000003fa vPortEndScheduler
+     /tmp/ccvdkGCx.s:916    .text:0000000000000408 vPortYield
+     /tmp/ccvdkGCx.s:1047   .text:00000000000004ca vPortYieldFromTick
+     /tmp/ccvdkGCx.s:1327   .text:0000000000000650 __vector_32
+
+UNDEFINED SYMBOLS
+pxCurrentTCB
+vTaskSwitchContext
+vTaskIncrementTick

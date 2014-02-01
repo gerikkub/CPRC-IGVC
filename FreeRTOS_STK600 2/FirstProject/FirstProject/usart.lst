@@ -1,0 +1,331 @@
+   1               		.file	"usart.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+ 135               	.global	USART_Init
+ 137               	USART_Init:
+ 138               		.stabd	46,0,0
+   1:usart.c       **** /***************************
+   2:usart.c       **** *
+   3:usart.c       **** * Filename: usart.cpp
+   4:usart.c       **** *
+   5:usart.c       **** * Description: Provides print methods for various
+   6:usart.c       **** *  datatypes using USART.
+   7:usart.c       **** *
+   8:usart.c       **** * Authors: Doug Gallatin and Jason Schray
+   9:usart.c       **** * Edited by: Tim Peters & James Humphrey
+  10:usart.c       **** *
+  11:usart.c       **** ***************************/
+  12:usart.c       **** 
+  13:usart.c       **** #include "FreeRTOS.h"
+  14:usart.c       **** #include "semphr.h"
+  15:usart.c       **** 
+  16:usart.c       **** #include <stdlib.h>
+  17:usart.c       **** #include <stdint.h>
+  18:usart.c       **** #include <avr/io.h>
+  19:usart.c       **** 
+  20:usart.c       **** 
+  21:usart.c       **** #include "usart.h"
+  22:usart.c       **** 
+  23:usart.c       **** /************************************
+  24:usart.c       **** * Procedure: usart_init
+  25:usart.c       **** *  
+  26:usart.c       **** * Description: Initializes the USART module with 
+  27:usart.c       **** *  the specified baud rate and clk speed.
+  28:usart.c       **** *
+  29:usart.c       **** * Param buadin: The desired Baud rate.
+  30:usart.c       **** * Param clk_seedin: The clk speed of the ATmega328p
+  31:usart.c       **** ************************************/
+  32:usart.c       **** void USART_Init(uint16_t baudin, uint32_t clk_speedin) {
+ 140               	.LM0:
+ 141               	.LFBB1:
+ 142 0000 CF93      		push r28
+ 143 0002 DF93      		push r29
+ 144 0004 CDB7      		in r28,__SP_L__
+ 145 0006 DEB7      		in r29,__SP_H__
+ 146 0008 2E97      		sbiw r28,14
+ 147 000a 0FB6      		in __tmp_reg__,__SREG__
+ 148 000c F894      		cli
+ 149 000e DEBF      		out __SP_H__,r29
+ 150 0010 0FBE      		out __SREG__,__tmp_reg__
+ 151 0012 CDBF      		out __SP_L__,r28
+ 152               	/* prologue: function */
+ 153               	/* frame size = 14 */
+ 154               	/* stack size = 16 */
+ 155               	.L__stack_usage = 16
+ 156 0014 9E83      		std Y+6,r25
+ 157 0016 8D83      		std Y+5,r24
+ 158 0018 4F83      		std Y+7,r20
+ 159 001a 5887      		std Y+8,r21
+ 160 001c 6987      		std Y+9,r22
+ 161 001e 7A87      		std Y+10,r23
+  33:usart.c       ****     uint32_t ubrr = clk_speedin/(16UL)/baudin-1;
+ 163               	.LM1:
+ 164 0020 8F81      		ldd r24,Y+7
+ 165 0022 9885      		ldd r25,Y+8
+ 166 0024 A985      		ldd r26,Y+9
+ 167 0026 BA85      		ldd r27,Y+10
+ 168 0028 6894      		set
+ 169 002a 13F8      		bld __zero_reg__,4-1
+ 170               		1:
+ 171 002c B695      		lsr r27
+ 172 002e A795      		ror r26
+ 173 0030 9795      		ror r25
+ 174 0032 8795      		ror r24
+ 175 0034 1694      		lsr __zero_reg__
+ 176 0036 01F4      		brne 1b
+ 177 0038 2D81      		ldd r18,Y+5
+ 178 003a 3E81      		ldd r19,Y+6
+ 179 003c 9901      		movw r18,r18
+ 180 003e 40E0      		ldi r20,0
+ 181 0040 50E0      		ldi r21,0
+ 182 0042 BC01      		movw r22,r24
+ 183 0044 CD01      		movw r24,r26
+ 184 0046 0E94 0000 		call __udivmodsi4
+ 185 004a DA01      		movw r26,r20
+ 186 004c C901      		movw r24,r18
+ 187 004e 0197      		sbiw r24,1
+ 188 0050 A109      		sbc r26,__zero_reg__
+ 189 0052 B109      		sbc r27,__zero_reg__
+ 190 0054 8983      		std Y+1,r24
+ 191 0056 9A83      		std Y+2,r25
+ 192 0058 AB83      		std Y+3,r26
+ 193 005a BC83      		std Y+4,r27
+  34:usart.c       ****     UBRR0H = (unsigned char)(ubrr>>8) ;// & 0x7F;
+ 195               	.LM2:
+ 196 005c 25EC      		ldi r18,lo8(-59)
+ 197 005e 30E0      		ldi r19,0
+ 198 0060 8981      		ldd r24,Y+1
+ 199 0062 9A81      		ldd r25,Y+2
+ 200 0064 AB81      		ldd r26,Y+3
+ 201 0066 BC81      		ldd r27,Y+4
+ 202 0068 892F      		mov r24,r25
+ 203 006a 9A2F      		mov r25,r26
+ 204 006c AB2F      		mov r26,r27
+ 205 006e BB27      		clr r27
+ 206 0070 F901      		movw r30,r18
+ 207 0072 8083      		st Z,r24
+  35:usart.c       ****     UBRR0L = (unsigned char)ubrr;
+ 209               	.LM3:
+ 210 0074 84EC      		ldi r24,lo8(-60)
+ 211 0076 90E0      		ldi r25,0
+ 212 0078 2981      		ldd r18,Y+1
+ 213 007a FC01      		movw r30,r24
+ 214 007c 2083      		st Z,r18
+  36:usart.c       ****     /* Enable receiver and transmitter */
+  37:usart.c       ****     UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+ 216               	.LM4:
+ 217 007e 81EC      		ldi r24,lo8(-63)
+ 218 0080 90E0      		ldi r25,0
+ 219 0082 28E1      		ldi r18,lo8(24)
+ 220 0084 FC01      		movw r30,r24
+ 221 0086 2083      		st Z,r18
+  38:usart.c       ****     /* Set frame format: 8data, 1stop bit */
+  39:usart.c       ****     UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+ 223               	.LM5:
+ 224 0088 82EC      		ldi r24,lo8(-62)
+ 225 008a 90E0      		ldi r25,0
+ 226 008c 26E0      		ldi r18,lo8(6)
+ 227 008e FC01      		movw r30,r24
+ 228 0090 2083      		st Z,r18
+  40:usart.c       **** 	// clear U2X0 for Synchronous operation
+  41:usart.c       ****     UCSR0A &= ~(1<<U2X0);
+ 230               	.LM6:
+ 231 0092 80EC      		ldi r24,lo8(-64)
+ 232 0094 90E0      		ldi r25,0
+ 233 0096 20EC      		ldi r18,lo8(-64)
+ 234 0098 30E0      		ldi r19,0
+ 235 009a F901      		movw r30,r18
+ 236 009c 2081      		ld r18,Z
+ 237 009e 2D7F      		andi r18,lo8(-3)
+ 238 00a0 FC01      		movw r30,r24
+ 239 00a2 2083      		st Z,r18
+ 240               	/* epilogue start */
+  42:usart.c       **** }
+ 242               	.LM7:
+ 243 00a4 2E96      		adiw r28,14
+ 244 00a6 0FB6      		in __tmp_reg__,__SREG__
+ 245 00a8 F894      		cli
+ 246 00aa DEBF      		out __SP_H__,r29
+ 247 00ac 0FBE      		out __SREG__,__tmp_reg__
+ 248 00ae CDBF      		out __SP_L__,r28
+ 249 00b0 DF91      		pop r29
+ 250 00b2 CF91      		pop r28
+ 251 00b4 0895      		ret
+ 256               	.Lscope1:
+ 258               		.stabd	78,0,0
+ 261               	.global	USART_Write
+ 263               	USART_Write:
+ 264               		.stabd	46,0,0
+  43:usart.c       **** 
+  44:usart.c       **** /*the send function will put 8bits on the trans line. */
+  45:usart.c       **** void USART_Write(uint8_t data) {
+ 266               	.LM8:
+ 267               	.LFBB2:
+ 268 00b6 CF93      		push r28
+ 269 00b8 DF93      		push r29
+ 270 00ba 1F92      		push __zero_reg__
+ 271 00bc CDB7      		in r28,__SP_L__
+ 272 00be DEB7      		in r29,__SP_H__
+ 273               	/* prologue: function */
+ 274               	/* frame size = 1 */
+ 275               	/* stack size = 3 */
+ 276               	.L__stack_usage = 3
+ 277 00c0 8983      		std Y+1,r24
+  46:usart.c       **** 		/* Wait for empty transmit buffer */
+  47:usart.c       **** 		while ( !( UCSR0A & (1<<UDRE0)) )
+ 279               	.LM9:
+ 280 00c2 0000      		nop
+ 281               	.L3:
+ 283               	.LM10:
+ 284 00c4 80EC      		ldi r24,lo8(-64)
+ 285 00c6 90E0      		ldi r25,0
+ 286 00c8 FC01      		movw r30,r24
+ 287 00ca 8081      		ld r24,Z
+ 288 00cc 882F      		mov r24,r24
+ 289 00ce 90E0      		ldi r25,0
+ 290 00d0 8072      		andi r24,32
+ 291 00d2 9927      		clr r25
+ 292 00d4 0097      		sbiw r24,0
+ 293 00d6 01F0      		breq .L3
+  48:usart.c       **** 		;
+  49:usart.c       **** 		/* Put data into buffer, sends the data */
+  50:usart.c       **** 		UDR0 = data;
+ 295               	.LM11:
+ 296 00d8 86EC      		ldi r24,lo8(-58)
+ 297 00da 90E0      		ldi r25,0
+ 298 00dc 2981      		ldd r18,Y+1
+ 299 00de FC01      		movw r30,r24
+ 300 00e0 2083      		st Z,r18
+ 301               	/* epilogue start */
+  51:usart.c       **** }
+ 303               	.LM12:
+ 304 00e2 0F90      		pop __tmp_reg__
+ 305 00e4 DF91      		pop r29
+ 306 00e6 CF91      		pop r28
+ 307 00e8 0895      		ret
+ 309               	.Lscope2:
+ 311               		.stabd	78,0,0
+ 314               	.global	USART_Write_Unprotected
+ 316               	USART_Write_Unprotected:
+ 317               		.stabd	46,0,0
+  52:usart.c       **** 
+  53:usart.c       **** /*the send function will put 8bits on the trans line. */
+  54:usart.c       **** void USART_Write_Unprotected(uint8_t data) {
+ 319               	.LM13:
+ 320               	.LFBB3:
+ 321 00ea CF93      		push r28
+ 322 00ec DF93      		push r29
+ 323 00ee 1F92      		push __zero_reg__
+ 324 00f0 CDB7      		in r28,__SP_L__
+ 325 00f2 DEB7      		in r29,__SP_H__
+ 326               	/* prologue: function */
+ 327               	/* frame size = 1 */
+ 328               	/* stack size = 3 */
+ 329               	.L__stack_usage = 3
+ 330 00f4 8983      		std Y+1,r24
+  55:usart.c       **** 	/* Wait for empty transmit buffer */
+  56:usart.c       **** 	while ( !( UCSR0A & (1<<UDRE0)) )
+ 332               	.LM14:
+ 333 00f6 0000      		nop
+ 334               	.L5:
+ 336               	.LM15:
+ 337 00f8 80EC      		ldi r24,lo8(-64)
+ 338 00fa 90E0      		ldi r25,0
+ 339 00fc FC01      		movw r30,r24
+ 340 00fe 8081      		ld r24,Z
+ 341 0100 882F      		mov r24,r24
+ 342 0102 90E0      		ldi r25,0
+ 343 0104 8072      		andi r24,32
+ 344 0106 9927      		clr r25
+ 345 0108 0097      		sbiw r24,0
+ 346 010a 01F0      		breq .L5
+  57:usart.c       **** 	;
+  58:usart.c       **** 	/* Put data into buffer, sends the data */
+  59:usart.c       **** 	UDR0 = data;
+ 348               	.LM16:
+ 349 010c 86EC      		ldi r24,lo8(-58)
+ 350 010e 90E0      		ldi r25,0
+ 351 0110 2981      		ldd r18,Y+1
+ 352 0112 FC01      		movw r30,r24
+ 353 0114 2083      		st Z,r18
+ 354               	/* epilogue start */
+  60:usart.c       **** }
+ 356               	.LM17:
+ 357 0116 0F90      		pop __tmp_reg__
+ 358 0118 DF91      		pop r29
+ 359 011a CF91      		pop r28
+ 360 011c 0895      		ret
+ 362               	.Lscope3:
+ 364               		.stabd	78,0,0
+ 366               	.global	USART_Read
+ 368               	USART_Read:
+ 369               		.stabd	46,0,0
+  61:usart.c       **** 
+  62:usart.c       **** /* the receive data function. Note that this a blocking call
+  63:usart.c       **** Therefore you may not get control back after this is called 
+  64:usart.c       **** until a much later time. It may be helpful to use the 
+  65:usart.c       **** istheredata() function to check before calling this function
+  66:usart.c       ****         @return 8bit data packet from sender
+  67:usart.c       **** */
+  68:usart.c       **** uint8_t USART_Read(void) {
+ 371               	.LM18:
+ 372               	.LFBB4:
+ 373 011e CF93      		push r28
+ 374 0120 DF93      		push r29
+ 375 0122 CDB7      		in r28,__SP_L__
+ 376 0124 DEB7      		in r29,__SP_H__
+ 377               	/* prologue: function */
+ 378               	/* frame size = 0 */
+ 379               	/* stack size = 2 */
+ 380               	.L__stack_usage = 2
+  69:usart.c       ****     /* Wait for data to be received */
+  70:usart.c       ****     while ( !(UCSR0A & (1<<RXC0)) )
+ 382               	.LM19:
+ 383 0126 0000      		nop
+ 384               	.L7:
+ 386               	.LM20:
+ 387 0128 80EC      		ldi r24,lo8(-64)
+ 388 012a 90E0      		ldi r25,0
+ 389 012c FC01      		movw r30,r24
+ 390 012e 8081      		ld r24,Z
+ 391 0130 8823      		tst r24
+ 392 0132 04F4      		brge .L7
+  71:usart.c       ****         ;
+  72:usart.c       ****     /* Get and return received data from buffer */
+  73:usart.c       ****     return UDR0;
+ 394               	.LM21:
+ 395 0134 86EC      		ldi r24,lo8(-58)
+ 396 0136 90E0      		ldi r25,0
+ 397 0138 FC01      		movw r30,r24
+ 398 013a 8081      		ld r24,Z
+ 399               	/* epilogue start */
+  74:usart.c       **** }
+ 401               	.LM22:
+ 402 013c DF91      		pop r29
+ 403 013e CF91      		pop r28
+ 404 0140 0895      		ret
+ 406               	.Lscope4:
+ 408               		.stabd	78,0,0
+ 410               	.Letext0:
+ 411               		.ident	"GCC: (GNU) 4.8.2"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 usart.c
+     /tmp/ccc9VU6z.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccc9VU6z.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccc9VU6z.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccc9VU6z.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccc9VU6z.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccc9VU6z.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccc9VU6z.s:137    .text:0000000000000000 USART_Init
+     /tmp/ccc9VU6z.s:263    .text:00000000000000b6 USART_Write
+     /tmp/ccc9VU6z.s:316    .text:00000000000000ea USART_Write_Unprotected
+     /tmp/ccc9VU6z.s:368    .text:000000000000011e USART_Read
+
+UNDEFINED SYMBOLS
+__udivmodsi4

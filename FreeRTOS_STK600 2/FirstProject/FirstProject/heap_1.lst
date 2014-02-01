@@ -1,0 +1,365 @@
+   1               		.file	"heap_1.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+ 148               		.local	xHeap
+ 149               		.comm	xHeap,6144,1
+ 150               		.local	xNextFreeByte
+ 151               		.comm	xNextFreeByte,2,1
+ 154               	.global	pvPortMalloc
+ 156               	pvPortMalloc:
+ 157               		.stabd	46,0,0
+   1:heap_1.c      **** /*
+   2:heap_1.c      ****     FreeRTOS V7.3.0 - Copyright (C) 2012 Real Time Engineers Ltd.
+   3:heap_1.c      **** 
+   4:heap_1.c      ****     FEATURES AND PORTS ARE ADDED TO FREERTOS ALL THE TIME.  PLEASE VISIT
+   5:heap_1.c      ****     http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
+   6:heap_1.c      **** 
+   7:heap_1.c      ****     ***************************************************************************
+   8:heap_1.c      ****      *                                                                       *
+   9:heap_1.c      ****      *    FreeRTOS tutorial books are available in pdf and paperback.        *
+  10:heap_1.c      ****      *    Complete, revised, and edited pdf reference manuals are also       *
+  11:heap_1.c      ****      *    available.                                                         *
+  12:heap_1.c      ****      *                                                                       *
+  13:heap_1.c      ****      *    Purchasing FreeRTOS documentation will not only help you, by       *
+  14:heap_1.c      ****      *    ensuring you get running as quickly as possible and with an        *
+  15:heap_1.c      ****      *    in-depth knowledge of how to use FreeRTOS, it will also help       *
+  16:heap_1.c      ****      *    the FreeRTOS project to continue with its mission of providing     *
+  17:heap_1.c      ****      *    professional grade, cross platform, de facto standard solutions    *
+  18:heap_1.c      ****      *    for microcontrollers - completely free of charge!                  *
+  19:heap_1.c      ****      *                                                                       *
+  20:heap_1.c      ****      *    >>> See http://www.FreeRTOS.org/Documentation for details. <<<     *
+  21:heap_1.c      ****      *                                                                       *
+  22:heap_1.c      ****      *    Thank you for using FreeRTOS, and thank you for your support!      *
+  23:heap_1.c      ****      *                                                                       *
+  24:heap_1.c      ****     ***************************************************************************
+  25:heap_1.c      **** 
+  26:heap_1.c      **** 
+  27:heap_1.c      ****     This file is part of the FreeRTOS distribution.
+  28:heap_1.c      **** 
+  29:heap_1.c      ****     FreeRTOS is free software; you can redistribute it and/or modify it under
+  30:heap_1.c      ****     the terms of the GNU General Public License (version 2) as published by the
+  31:heap_1.c      ****     Free Software Foundation AND MODIFIED BY the FreeRTOS exception.
+  32:heap_1.c      ****     >>>NOTE<<< The modification to the GPL is included to allow you to
+  33:heap_1.c      ****     distribute a combined work that includes FreeRTOS without being obliged to
+  34:heap_1.c      ****     provide the source code for proprietary components outside of the FreeRTOS
+  35:heap_1.c      ****     kernel.  FreeRTOS is distributed in the hope that it will be useful, but
+  36:heap_1.c      ****     WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  37:heap_1.c      ****     or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+  38:heap_1.c      ****     more details. You should have received a copy of the GNU General Public
+  39:heap_1.c      ****     License and the FreeRTOS license exception along with FreeRTOS; if not it
+  40:heap_1.c      ****     can be viewed here: http://www.freertos.org/a00114.html and also obtained
+  41:heap_1.c      ****     by writing to Richard Barry, contact details for whom are available on the
+  42:heap_1.c      ****     FreeRTOS WEB site.
+  43:heap_1.c      **** 
+  44:heap_1.c      ****     1 tab == 4 spaces!
+  45:heap_1.c      **** 
+  46:heap_1.c      ****     ***************************************************************************
+  47:heap_1.c      ****      *                                                                       *
+  48:heap_1.c      ****      *    Having a problem?  Start by reading the FAQ "My application does   *
+  49:heap_1.c      ****      *    not run, what could be wrong?"                                     *
+  50:heap_1.c      ****      *                                                                       *
+  51:heap_1.c      ****      *    http://www.FreeRTOS.org/FAQHelp.html                               *
+  52:heap_1.c      ****      *                                                                       *
+  53:heap_1.c      ****     ***************************************************************************
+  54:heap_1.c      **** 
+  55:heap_1.c      **** 
+  56:heap_1.c      ****     http://www.FreeRTOS.org - Documentation, training, latest versions, license
+  57:heap_1.c      ****     and contact details.
+  58:heap_1.c      **** 
+  59:heap_1.c      ****     http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
+  60:heap_1.c      ****     including FreeRTOS+Trace - an indispensable productivity tool.
+  61:heap_1.c      **** 
+  62:heap_1.c      ****     Real Time Engineers ltd license FreeRTOS to High Integrity Systems, who sell
+  63:heap_1.c      ****     the code with commercial support, indemnification, and middleware, under
+  64:heap_1.c      ****     the OpenRTOS brand: http://www.OpenRTOS.com.  High Integrity Systems also
+  65:heap_1.c      ****     provide a safety engineered and independently SIL3 certified version under
+  66:heap_1.c      ****     the SafeRTOS brand: http://www.SafeRTOS.com.
+  67:heap_1.c      **** */
+  68:heap_1.c      **** 
+  69:heap_1.c      **** 
+  70:heap_1.c      **** /*
+  71:heap_1.c      ****  * The simplest possible implementation of pvPortMalloc().  Note that this
+  72:heap_1.c      ****  * implementation does NOT allow allocated memory to be freed again.
+  73:heap_1.c      ****  *
+  74:heap_1.c      ****  * See heap_2.c, heap_3.c and heap_4.c for alternative implementations, and the
+  75:heap_1.c      ****  * memory management pages of http://www.FreeRTOS.org for more information.
+  76:heap_1.c      ****  */
+  77:heap_1.c      **** #include <stdlib.h>
+  78:heap_1.c      **** 
+  79:heap_1.c      **** /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
+  80:heap_1.c      **** all the API functions to use the MPU wrappers.  That should only be done when
+  81:heap_1.c      **** task.h is included from an application file. */
+  82:heap_1.c      **** #define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
+  83:heap_1.c      **** 
+  84:heap_1.c      **** #include "FreeRTOS.h"
+  85:heap_1.c      **** #include "task.h"
+  86:heap_1.c      **** 
+  87:heap_1.c      **** #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
+  88:heap_1.c      **** 
+  89:heap_1.c      **** /* Allocate the memory for the heap.  The struct is used to force byte
+  90:heap_1.c      **** alignment without using any non-portable code. */
+  91:heap_1.c      **** static union xRTOS_HEAP
+  92:heap_1.c      **** {
+  93:heap_1.c      **** 	#if portBYTE_ALIGNMENT == 8
+  94:heap_1.c      **** 		volatile portDOUBLE dDummy;
+  95:heap_1.c      **** 	#else
+  96:heap_1.c      **** 		volatile unsigned long ulDummy;
+  97:heap_1.c      **** 	#endif
+  98:heap_1.c      **** 	unsigned char ucHeap[ configTOTAL_HEAP_SIZE ];
+  99:heap_1.c      **** 
+ 100:heap_1.c      **** #if ( defined(portEXT_RAM) && !defined(portEXT_RAMFS) )
+ 101:heap_1.c      **** } xHeap  __attribute__((section(".ext_ram_heap"))); // Added this section to get heap to go to the 
+ 102:heap_1.c      **** #else
+ 103:heap_1.c      **** } xHeap;
+ 104:heap_1.c      **** #endif
+ 105:heap_1.c      **** 
+ 106:heap_1.c      **** static size_t xNextFreeByte = ( size_t ) 0;
+ 107:heap_1.c      **** /*-----------------------------------------------------------*/
+ 108:heap_1.c      **** 
+ 109:heap_1.c      **** void *pvPortMalloc( size_t xWantedSize )
+ 110:heap_1.c      **** {
+ 159               	.LM0:
+ 160               	.LFBB1:
+ 161 0000 CF93      		push r28
+ 162 0002 DF93      		push r29
+ 163 0004 00D0      		rcall .
+ 164 0006 1F92      		push __zero_reg__
+ 165 0008 CDB7      		in r28,__SP_L__
+ 166 000a DEB7      		in r29,__SP_H__
+ 167               	/* prologue: function */
+ 168               	/* frame size = 4 */
+ 169               	/* stack size = 6 */
+ 170               	.L__stack_usage = 6
+ 171 000c 9C83      		std Y+4,r25
+ 172 000e 8B83      		std Y+3,r24
+ 111:heap_1.c      **** void *pvReturn = NULL;
+ 174               	.LM1:
+ 175 0010 1A82      		std Y+2,__zero_reg__
+ 176 0012 1982      		std Y+1,__zero_reg__
+ 112:heap_1.c      **** 
+ 113:heap_1.c      **** 	/* Ensure that blocks are always aligned to the required number of bytes. */
+ 114:heap_1.c      **** 	#if portBYTE_ALIGNMENT != 1
+ 115:heap_1.c      **** 		if( xWantedSize & portBYTE_ALIGNMENT_MASK )
+ 116:heap_1.c      **** 		{
+ 117:heap_1.c      **** 			/* Byte alignment required. */
+ 118:heap_1.c      **** 			xWantedSize += ( portBYTE_ALIGNMENT - ( xWantedSize & portBYTE_ALIGNMENT_MASK ) );
+ 119:heap_1.c      **** 		}
+ 120:heap_1.c      **** 	#endif
+ 121:heap_1.c      **** 
+ 122:heap_1.c      **** 	vTaskSuspendAll();
+ 178               	.LM2:
+ 179 0014 0E94 0000 		call vTaskSuspendAll
+ 123:heap_1.c      **** 	{
+ 124:heap_1.c      **** 		/* Check there is enough room left for the allocation. */
+ 125:heap_1.c      **** 		if( ( ( xNextFreeByte + xWantedSize ) < configTOTAL_HEAP_SIZE ) &&
+ 181               	.LM3:
+ 182 0018 2091 0000 		lds r18,xNextFreeByte
+ 183 001c 3091 0000 		lds r19,xNextFreeByte+1
+ 184 0020 8B81      		ldd r24,Y+3
+ 185 0022 9C81      		ldd r25,Y+4
+ 186 0024 820F      		add r24,r18
+ 187 0026 931F      		adc r25,r19
+ 188 0028 8115      		cp r24,__zero_reg__
+ 189 002a 28E1      		ldi r18,24
+ 190 002c 9207      		cpc r25,r18
+ 191 002e 00F4      		brsh .L2
+ 126:heap_1.c      **** 			( ( xNextFreeByte + xWantedSize ) > xNextFreeByte )	)/* Check for overflow. */
+ 193               	.LM4:
+ 194 0030 2091 0000 		lds r18,xNextFreeByte
+ 195 0034 3091 0000 		lds r19,xNextFreeByte+1
+ 196 0038 8B81      		ldd r24,Y+3
+ 197 003a 9C81      		ldd r25,Y+4
+ 198 003c 280F      		add r18,r24
+ 199 003e 391F      		adc r19,r25
+ 200 0040 8091 0000 		lds r24,xNextFreeByte
+ 201 0044 9091 0000 		lds r25,xNextFreeByte+1
+ 125:heap_1.c      **** 		if( ( ( xNextFreeByte + xWantedSize ) < configTOTAL_HEAP_SIZE ) &&
+ 203               	.LM5:
+ 204 0048 8217      		cp r24,r18
+ 205 004a 9307      		cpc r25,r19
+ 206 004c 00F4      		brsh .L2
+ 127:heap_1.c      **** 		{
+ 128:heap_1.c      **** 			/* Return the next free byte then increment the index past this
+ 129:heap_1.c      **** 			block. */
+ 130:heap_1.c      **** 			pvReturn = &( xHeap.ucHeap[ xNextFreeByte ] );
+ 208               	.LM6:
+ 209 004e 8091 0000 		lds r24,xNextFreeByte
+ 210 0052 9091 0000 		lds r25,xNextFreeByte+1
+ 211 0056 8050      		subi r24,lo8(-(xHeap))
+ 212 0058 9040      		sbci r25,hi8(-(xHeap))
+ 213 005a 9A83      		std Y+2,r25
+ 214 005c 8983      		std Y+1,r24
+ 131:heap_1.c      **** 			xNextFreeByte += xWantedSize;
+ 216               	.LM7:
+ 217 005e 2091 0000 		lds r18,xNextFreeByte
+ 218 0062 3091 0000 		lds r19,xNextFreeByte+1
+ 219 0066 8B81      		ldd r24,Y+3
+ 220 0068 9C81      		ldd r25,Y+4
+ 221 006a 820F      		add r24,r18
+ 222 006c 931F      		adc r25,r19
+ 223 006e 9093 0000 		sts xNextFreeByte+1,r25
+ 224 0072 8093 0000 		sts xNextFreeByte,r24
+ 225               	.L2:
+ 132:heap_1.c      **** 		}
+ 133:heap_1.c      **** 	}
+ 134:heap_1.c      **** 	xTaskResumeAll();
+ 227               	.LM8:
+ 228 0076 0E94 0000 		call xTaskResumeAll
+ 135:heap_1.c      **** 
+ 136:heap_1.c      **** 	#if( configUSE_MALLOC_FAILED_HOOK == 1 )
+ 137:heap_1.c      **** 	{
+ 138:heap_1.c      **** 		if( pvReturn == NULL )
+ 139:heap_1.c      **** 		{
+ 140:heap_1.c      **** 			extern void vApplicationMallocFailedHook( void );
+ 141:heap_1.c      **** 			vApplicationMallocFailedHook();
+ 142:heap_1.c      **** 		}
+ 143:heap_1.c      **** 	}
+ 144:heap_1.c      **** 	#endif
+ 145:heap_1.c      **** 
+ 146:heap_1.c      **** 	return pvReturn;
+ 230               	.LM9:
+ 231 007a 8981      		ldd r24,Y+1
+ 232 007c 9A81      		ldd r25,Y+2
+ 233               	/* epilogue start */
+ 147:heap_1.c      **** }
+ 235               	.LM10:
+ 236 007e 0F90      		pop __tmp_reg__
+ 237 0080 0F90      		pop __tmp_reg__
+ 238 0082 0F90      		pop __tmp_reg__
+ 239 0084 0F90      		pop __tmp_reg__
+ 240 0086 DF91      		pop r29
+ 241 0088 CF91      		pop r28
+ 242 008a 0895      		ret
+ 247               	.Lscope1:
+ 249               		.stabd	78,0,0
+ 252               	.global	vPortFree
+ 254               	vPortFree:
+ 255               		.stabd	46,0,0
+ 148:heap_1.c      **** /*-----------------------------------------------------------*/
+ 149:heap_1.c      **** 
+ 150:heap_1.c      **** void vPortFree( void *pv )
+ 151:heap_1.c      **** {
+ 257               	.LM11:
+ 258               	.LFBB2:
+ 259 008c CF93      		push r28
+ 260 008e DF93      		push r29
+ 261 0090 1F92      		push __zero_reg__
+ 262 0092 1F92      		push __zero_reg__
+ 263 0094 CDB7      		in r28,__SP_L__
+ 264 0096 DEB7      		in r29,__SP_H__
+ 265               	/* prologue: function */
+ 266               	/* frame size = 2 */
+ 267               	/* stack size = 4 */
+ 268               	.L__stack_usage = 4
+ 269 0098 9A83      		std Y+2,r25
+ 270 009a 8983      		std Y+1,r24
+ 271               	/* epilogue start */
+ 152:heap_1.c      **** 	/* Memory cannot be freed using this scheme.  See heap_2.c, heap_3.c and
+ 153:heap_1.c      **** 	heap_4.c for alternative implementations, and the memory management pages of
+ 154:heap_1.c      **** 	http://www.FreeRTOS.org for more information. */
+ 155:heap_1.c      **** 	( void ) pv;
+ 156:heap_1.c      **** 
+ 157:heap_1.c      **** 	/* Force an assert as it is invalid to call this function. */
+ 158:heap_1.c      **** 	configASSERT( pv == NULL );
+ 159:heap_1.c      **** }
+ 273               	.LM12:
+ 274 009c 0F90      		pop __tmp_reg__
+ 275 009e 0F90      		pop __tmp_reg__
+ 276 00a0 DF91      		pop r29
+ 277 00a2 CF91      		pop r28
+ 278 00a4 0895      		ret
+ 280               	.Lscope2:
+ 282               		.stabd	78,0,0
+ 284               	.global	vPortInitialiseBlocks
+ 286               	vPortInitialiseBlocks:
+ 287               		.stabd	46,0,0
+ 160:heap_1.c      **** /*-----------------------------------------------------------*/
+ 161:heap_1.c      **** 
+ 162:heap_1.c      **** void vPortInitialiseBlocks( void )
+ 163:heap_1.c      **** {
+ 289               	.LM13:
+ 290               	.LFBB3:
+ 291 00a6 CF93      		push r28
+ 292 00a8 DF93      		push r29
+ 293 00aa CDB7      		in r28,__SP_L__
+ 294 00ac DEB7      		in r29,__SP_H__
+ 295               	/* prologue: function */
+ 296               	/* frame size = 0 */
+ 297               	/* stack size = 2 */
+ 298               	.L__stack_usage = 2
+ 164:heap_1.c      **** 	/* Only required when static memory is not cleared. */
+ 165:heap_1.c      **** 	xNextFreeByte = ( size_t ) 0;
+ 300               	.LM14:
+ 301 00ae 1092 0000 		sts xNextFreeByte+1,__zero_reg__
+ 302 00b2 1092 0000 		sts xNextFreeByte,__zero_reg__
+ 303               	/* epilogue start */
+ 166:heap_1.c      **** }
+ 305               	.LM15:
+ 306 00b6 DF91      		pop r29
+ 307 00b8 CF91      		pop r28
+ 308 00ba 0895      		ret
+ 310               	.Lscope3:
+ 312               		.stabd	78,0,0
+ 314               	.global	xPortGetFreeHeapSize
+ 316               	xPortGetFreeHeapSize:
+ 317               		.stabd	46,0,0
+ 167:heap_1.c      **** /*-----------------------------------------------------------*/
+ 168:heap_1.c      **** 
+ 169:heap_1.c      **** size_t xPortGetFreeHeapSize( void )
+ 170:heap_1.c      **** {
+ 319               	.LM16:
+ 320               	.LFBB4:
+ 321 00bc CF93      		push r28
+ 322 00be DF93      		push r29
+ 323 00c0 CDB7      		in r28,__SP_L__
+ 324 00c2 DEB7      		in r29,__SP_H__
+ 325               	/* prologue: function */
+ 326               	/* frame size = 0 */
+ 327               	/* stack size = 2 */
+ 328               	.L__stack_usage = 2
+ 171:heap_1.c      **** 	return ( configTOTAL_HEAP_SIZE - xNextFreeByte );
+ 330               	.LM17:
+ 331 00c4 8091 0000 		lds r24,xNextFreeByte
+ 332 00c8 9091 0000 		lds r25,xNextFreeByte+1
+ 333 00cc 20E0      		ldi r18,0
+ 334 00ce 38E1      		ldi r19,lo8(24)
+ 335 00d0 A901      		movw r20,r18
+ 336 00d2 481B      		sub r20,r24
+ 337 00d4 590B      		sbc r21,r25
+ 338 00d6 CA01      		movw r24,r20
+ 339               	/* epilogue start */
+ 172:heap_1.c      **** }
+ 341               	.LM18:
+ 342 00d8 DF91      		pop r29
+ 343 00da CF91      		pop r28
+ 344 00dc 0895      		ret
+ 346               	.Lscope4:
+ 348               		.stabd	78,0,0
+ 352               	.Letext0:
+ 353               		.ident	"GCC: (GNU) 4.8.2"
+ 354               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 heap_1.c
+     /tmp/cceNqncy.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/cceNqncy.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/cceNqncy.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/cceNqncy.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/cceNqncy.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cceNqncy.s:7      *ABS*:0000000000000001 __zero_reg__
+                             .bss:0000000000000000 xHeap
+     /tmp/cceNqncy.s:149    .bss:0000000000001800 xNextFreeByte
+     /tmp/cceNqncy.s:156    .text:0000000000000000 pvPortMalloc
+     /tmp/cceNqncy.s:254    .text:000000000000008c vPortFree
+     /tmp/cceNqncy.s:286    .text:00000000000000a6 vPortInitialiseBlocks
+     /tmp/cceNqncy.s:316    .text:00000000000000bc xPortGetFreeHeapSize
+
+UNDEFINED SYMBOLS
+vTaskSuspendAll
+xTaskResumeAll
+__do_clear_bss

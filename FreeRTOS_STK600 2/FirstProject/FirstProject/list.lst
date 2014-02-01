@@ -1,0 +1,703 @@
+   1               		.file	"list.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+ 138               	.global	vListInitialise
+ 140               	vListInitialise:
+ 141               		.stabd	46,0,0
+   1:list.c        **** /*
+   2:list.c        ****     FreeRTOS V7.3.0 - Copyright (C) 2012 Real Time Engineers Ltd.
+   3:list.c        **** 
+   4:list.c        ****     FEATURES AND PORTS ARE ADDED TO FREERTOS ALL THE TIME.  PLEASE VISIT 
+   5:list.c        ****     http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
+   6:list.c        **** 
+   7:list.c        ****     ***************************************************************************
+   8:list.c        ****      *                                                                       *
+   9:list.c        ****      *    FreeRTOS tutorial books are available in pdf and paperback.        *
+  10:list.c        ****      *    Complete, revised, and edited pdf reference manuals are also       *
+  11:list.c        ****      *    available.                                                         *
+  12:list.c        ****      *                                                                       *
+  13:list.c        ****      *    Purchasing FreeRTOS documentation will not only help you, by       *
+  14:list.c        ****      *    ensuring you get running as quickly as possible and with an        *
+  15:list.c        ****      *    in-depth knowledge of how to use FreeRTOS, it will also help       *
+  16:list.c        ****      *    the FreeRTOS project to continue with its mission of providing     *
+  17:list.c        ****      *    professional grade, cross platform, de facto standard solutions    *
+  18:list.c        ****      *    for microcontrollers - completely free of charge!                  *
+  19:list.c        ****      *                                                                       *
+  20:list.c        ****      *    >>> See http://www.FreeRTOS.org/Documentation for details. <<<     *
+  21:list.c        ****      *                                                                       *
+  22:list.c        ****      *    Thank you for using FreeRTOS, and thank you for your support!      *
+  23:list.c        ****      *                                                                       *
+  24:list.c        ****     ***************************************************************************
+  25:list.c        **** 
+  26:list.c        **** 
+  27:list.c        ****     This file is part of the FreeRTOS distribution.
+  28:list.c        **** 
+  29:list.c        ****     FreeRTOS is free software; you can redistribute it and/or modify it under
+  30:list.c        ****     the terms of the GNU General Public License (version 2) as published by the
+  31:list.c        ****     Free Software Foundation AND MODIFIED BY the FreeRTOS exception.
+  32:list.c        ****     >>>NOTE<<< The modification to the GPL is included to allow you to
+  33:list.c        ****     distribute a combined work that includes FreeRTOS without being obliged to
+  34:list.c        ****     provide the source code for proprietary components outside of the FreeRTOS
+  35:list.c        ****     kernel.  FreeRTOS is distributed in the hope that it will be useful, but
+  36:list.c        ****     WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  37:list.c        ****     or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+  38:list.c        ****     more details. You should have received a copy of the GNU General Public
+  39:list.c        ****     License and the FreeRTOS license exception along with FreeRTOS; if not it
+  40:list.c        ****     can be viewed here: http://www.freertos.org/a00114.html and also obtained
+  41:list.c        ****     by writing to Richard Barry, contact details for whom are available on the
+  42:list.c        ****     FreeRTOS WEB site.
+  43:list.c        **** 
+  44:list.c        ****     1 tab == 4 spaces!
+  45:list.c        ****     
+  46:list.c        ****     ***************************************************************************
+  47:list.c        ****      *                                                                       *
+  48:list.c        ****      *    Having a problem?  Start by reading the FAQ "My application does   *
+  49:list.c        ****      *    not run, what could be wrong?"                                     *
+  50:list.c        ****      *                                                                       *
+  51:list.c        ****      *    http://www.FreeRTOS.org/FAQHelp.html                               *
+  52:list.c        ****      *                                                                       *
+  53:list.c        ****     ***************************************************************************
+  54:list.c        **** 
+  55:list.c        ****     
+  56:list.c        ****     http://www.FreeRTOS.org - Documentation, training, latest versions, license 
+  57:list.c        ****     and contact details.  
+  58:list.c        ****     
+  59:list.c        ****     http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
+  60:list.c        ****     including FreeRTOS+Trace - an indispensable productivity tool.
+  61:list.c        **** 
+  62:list.c        ****     Real Time Engineers ltd license FreeRTOS to High Integrity Systems, who sell 
+  63:list.c        ****     the code with commercial support, indemnification, and middleware, under 
+  64:list.c        ****     the OpenRTOS brand: http://www.OpenRTOS.com.  High Integrity Systems also
+  65:list.c        ****     provide a safety engineered and independently SIL3 certified version under 
+  66:list.c        ****     the SafeRTOS brand: http://www.SafeRTOS.com.
+  67:list.c        **** */
+  68:list.c        **** 
+  69:list.c        **** 
+  70:list.c        **** #include <stdlib.h>
+  71:list.c        **** #include "FreeRTOS.h"
+  72:list.c        **** #include "list.h"
+  73:list.c        **** 
+  74:list.c        **** /*-----------------------------------------------------------
+  75:list.c        ****  * PUBLIC LIST API documented in list.h
+  76:list.c        ****  *----------------------------------------------------------*/
+  77:list.c        **** 
+  78:list.c        **** void vListInitialise( xList *pxList )
+  79:list.c        **** {
+ 143               	.LM0:
+ 144               	.LFBB1:
+ 145 0000 CF93      		push r28
+ 146 0002 DF93      		push r29
+ 147 0004 1F92      		push __zero_reg__
+ 148 0006 1F92      		push __zero_reg__
+ 149 0008 CDB7      		in r28,__SP_L__
+ 150 000a DEB7      		in r29,__SP_H__
+ 151               	/* prologue: function */
+ 152               	/* frame size = 2 */
+ 153               	/* stack size = 4 */
+ 154               	.L__stack_usage = 4
+ 155 000c 9A83      		std Y+2,r25
+ 156 000e 8983      		std Y+1,r24
+  80:list.c        **** 	/* The list structure contains a list item which is used to mark the
+  81:list.c        **** 	end of the list.  To initialise the list the list end is inserted
+  82:list.c        **** 	as the only list entry. */
+  83:list.c        **** 	pxList->pxIndex = ( xListItem * ) &( pxList->xListEnd );
+ 158               	.LM1:
+ 159 0010 8981      		ldd r24,Y+1
+ 160 0012 9A81      		ldd r25,Y+2
+ 161 0014 9C01      		movw r18,r24
+ 162 0016 2D5F      		subi r18,-3
+ 163 0018 3F4F      		sbci r19,-1
+ 164 001a 8981      		ldd r24,Y+1
+ 165 001c 9A81      		ldd r25,Y+2
+ 166 001e FC01      		movw r30,r24
+ 167 0020 3283      		std Z+2,r19
+ 168 0022 2183      		std Z+1,r18
+  84:list.c        **** 
+  85:list.c        **** 	/* The list end value is the highest possible value in the list to
+  86:list.c        **** 	ensure it remains at the end of the list. */
+  87:list.c        **** 	pxList->xListEnd.xItemValue = portMAX_DELAY;
+ 170               	.LM2:
+ 171 0024 8981      		ldd r24,Y+1
+ 172 0026 9A81      		ldd r25,Y+2
+ 173 0028 2FEF      		ldi r18,lo8(-1)
+ 174 002a 3FEF      		ldi r19,lo8(-1)
+ 175 002c FC01      		movw r30,r24
+ 176 002e 3483      		std Z+4,r19
+ 177 0030 2383      		std Z+3,r18
+  88:list.c        **** 
+  89:list.c        **** 	/* The list end next and previous pointers point to itself so we know
+  90:list.c        **** 	when the list is empty. */
+  91:list.c        **** 	pxList->xListEnd.pxNext = ( xListItem * ) &( pxList->xListEnd );
+ 179               	.LM3:
+ 180 0032 8981      		ldd r24,Y+1
+ 181 0034 9A81      		ldd r25,Y+2
+ 182 0036 9C01      		movw r18,r24
+ 183 0038 2D5F      		subi r18,-3
+ 184 003a 3F4F      		sbci r19,-1
+ 185 003c 8981      		ldd r24,Y+1
+ 186 003e 9A81      		ldd r25,Y+2
+ 187 0040 FC01      		movw r30,r24
+ 188 0042 3683      		std Z+6,r19
+ 189 0044 2583      		std Z+5,r18
+  92:list.c        **** 	pxList->xListEnd.pxPrevious = ( xListItem * ) &( pxList->xListEnd );
+ 191               	.LM4:
+ 192 0046 8981      		ldd r24,Y+1
+ 193 0048 9A81      		ldd r25,Y+2
+ 194 004a 9C01      		movw r18,r24
+ 195 004c 2D5F      		subi r18,-3
+ 196 004e 3F4F      		sbci r19,-1
+ 197 0050 8981      		ldd r24,Y+1
+ 198 0052 9A81      		ldd r25,Y+2
+ 199 0054 FC01      		movw r30,r24
+ 200 0056 3087      		std Z+8,r19
+ 201 0058 2783      		std Z+7,r18
+  93:list.c        **** 
+  94:list.c        **** 	pxList->uxNumberOfItems = ( unsigned portBASE_TYPE ) 0U;
+ 203               	.LM5:
+ 204 005a 8981      		ldd r24,Y+1
+ 205 005c 9A81      		ldd r25,Y+2
+ 206 005e FC01      		movw r30,r24
+ 207 0060 1082      		st Z,__zero_reg__
+ 208               	/* epilogue start */
+  95:list.c        **** }
+ 210               	.LM6:
+ 211 0062 0F90      		pop __tmp_reg__
+ 212 0064 0F90      		pop __tmp_reg__
+ 213 0066 DF91      		pop r29
+ 214 0068 CF91      		pop r28
+ 215 006a 0895      		ret
+ 217               	.Lscope1:
+ 219               		.stabd	78,0,0
+ 222               	.global	vListInitialiseItem
+ 224               	vListInitialiseItem:
+ 225               		.stabd	46,0,0
+  96:list.c        **** /*-----------------------------------------------------------*/
+  97:list.c        **** 
+  98:list.c        **** void vListInitialiseItem( xListItem *pxItem )
+  99:list.c        **** {
+ 227               	.LM7:
+ 228               	.LFBB2:
+ 229 006c CF93      		push r28
+ 230 006e DF93      		push r29
+ 231 0070 1F92      		push __zero_reg__
+ 232 0072 1F92      		push __zero_reg__
+ 233 0074 CDB7      		in r28,__SP_L__
+ 234 0076 DEB7      		in r29,__SP_H__
+ 235               	/* prologue: function */
+ 236               	/* frame size = 2 */
+ 237               	/* stack size = 4 */
+ 238               	.L__stack_usage = 4
+ 239 0078 9A83      		std Y+2,r25
+ 240 007a 8983      		std Y+1,r24
+ 100:list.c        **** 	/* Make sure the list item is not recorded as being on a list. */
+ 101:list.c        **** 	pxItem->pvContainer = NULL;
+ 242               	.LM8:
+ 243 007c 8981      		ldd r24,Y+1
+ 244 007e 9A81      		ldd r25,Y+2
+ 245 0080 FC01      		movw r30,r24
+ 246 0082 1186      		std Z+9,__zero_reg__
+ 247 0084 1086      		std Z+8,__zero_reg__
+ 248               	/* epilogue start */
+ 102:list.c        **** }
+ 250               	.LM9:
+ 251 0086 0F90      		pop __tmp_reg__
+ 252 0088 0F90      		pop __tmp_reg__
+ 253 008a DF91      		pop r29
+ 254 008c CF91      		pop r28
+ 255 008e 0895      		ret
+ 257               	.Lscope2:
+ 259               		.stabd	78,0,0
+ 263               	.global	vListInsertEnd
+ 265               	vListInsertEnd:
+ 266               		.stabd	46,0,0
+ 103:list.c        **** /*-----------------------------------------------------------*/
+ 104:list.c        **** 
+ 105:list.c        **** void vListInsertEnd( xList *pxList, xListItem *pxNewListItem )
+ 106:list.c        **** {
+ 268               	.LM10:
+ 269               	.LFBB3:
+ 270 0090 CF93      		push r28
+ 271 0092 DF93      		push r29
+ 272 0094 00D0      		rcall .
+ 273 0096 00D0      		rcall .
+ 274 0098 CDB7      		in r28,__SP_L__
+ 275 009a DEB7      		in r29,__SP_H__
+ 276               	/* prologue: function */
+ 277               	/* frame size = 6 */
+ 278               	/* stack size = 8 */
+ 279               	.L__stack_usage = 8
+ 280 009c 9C83      		std Y+4,r25
+ 281 009e 8B83      		std Y+3,r24
+ 282 00a0 7E83      		std Y+6,r23
+ 283 00a2 6D83      		std Y+5,r22
+ 107:list.c        **** volatile xListItem * pxIndex;
+ 108:list.c        **** 
+ 109:list.c        **** 	/* Insert a new list item into pxList, but rather than sort the list,
+ 110:list.c        **** 	makes the new list item the last item to be removed by a call to
+ 111:list.c        **** 	pvListGetOwnerOfNextEntry.  This means it has to be the item pointed to by
+ 112:list.c        **** 	the pxIndex member. */
+ 113:list.c        **** 	pxIndex = pxList->pxIndex;
+ 285               	.LM11:
+ 286 00a4 8B81      		ldd r24,Y+3
+ 287 00a6 9C81      		ldd r25,Y+4
+ 288 00a8 FC01      		movw r30,r24
+ 289 00aa 8181      		ldd r24,Z+1
+ 290 00ac 9281      		ldd r25,Z+2
+ 291 00ae 9A83      		std Y+2,r25
+ 292 00b0 8983      		std Y+1,r24
+ 114:list.c        **** 
+ 115:list.c        **** 	pxNewListItem->pxNext = pxIndex->pxNext;
+ 294               	.LM12:
+ 295 00b2 8981      		ldd r24,Y+1
+ 296 00b4 9A81      		ldd r25,Y+2
+ 297 00b6 FC01      		movw r30,r24
+ 298 00b8 2281      		ldd r18,Z+2
+ 299 00ba 3381      		ldd r19,Z+3
+ 300 00bc 8D81      		ldd r24,Y+5
+ 301 00be 9E81      		ldd r25,Y+6
+ 302 00c0 FC01      		movw r30,r24
+ 303 00c2 3383      		std Z+3,r19
+ 304 00c4 2283      		std Z+2,r18
+ 116:list.c        **** 	pxNewListItem->pxPrevious = pxList->pxIndex;
+ 306               	.LM13:
+ 307 00c6 8B81      		ldd r24,Y+3
+ 308 00c8 9C81      		ldd r25,Y+4
+ 309 00ca FC01      		movw r30,r24
+ 310 00cc 2181      		ldd r18,Z+1
+ 311 00ce 3281      		ldd r19,Z+2
+ 312 00d0 8D81      		ldd r24,Y+5
+ 313 00d2 9E81      		ldd r25,Y+6
+ 314 00d4 FC01      		movw r30,r24
+ 315 00d6 3583      		std Z+5,r19
+ 316 00d8 2483      		std Z+4,r18
+ 117:list.c        **** 	pxIndex->pxNext->pxPrevious = ( volatile xListItem * ) pxNewListItem;
+ 318               	.LM14:
+ 319 00da 8981      		ldd r24,Y+1
+ 320 00dc 9A81      		ldd r25,Y+2
+ 321 00de FC01      		movw r30,r24
+ 322 00e0 8281      		ldd r24,Z+2
+ 323 00e2 9381      		ldd r25,Z+3
+ 324 00e4 2D81      		ldd r18,Y+5
+ 325 00e6 3E81      		ldd r19,Y+6
+ 326 00e8 FC01      		movw r30,r24
+ 327 00ea 3583      		std Z+5,r19
+ 328 00ec 2483      		std Z+4,r18
+ 118:list.c        **** 	pxIndex->pxNext = ( volatile xListItem * ) pxNewListItem;
+ 330               	.LM15:
+ 331 00ee 8981      		ldd r24,Y+1
+ 332 00f0 9A81      		ldd r25,Y+2
+ 333 00f2 2D81      		ldd r18,Y+5
+ 334 00f4 3E81      		ldd r19,Y+6
+ 335 00f6 FC01      		movw r30,r24
+ 336 00f8 3383      		std Z+3,r19
+ 337 00fa 2283      		std Z+2,r18
+ 119:list.c        **** 	pxList->pxIndex = ( volatile xListItem * ) pxNewListItem;
+ 339               	.LM16:
+ 340 00fc 8B81      		ldd r24,Y+3
+ 341 00fe 9C81      		ldd r25,Y+4
+ 342 0100 2D81      		ldd r18,Y+5
+ 343 0102 3E81      		ldd r19,Y+6
+ 344 0104 FC01      		movw r30,r24
+ 345 0106 3283      		std Z+2,r19
+ 346 0108 2183      		std Z+1,r18
+ 120:list.c        **** 
+ 121:list.c        **** 	/* Remember which list the item is in. */
+ 122:list.c        **** 	pxNewListItem->pvContainer = ( void * ) pxList;
+ 348               	.LM17:
+ 349 010a 8D81      		ldd r24,Y+5
+ 350 010c 9E81      		ldd r25,Y+6
+ 351 010e 2B81      		ldd r18,Y+3
+ 352 0110 3C81      		ldd r19,Y+4
+ 353 0112 FC01      		movw r30,r24
+ 354 0114 3187      		std Z+9,r19
+ 355 0116 2087      		std Z+8,r18
+ 123:list.c        **** 
+ 124:list.c        **** 	( pxList->uxNumberOfItems )++;
+ 357               	.LM18:
+ 358 0118 8B81      		ldd r24,Y+3
+ 359 011a 9C81      		ldd r25,Y+4
+ 360 011c FC01      		movw r30,r24
+ 361 011e 8081      		ld r24,Z
+ 362 0120 21E0      		ldi r18,lo8(1)
+ 363 0122 280F      		add r18,r24
+ 364 0124 8B81      		ldd r24,Y+3
+ 365 0126 9C81      		ldd r25,Y+4
+ 366 0128 FC01      		movw r30,r24
+ 367 012a 2083      		st Z,r18
+ 368               	/* epilogue start */
+ 125:list.c        **** }
+ 370               	.LM19:
+ 371 012c 2696      		adiw r28,6
+ 372 012e 0FB6      		in __tmp_reg__,__SREG__
+ 373 0130 F894      		cli
+ 374 0132 DEBF      		out __SP_H__,r29
+ 375 0134 0FBE      		out __SREG__,__tmp_reg__
+ 376 0136 CDBF      		out __SP_L__,r28
+ 377 0138 DF91      		pop r29
+ 378 013a CF91      		pop r28
+ 379 013c 0895      		ret
+ 384               	.Lscope3:
+ 386               		.stabd	78,0,0
+ 390               	.global	vListInsert
+ 392               	vListInsert:
+ 393               		.stabd	46,0,0
+ 126:list.c        **** /*-----------------------------------------------------------*/
+ 127:list.c        **** 
+ 128:list.c        **** void vListInsert( xList *pxList, xListItem *pxNewListItem )
+ 129:list.c        **** {
+ 395               	.LM20:
+ 396               	.LFBB4:
+ 397 013e CF93      		push r28
+ 398 0140 DF93      		push r29
+ 399 0142 CDB7      		in r28,__SP_L__
+ 400 0144 DEB7      		in r29,__SP_H__
+ 401 0146 2897      		sbiw r28,8
+ 402 0148 0FB6      		in __tmp_reg__,__SREG__
+ 403 014a F894      		cli
+ 404 014c DEBF      		out __SP_H__,r29
+ 405 014e 0FBE      		out __SREG__,__tmp_reg__
+ 406 0150 CDBF      		out __SP_L__,r28
+ 407               	/* prologue: function */
+ 408               	/* frame size = 8 */
+ 409               	/* stack size = 10 */
+ 410               	.L__stack_usage = 10
+ 411 0152 9E83      		std Y+6,r25
+ 412 0154 8D83      		std Y+5,r24
+ 413 0156 7887      		std Y+8,r23
+ 414 0158 6F83      		std Y+7,r22
+ 130:list.c        **** volatile xListItem *pxIterator;
+ 131:list.c        **** portTickType xValueOfInsertion;
+ 132:list.c        **** 
+ 133:list.c        **** 	/* Insert the new list item into the list, sorted in ulListItem order. */
+ 134:list.c        **** 	xValueOfInsertion = pxNewListItem->xItemValue;
+ 416               	.LM21:
+ 417 015a 8F81      		ldd r24,Y+7
+ 418 015c 9885      		ldd r25,Y+8
+ 419 015e FC01      		movw r30,r24
+ 420 0160 8081      		ld r24,Z
+ 421 0162 9181      		ldd r25,Z+1
+ 422 0164 9C83      		std Y+4,r25
+ 423 0166 8B83      		std Y+3,r24
+ 135:list.c        **** 
+ 136:list.c        **** 	/* If the list already contains a list item with the same item value then
+ 137:list.c        **** 	the new list item should be placed after it.  This ensures that TCB's which
+ 138:list.c        **** 	are stored in ready lists (all of which have the same ulListItem value)
+ 139:list.c        **** 	get an equal share of the CPU.  However, if the xItemValue is the same as
+ 140:list.c        **** 	the back marker the iteration loop below will not end.  This means we need
+ 141:list.c        **** 	to guard against this by checking the value first and modifying the
+ 142:list.c        **** 	algorithm slightly if necessary. */
+ 143:list.c        **** 	if( xValueOfInsertion == portMAX_DELAY )
+ 425               	.LM22:
+ 426 0168 8B81      		ldd r24,Y+3
+ 427 016a 9C81      		ldd r25,Y+4
+ 428 016c 8F3F      		cpi r24,-1
+ 429 016e FFEF      		ldi r31,-1
+ 430 0170 9F07      		cpc r25,r31
+ 431 0172 01F4      		brne .L5
+ 144:list.c        **** 	{
+ 145:list.c        **** 		pxIterator = pxList->xListEnd.pxPrevious;
+ 433               	.LM23:
+ 434 0174 8D81      		ldd r24,Y+5
+ 435 0176 9E81      		ldd r25,Y+6
+ 436 0178 FC01      		movw r30,r24
+ 437 017a 8781      		ldd r24,Z+7
+ 438 017c 9085      		ldd r25,Z+8
+ 439 017e 9A83      		std Y+2,r25
+ 440 0180 8983      		std Y+1,r24
+ 441 0182 00C0      		rjmp .L6
+ 442               	.L5:
+ 146:list.c        **** 	}
+ 147:list.c        **** 	else
+ 148:list.c        **** 	{
+ 149:list.c        **** 		/* *** NOTE ***********************************************************
+ 150:list.c        **** 		If you find your application is crashing here then likely causes are:
+ 151:list.c        **** 			1) Stack overflow -
+ 152:list.c        **** 			   see http://www.freertos.org/Stacks-and-stack-overflow-checking.html
+ 153:list.c        **** 			2) Incorrect interrupt priority assignment, especially on Cortex-M3
+ 154:list.c        **** 			   parts where numerically high priority values denote low actual
+ 155:list.c        **** 			   interrupt priories, which can seem counter intuitive.  See
+ 156:list.c        **** 			   configMAX_SYSCALL_INTERRUPT_PRIORITY on http://www.freertos.org/a00110.html
+ 157:list.c        **** 			3) Calling an API function from within a critical section or when
+ 158:list.c        **** 			   the scheduler is suspended.
+ 159:list.c        **** 			4) Using a queue or semaphore before it has been initialised or
+ 160:list.c        **** 			   before the scheduler has been started (are interrupts firing
+ 161:list.c        **** 			   before vTaskStartScheduler() has been called?).
+ 162:list.c        **** 		See http://www.freertos.org/FAQHelp.html for more tips.
+ 163:list.c        **** 		**********************************************************************/
+ 164:list.c        **** 
+ 165:list.c        **** 		for( pxIterator = ( xListItem * ) &( pxList->xListEnd ); pxIterator->pxNext->xItemValue <= xValue
+ 444               	.LM24:
+ 445 0184 8D81      		ldd r24,Y+5
+ 446 0186 9E81      		ldd r25,Y+6
+ 447 0188 0396      		adiw r24,3
+ 448 018a 9A83      		std Y+2,r25
+ 449 018c 8983      		std Y+1,r24
+ 450 018e 00C0      		rjmp .L7
+ 451               	.L8:
+ 453               	.LM25:
+ 454 0190 8981      		ldd r24,Y+1
+ 455 0192 9A81      		ldd r25,Y+2
+ 456 0194 FC01      		movw r30,r24
+ 457 0196 8281      		ldd r24,Z+2
+ 458 0198 9381      		ldd r25,Z+3
+ 459 019a 9A83      		std Y+2,r25
+ 460 019c 8983      		std Y+1,r24
+ 461               	.L7:
+ 463               	.LM26:
+ 464 019e 8981      		ldd r24,Y+1
+ 465 01a0 9A81      		ldd r25,Y+2
+ 466 01a2 FC01      		movw r30,r24
+ 467 01a4 8281      		ldd r24,Z+2
+ 468 01a6 9381      		ldd r25,Z+3
+ 469 01a8 FC01      		movw r30,r24
+ 470 01aa 2081      		ld r18,Z
+ 471 01ac 3181      		ldd r19,Z+1
+ 472 01ae 8B81      		ldd r24,Y+3
+ 473 01b0 9C81      		ldd r25,Y+4
+ 474 01b2 8217      		cp r24,r18
+ 475 01b4 9307      		cpc r25,r19
+ 476 01b6 00F4      		brsh .L8
+ 477               	.L6:
+ 166:list.c        **** 		{
+ 167:list.c        **** 			/* There is nothing to do here, we are just iterating to the
+ 168:list.c        **** 			wanted insertion position. */
+ 169:list.c        **** 		}
+ 170:list.c        **** 	}
+ 171:list.c        **** 
+ 172:list.c        **** 	pxNewListItem->pxNext = pxIterator->pxNext;
+ 479               	.LM27:
+ 480 01b8 8981      		ldd r24,Y+1
+ 481 01ba 9A81      		ldd r25,Y+2
+ 482 01bc FC01      		movw r30,r24
+ 483 01be 2281      		ldd r18,Z+2
+ 484 01c0 3381      		ldd r19,Z+3
+ 485 01c2 8F81      		ldd r24,Y+7
+ 486 01c4 9885      		ldd r25,Y+8
+ 487 01c6 FC01      		movw r30,r24
+ 488 01c8 3383      		std Z+3,r19
+ 489 01ca 2283      		std Z+2,r18
+ 173:list.c        **** 	pxNewListItem->pxNext->pxPrevious = ( volatile xListItem * ) pxNewListItem;
+ 491               	.LM28:
+ 492 01cc 8F81      		ldd r24,Y+7
+ 493 01ce 9885      		ldd r25,Y+8
+ 494 01d0 FC01      		movw r30,r24
+ 495 01d2 8281      		ldd r24,Z+2
+ 496 01d4 9381      		ldd r25,Z+3
+ 497 01d6 2F81      		ldd r18,Y+7
+ 498 01d8 3885      		ldd r19,Y+8
+ 499 01da FC01      		movw r30,r24
+ 500 01dc 3583      		std Z+5,r19
+ 501 01de 2483      		std Z+4,r18
+ 174:list.c        **** 	pxNewListItem->pxPrevious = pxIterator;
+ 503               	.LM29:
+ 504 01e0 8F81      		ldd r24,Y+7
+ 505 01e2 9885      		ldd r25,Y+8
+ 506 01e4 2981      		ldd r18,Y+1
+ 507 01e6 3A81      		ldd r19,Y+2
+ 508 01e8 FC01      		movw r30,r24
+ 509 01ea 3583      		std Z+5,r19
+ 510 01ec 2483      		std Z+4,r18
+ 175:list.c        **** 	pxIterator->pxNext = ( volatile xListItem * ) pxNewListItem;
+ 512               	.LM30:
+ 513 01ee 8981      		ldd r24,Y+1
+ 514 01f0 9A81      		ldd r25,Y+2
+ 515 01f2 2F81      		ldd r18,Y+7
+ 516 01f4 3885      		ldd r19,Y+8
+ 517 01f6 FC01      		movw r30,r24
+ 518 01f8 3383      		std Z+3,r19
+ 519 01fa 2283      		std Z+2,r18
+ 176:list.c        **** 
+ 177:list.c        **** 	/* Remember which list the item is in.  This allows fast removal of the
+ 178:list.c        **** 	item later. */
+ 179:list.c        **** 	pxNewListItem->pvContainer = ( void * ) pxList;
+ 521               	.LM31:
+ 522 01fc 8F81      		ldd r24,Y+7
+ 523 01fe 9885      		ldd r25,Y+8
+ 524 0200 2D81      		ldd r18,Y+5
+ 525 0202 3E81      		ldd r19,Y+6
+ 526 0204 FC01      		movw r30,r24
+ 527 0206 3187      		std Z+9,r19
+ 528 0208 2087      		std Z+8,r18
+ 180:list.c        **** 
+ 181:list.c        **** 	( pxList->uxNumberOfItems )++;
+ 530               	.LM32:
+ 531 020a 8D81      		ldd r24,Y+5
+ 532 020c 9E81      		ldd r25,Y+6
+ 533 020e FC01      		movw r30,r24
+ 534 0210 8081      		ld r24,Z
+ 535 0212 21E0      		ldi r18,lo8(1)
+ 536 0214 280F      		add r18,r24
+ 537 0216 8D81      		ldd r24,Y+5
+ 538 0218 9E81      		ldd r25,Y+6
+ 539 021a FC01      		movw r30,r24
+ 540 021c 2083      		st Z,r18
+ 541               	/* epilogue start */
+ 182:list.c        **** }
+ 543               	.LM33:
+ 544 021e 2896      		adiw r28,8
+ 545 0220 0FB6      		in __tmp_reg__,__SREG__
+ 546 0222 F894      		cli
+ 547 0224 DEBF      		out __SP_H__,r29
+ 548 0226 0FBE      		out __SREG__,__tmp_reg__
+ 549 0228 CDBF      		out __SP_L__,r28
+ 550 022a DF91      		pop r29
+ 551 022c CF91      		pop r28
+ 552 022e 0895      		ret
+ 558               	.Lscope4:
+ 560               		.stabd	78,0,0
+ 563               	.global	uxListRemove
+ 565               	uxListRemove:
+ 566               		.stabd	46,0,0
+ 183:list.c        **** /*-----------------------------------------------------------*/
+ 184:list.c        **** 
+ 185:list.c        **** unsigned portBASE_TYPE uxListRemove( xListItem *pxItemToRemove )
+ 186:list.c        **** {
+ 568               	.LM34:
+ 569               	.LFBB5:
+ 570 0230 CF93      		push r28
+ 571 0232 DF93      		push r29
+ 572 0234 00D0      		rcall .
+ 573 0236 1F92      		push __zero_reg__
+ 574 0238 CDB7      		in r28,__SP_L__
+ 575 023a DEB7      		in r29,__SP_H__
+ 576               	/* prologue: function */
+ 577               	/* frame size = 4 */
+ 578               	/* stack size = 6 */
+ 579               	.L__stack_usage = 6
+ 580 023c 9C83      		std Y+4,r25
+ 581 023e 8B83      		std Y+3,r24
+ 187:list.c        **** xList * pxList;
+ 188:list.c        **** 
+ 189:list.c        **** 	pxItemToRemove->pxNext->pxPrevious = pxItemToRemove->pxPrevious;
+ 583               	.LM35:
+ 584 0240 8B81      		ldd r24,Y+3
+ 585 0242 9C81      		ldd r25,Y+4
+ 586 0244 FC01      		movw r30,r24
+ 587 0246 8281      		ldd r24,Z+2
+ 588 0248 9381      		ldd r25,Z+3
+ 589 024a 2B81      		ldd r18,Y+3
+ 590 024c 3C81      		ldd r19,Y+4
+ 591 024e F901      		movw r30,r18
+ 592 0250 2481      		ldd r18,Z+4
+ 593 0252 3581      		ldd r19,Z+5
+ 594 0254 FC01      		movw r30,r24
+ 595 0256 3583      		std Z+5,r19
+ 596 0258 2483      		std Z+4,r18
+ 190:list.c        **** 	pxItemToRemove->pxPrevious->pxNext = pxItemToRemove->pxNext;
+ 598               	.LM36:
+ 599 025a 8B81      		ldd r24,Y+3
+ 600 025c 9C81      		ldd r25,Y+4
+ 601 025e FC01      		movw r30,r24
+ 602 0260 8481      		ldd r24,Z+4
+ 603 0262 9581      		ldd r25,Z+5
+ 604 0264 2B81      		ldd r18,Y+3
+ 605 0266 3C81      		ldd r19,Y+4
+ 606 0268 F901      		movw r30,r18
+ 607 026a 2281      		ldd r18,Z+2
+ 608 026c 3381      		ldd r19,Z+3
+ 609 026e FC01      		movw r30,r24
+ 610 0270 3383      		std Z+3,r19
+ 611 0272 2283      		std Z+2,r18
+ 191:list.c        **** 
+ 192:list.c        **** 	/* The list item knows which list it is in.  Obtain the list from the list
+ 193:list.c        **** 	item. */
+ 194:list.c        **** 	pxList = ( xList * ) pxItemToRemove->pvContainer;
+ 613               	.LM37:
+ 614 0274 8B81      		ldd r24,Y+3
+ 615 0276 9C81      		ldd r25,Y+4
+ 616 0278 FC01      		movw r30,r24
+ 617 027a 8085      		ldd r24,Z+8
+ 618 027c 9185      		ldd r25,Z+9
+ 619 027e 9A83      		std Y+2,r25
+ 620 0280 8983      		std Y+1,r24
+ 195:list.c        **** 
+ 196:list.c        **** 	/* Make sure the index is left pointing to a valid item. */
+ 197:list.c        **** 	if( pxList->pxIndex == pxItemToRemove )
+ 622               	.LM38:
+ 623 0282 8981      		ldd r24,Y+1
+ 624 0284 9A81      		ldd r25,Y+2
+ 625 0286 FC01      		movw r30,r24
+ 626 0288 2181      		ldd r18,Z+1
+ 627 028a 3281      		ldd r19,Z+2
+ 628 028c 8B81      		ldd r24,Y+3
+ 629 028e 9C81      		ldd r25,Y+4
+ 630 0290 2817      		cp r18,r24
+ 631 0292 3907      		cpc r19,r25
+ 632 0294 01F4      		brne .L10
+ 198:list.c        **** 	{
+ 199:list.c        **** 		pxList->pxIndex = pxItemToRemove->pxPrevious;
+ 634               	.LM39:
+ 635 0296 8B81      		ldd r24,Y+3
+ 636 0298 9C81      		ldd r25,Y+4
+ 637 029a FC01      		movw r30,r24
+ 638 029c 2481      		ldd r18,Z+4
+ 639 029e 3581      		ldd r19,Z+5
+ 640 02a0 8981      		ldd r24,Y+1
+ 641 02a2 9A81      		ldd r25,Y+2
+ 642 02a4 FC01      		movw r30,r24
+ 643 02a6 3283      		std Z+2,r19
+ 644 02a8 2183      		std Z+1,r18
+ 645               	.L10:
+ 200:list.c        **** 	}
+ 201:list.c        **** 
+ 202:list.c        **** 	pxItemToRemove->pvContainer = NULL;
+ 647               	.LM40:
+ 648 02aa 8B81      		ldd r24,Y+3
+ 649 02ac 9C81      		ldd r25,Y+4
+ 650 02ae FC01      		movw r30,r24
+ 651 02b0 1186      		std Z+9,__zero_reg__
+ 652 02b2 1086      		std Z+8,__zero_reg__
+ 203:list.c        **** 	( pxList->uxNumberOfItems )--;
+ 654               	.LM41:
+ 655 02b4 8981      		ldd r24,Y+1
+ 656 02b6 9A81      		ldd r25,Y+2
+ 657 02b8 FC01      		movw r30,r24
+ 658 02ba 8081      		ld r24,Z
+ 659 02bc 2FEF      		ldi r18,lo8(-1)
+ 660 02be 280F      		add r18,r24
+ 661 02c0 8981      		ldd r24,Y+1
+ 662 02c2 9A81      		ldd r25,Y+2
+ 663 02c4 FC01      		movw r30,r24
+ 664 02c6 2083      		st Z,r18
+ 204:list.c        **** 
+ 205:list.c        **** 	return pxList->uxNumberOfItems;
+ 666               	.LM42:
+ 667 02c8 8981      		ldd r24,Y+1
+ 668 02ca 9A81      		ldd r25,Y+2
+ 669 02cc FC01      		movw r30,r24
+ 670 02ce 8081      		ld r24,Z
+ 671               	/* epilogue start */
+ 206:list.c        **** }
+ 673               	.LM43:
+ 674 02d0 0F90      		pop __tmp_reg__
+ 675 02d2 0F90      		pop __tmp_reg__
+ 676 02d4 0F90      		pop __tmp_reg__
+ 677 02d6 0F90      		pop __tmp_reg__
+ 678 02d8 DF91      		pop r29
+ 679 02da CF91      		pop r28
+ 680 02dc 0895      		ret
+ 685               	.Lscope5:
+ 687               		.stabd	78,0,0
+ 689               	.Letext0:
+ 690               		.ident	"GCC: (GNU) 4.8.2"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 list.c
+     /tmp/cc0KEx3t.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/cc0KEx3t.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/cc0KEx3t.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/cc0KEx3t.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/cc0KEx3t.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cc0KEx3t.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/cc0KEx3t.s:140    .text:0000000000000000 vListInitialise
+     /tmp/cc0KEx3t.s:224    .text:000000000000006c vListInitialiseItem
+     /tmp/cc0KEx3t.s:265    .text:0000000000000090 vListInsertEnd
+     /tmp/cc0KEx3t.s:392    .text:000000000000013e vListInsert
+     /tmp/cc0KEx3t.s:565    .text:0000000000000230 uxListRemove
+
+NO UNDEFINED SYMBOLS
