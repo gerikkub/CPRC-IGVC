@@ -178,6 +178,38 @@ char processUltrasonicCommand(char commandCode, void* commandData, void* respons
    }
 }
 
+char processBrakeCommand(char commandCode, void* commandData, void* responseDate) {
+   switch(commandCode) {
+      case SET_BRAKE:
+	 setBrake((char) *commandData);
+	 break;
+      case GET_BRAKE:
+	 getBrake((char*) responseData);
+	 break; 
+   }
+}
+
+char processBatteryCommand(char commandCode, void* commandData, void* responseData) {
+   switch(commandCode) {
+      case GET_BATTERY_VOLTAGE:
+         getBatteryVoltage((char*) responseData);
+         break;
+      case GET_STEERING_VOLTAGE:
+         getSteeringVoltage((char*) responseData);
+	 break;
+   }
+}
+
+char processLightCommand(char commandCode, void* commandData, void* responseDate) {
+   switch(commandCode) {
+      case SET_LIGHT:
+	 setLight((char) *commandData);
+         break;
+   }
+}
+
+
+
 //Function that will take in a command (as char array) and process it into a
 //correct response to be stored into response
 char processCommand(Command *command, Response *response) {
