@@ -174,6 +174,55 @@ char processUltrasonicCommand(char commandCode, void* commandData, void* respons
          getCertainSensor((char) *commandData, (int*) responseData);
          break;
       case GET_SENSOR_GROUP:
+         getSensorGroup((char) *commandData, (int*) responseData);
+         break;
+   }
+   //return success for now...
+   return 1;
+}
+
+char processSpeedCommand(char commandCode, void* commandData, void* responseData) {
+   switch(commandCode) {
+      case GET_SPEED:
+         getSpeed((int*) responseData);
+         break;
+      case SET_SPEED:
+         setSpeed((char) *commandData);
+         break;
+   }
+   //return success for now
+   return 1;
+}
+
+char processSteeringCommand(char commandCode, void* commandData, void* responseData) {
+   switch(commandCode) {
+      case SET_ANGLE:
+         setAngle((char) *commandData);
+         break;
+      case GET_ANGLE:
+         getAngle((*char) responseData);
+         break;
+      case GET_DESIRED_ANGLE:
+         getDesiredAngle((*char) responseData);
+         break;
+      case CHANGE_PID:
+         changePID(((char*)commandData)[0], ((char*)commandData)[1], ((char*)commandData)[2]);
+         break;
+      case SET_LIMITS:
+         setLimits(((char*)commandData)[0], ((char*)commandData)[1]);
+         break;
+   }
+   //return success for now
+   return 1;
+}
+
+char processFNRCommand(char commandCode, void* commandData, void* responseData) {
+   switch(commandCode) {
+      case SET_FNR:
+         setFNR((char) *commandData);
+         break;
+      case GET_FNR:
+         getFNR((char*) responseData);
          break;
    }
 }
