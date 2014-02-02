@@ -13,7 +13,6 @@
 #include "FreeRTOS.h"
 #include "semphr.h" 
 #include "queue.h"
-//#include "protocol.h"
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -43,18 +42,18 @@ void USART_Init(uint16_t baudin, uint32_t clk_speedin) {
     USART_ReadQueue = xQueueCreate(8,sizeof(uint8_t));
 
     uint32_t ubrr = clk_speedin/(16UL)/baudin-1;
-    UBRR1H = (unsigned char)(ubrr>>8) ;// & 0x7F;
-    UBRR1L = (unsigned char)ubrr;
+    UBRR0H = (unsigned char)(ubrr>>8) ;// & 0x7F;
+    UBRR0L = (unsigned char)ubrr;
     
     //UBRR0H = 0; //115200
     //UBRR0L = 8;
 
     /* Enable receiver and transmitter */
-    UCSR1B = (1<<RXEN1)|(1<<TXEN1);
+    UCSR0B = (1<<RXEN0)|(1<<TXEN0);
     /* Set frame format: 8data, 1stop bit */
-    UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);
+    UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
 	// clear U2X0 for Synchronous operation
-    UCSR1A &= ~(1<<U2X1);
+    UCSR0A &= ~(1<<U2X0);
 
     //UCSR0B |= (1<<UDRIE0);
 
@@ -93,9 +92,9 @@ uint8_t USART_Read(void) {
 }
 
 
-ISR(USART1_RX_vect){
+ISR(USART0_RX_vect){
     uint8_t data;
-    data = UDR1;
+    data = UDR0;
     xQueueSendToBackFromISR(USART_ReadQueue,&data,NULL);
 }
 
@@ -118,8 +117,8 @@ void vTaskUARTWrite(void *pvParameters)
     while(1){
         while(xQueueReceive(USART_WriteQueue,&data,portMAX_DELAY)==pdFALSE);
 
-        while(!(UCSR1A & (1<<UDRE1))) vTaskDelay(1);
-        UDR1 = data;
+        while(!(UCSR0A & (1<<UDRE0))) vTaskDelay(1);
+        UDR0 = data;
 
     }
 }
@@ -134,16 +133,12 @@ void vTaskUARTRead(void *pvParameters){
     char cmd;
     char timeout;
 
-    //Command command;
-    //Response response;
-
     while(1){
         //Get Header
         bytesRecieved = 0;
         while(bytesRecieved < 4){
-            if((UCSR1A & (1<<RXC1))){
-                rxData = UDR1;
-                //PORTB = 0;
+            if((UCSR0A & (1<<RXC0))){
+                rxData = UDR0;
             //if(xQueueReceive(USART_ReadQueue,&rxData,portMAX_DELAY) == pdTRUE){
                 buffer[bytesRecieved] = rxData;
                 //USART_AddToQueue(rxData);
@@ -151,30 +146,29 @@ void vTaskUARTRead(void *pvParameters){
             }
         }
         if(calcChecksum(buffer,3) != buffer[3]){
-            sendNACK();
+            while(1){
+                sendNACK();
+                PORTB ^= 0xFF;
+                vTaskDelay(105);
+            }
         } else {
-            sendACK();
-            bytesRecieved = 0;
-            //command.groupID = buffer[0];
-            //command.cmd = buffer[1];
-            //command.crc = buffer[3];
+            while(1){
+                sendACK();
+                PORTB ^= 0xFF;
+                vTaskDelay(105);
+            }
+            /*bytesRecieved = 0;
             size = buffer[2];
+            groupID = buffer[0];
+            cmd = buffer[1];
             timeout = 0;
             while(1){
-                if(size == 0){
-                    //processCommand(&command,&response);
-                }
                 while((bytesRecieved < size+1) && (timeout < 50)){  //1 for crc
-                    if(UCSR1A & (1<<RXC1)){
-                        rxData = UDR1;
-
-                        //PORTB = 0xFF;
-                    //if(xQueueReceive(USART_ReadQueue,&rxData,portMAX_DELAY) == pdTRUE){
+                    if(xQueueReceive(USART_ReadQueue,&rxData,portMAX_DELAY) == pdTRUE){
                         buffer[bytesRecieved] = rxData;
                         bytesRecieved++;
                     } else {
-                        //timeout++;
-                        timeout = 1;
+                        timeout++;
                     }
                 } 
                 if(timeout >= 50){
@@ -184,13 +178,11 @@ void vTaskUARTRead(void *pvParameters){
                     sendNACK();
                     bytesRecieved = 0;
                 } else {
-                    PORTB = buffer[0];
                     sendACK();
-                    //memcpy(command.payload,buffer,size);
-                    //processCommand(&command,&response);
+                    processData(groupID,cmd,size,buffer);
                     break;
                 }
-            }
+            }*/
         }
 
     }
@@ -198,11 +190,11 @@ void vTaskUARTRead(void *pvParameters){
 }
 
 void sendACK(){
-    USART_AddToQueue(0xFF);
+    USART_AddToQueue('y');
 }
 
 void sendNACK(){
-    USART_AddToQueue(0);
+    USART_AddToQueue('n');
 }
 
 uint8_t calcChecksum(uint8_t* buffer,uint8_t size){

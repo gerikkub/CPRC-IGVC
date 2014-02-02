@@ -3,4 +3,4 @@ usart.o usart.d : usart.c ../../Source/include/FreeRTOS.h \
  ../../Source/include/portable.h \
  ../../Source/include/../portable/portmacro.h \
  ../../Source/include/mpu_wrappers.h ../../Source/include/semphr.h \
- ../../Source/include/queue.h usart.h
+ ../../Source/include/queue.h ../../Source/include/queue.h usart.h

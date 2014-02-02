@@ -1732,19 +1732,19 @@
  1355               		.ident	"GCC: (GNU) 4.8.2"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 port.c
-     /tmp/ccvdkGCx.s:2      *ABS*:000000000000003e __SP_H__
-     /tmp/ccvdkGCx.s:3      *ABS*:000000000000003d __SP_L__
-     /tmp/ccvdkGCx.s:4      *ABS*:000000000000003f __SREG__
-     /tmp/ccvdkGCx.s:5      *ABS*:000000000000003b __RAMPZ__
-     /tmp/ccvdkGCx.s:6      *ABS*:0000000000000000 __tmp_reg__
-     /tmp/ccvdkGCx.s:7      *ABS*:0000000000000001 __zero_reg__
-     /tmp/ccvdkGCx.s:154    .text:0000000000000000 pxPortInitialiseStack
-     /tmp/ccvdkGCx.s:802    .text:0000000000000388 xPortStartScheduler
-     /tmp/ccvdkGCx.s:1180   .text:0000000000000590 prvSetupTimerInterrupt
-     /tmp/ccvdkGCx.s:890    .text:00000000000003fa vPortEndScheduler
-     /tmp/ccvdkGCx.s:916    .text:0000000000000408 vPortYield
-     /tmp/ccvdkGCx.s:1047   .text:00000000000004ca vPortYieldFromTick
-     /tmp/ccvdkGCx.s:1327   .text:0000000000000650 __vector_32
+     /tmp/ccdnfkHL.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccdnfkHL.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccdnfkHL.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccdnfkHL.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccdnfkHL.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccdnfkHL.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccdnfkHL.s:154    .text:0000000000000000 pxPortInitialiseStack
+     /tmp/ccdnfkHL.s:802    .text:0000000000000388 xPortStartScheduler
+     /tmp/ccdnfkHL.s:1180   .text:0000000000000590 prvSetupTimerInterrupt
+     /tmp/ccdnfkHL.s:890    .text:00000000000003fa vPortEndScheduler
+     /tmp/ccdnfkHL.s:916    .text:0000000000000408 vPortYield
+     /tmp/ccdnfkHL.s:1047   .text:00000000000004ca vPortYieldFromTick
+     /tmp/ccdnfkHL.s:1327   .text:0000000000000650 __vector_32
 
 UNDEFINED SYMBOLS
 pxCurrentTCB

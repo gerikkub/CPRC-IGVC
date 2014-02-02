@@ -688,16 +688,16 @@
  690               		.ident	"GCC: (GNU) 4.8.2"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 list.c
-     /tmp/cc0KEx3t.s:2      *ABS*:000000000000003e __SP_H__
-     /tmp/cc0KEx3t.s:3      *ABS*:000000000000003d __SP_L__
-     /tmp/cc0KEx3t.s:4      *ABS*:000000000000003f __SREG__
-     /tmp/cc0KEx3t.s:5      *ABS*:000000000000003b __RAMPZ__
-     /tmp/cc0KEx3t.s:6      *ABS*:0000000000000000 __tmp_reg__
-     /tmp/cc0KEx3t.s:7      *ABS*:0000000000000001 __zero_reg__
-     /tmp/cc0KEx3t.s:140    .text:0000000000000000 vListInitialise
-     /tmp/cc0KEx3t.s:224    .text:000000000000006c vListInitialiseItem
-     /tmp/cc0KEx3t.s:265    .text:0000000000000090 vListInsertEnd
-     /tmp/cc0KEx3t.s:392    .text:000000000000013e vListInsert
-     /tmp/cc0KEx3t.s:565    .text:0000000000000230 uxListRemove
+     /tmp/ccQvfF2E.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccQvfF2E.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccQvfF2E.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccQvfF2E.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccQvfF2E.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccQvfF2E.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccQvfF2E.s:140    .text:0000000000000000 vListInitialise
+     /tmp/ccQvfF2E.s:224    .text:000000000000006c vListInitialiseItem
+     /tmp/ccQvfF2E.s:265    .text:0000000000000090 vListInsertEnd
+     /tmp/ccQvfF2E.s:392    .text:000000000000013e vListInsert
+     /tmp/ccQvfF2E.s:565    .text:0000000000000230 uxListRemove
 
 NO UNDEFINED SYMBOLS

@@ -1312,30 +1312,30 @@
  1233               	.global __do_clear_bss
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 croutine.c
-     /tmp/ccjGEY5v.s:2      *ABS*:000000000000003e __SP_H__
-     /tmp/ccjGEY5v.s:3      *ABS*:000000000000003d __SP_L__
-     /tmp/ccjGEY5v.s:4      *ABS*:000000000000003f __SREG__
-     /tmp/ccjGEY5v.s:5      *ABS*:000000000000003b __RAMPZ__
-     /tmp/ccjGEY5v.s:6      *ABS*:0000000000000000 __tmp_reg__
-     /tmp/ccjGEY5v.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccGhDlyG.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccGhDlyG.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccGhDlyG.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccGhDlyG.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccGhDlyG.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccGhDlyG.s:7      *ABS*:0000000000000001 __zero_reg__
                              .bss:0000000000000002 pxReadyCoRoutineLists
-     /tmp/ccjGEY5v.s:147    .bss:0000000000000014 xDelayedCoRoutineList1
-     /tmp/ccjGEY5v.s:149    .bss:000000000000001d xDelayedCoRoutineList2
-     /tmp/ccjGEY5v.s:151    .bss:0000000000000026 pxDelayedCoRoutineList
-     /tmp/ccjGEY5v.s:153    .bss:0000000000000028 pxOverflowDelayedCoRoutineList
-     /tmp/ccjGEY5v.s:155    .bss:000000000000002a xPendingReadyCoRoutineList
-     /tmp/ccjGEY5v.s:162    .bss:0000000000000000 pxCurrentCoRoutine
-     /tmp/ccjGEY5v.s:157    .bss:0000000000000033 uxTopCoRoutineReadyPriority
-     /tmp/ccjGEY5v.s:165    .bss:0000000000000034 xCoRoutineTickCount
-     /tmp/ccjGEY5v.s:167    .bss:0000000000000036 xLastTickCount
-     /tmp/ccjGEY5v.s:169    .bss:0000000000000038 xPassedTicks
-     /tmp/ccjGEY5v.s:179    .text:0000000000000000 xCoRoutineCreate
-     /tmp/ccjGEY5v.s:1038   .text:000000000000050c prvInitialiseCoRoutineLists
-     /tmp/ccjGEY5v.s:398    .text:0000000000000138 vCoRoutineAddToDelayedList
-     /tmp/ccjGEY5v.s:515    .text:00000000000001fe prvCheckPendingReadyList
-     /tmp/ccjGEY5v.s:638    .text:0000000000000298 prvCheckDelayedList
-     /tmp/ccjGEY5v.s:869    .text:0000000000000404 vCoRoutineSchedule
-     /tmp/ccjGEY5v.s:1130   .text:000000000000057e xCoRoutineRemoveFromEventList
+     /tmp/ccGhDlyG.s:147    .bss:0000000000000014 xDelayedCoRoutineList1
+     /tmp/ccGhDlyG.s:149    .bss:000000000000001d xDelayedCoRoutineList2
+     /tmp/ccGhDlyG.s:151    .bss:0000000000000026 pxDelayedCoRoutineList
+     /tmp/ccGhDlyG.s:153    .bss:0000000000000028 pxOverflowDelayedCoRoutineList
+     /tmp/ccGhDlyG.s:155    .bss:000000000000002a xPendingReadyCoRoutineList
+     /tmp/ccGhDlyG.s:162    .bss:0000000000000000 pxCurrentCoRoutine
+     /tmp/ccGhDlyG.s:157    .bss:0000000000000033 uxTopCoRoutineReadyPriority
+     /tmp/ccGhDlyG.s:165    .bss:0000000000000034 xCoRoutineTickCount
+     /tmp/ccGhDlyG.s:167    .bss:0000000000000036 xLastTickCount
+     /tmp/ccGhDlyG.s:169    .bss:0000000000000038 xPassedTicks
+     /tmp/ccGhDlyG.s:179    .text:0000000000000000 xCoRoutineCreate
+     /tmp/ccGhDlyG.s:1038   .text:000000000000050c prvInitialiseCoRoutineLists
+     /tmp/ccGhDlyG.s:398    .text:0000000000000138 vCoRoutineAddToDelayedList
+     /tmp/ccGhDlyG.s:515    .text:00000000000001fe prvCheckPendingReadyList
+     /tmp/ccGhDlyG.s:638    .text:0000000000000298 prvCheckDelayedList
+     /tmp/ccGhDlyG.s:869    .text:0000000000000404 vCoRoutineSchedule
+     /tmp/ccGhDlyG.s:1130   .text:000000000000057e xCoRoutineRemoveFromEventList
 
 UNDEFINED SYMBOLS
 pvPortMalloc

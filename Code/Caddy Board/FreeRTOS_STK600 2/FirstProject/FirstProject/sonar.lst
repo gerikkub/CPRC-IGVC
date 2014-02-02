@@ -496,23 +496,23 @@
  606               	.global __do_clear_bss
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 sonar.c
-     /tmp/ccPouEpc.s:2      *ABS*:000000000000003e __SP_H__
-     /tmp/ccPouEpc.s:3      *ABS*:000000000000003d __SP_L__
-     /tmp/ccPouEpc.s:4      *ABS*:000000000000003f __SREG__
-     /tmp/ccPouEpc.s:5      *ABS*:000000000000003b __RAMPZ__
-     /tmp/ccPouEpc.s:6      *ABS*:0000000000000000 __tmp_reg__
-     /tmp/ccPouEpc.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccjGy1eQ.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccjGy1eQ.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccjGy1eQ.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccjGy1eQ.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccjGy1eQ.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccjGy1eQ.s:7      *ABS*:0000000000000001 __zero_reg__
                             *COM*:0000000000000002 sonarSemaphore
                             *COM*:000000000000000c sonarDataMutex
                             *COM*:0000000000000006 sonarData
                             *COM*:0000000000000001 currSonar
-     /tmp/ccPouEpc.s:135    .bss:0000000000000000 lastSonarData
-     /tmp/ccPouEpc.s:143    .text:0000000000000000 setSonarData
-     /tmp/ccPouEpc.s:186    .text:000000000000002a getSonarData
-     /tmp/ccPouEpc.s:226    .text:0000000000000050 getTimerCount
-     /tmp/ccPouEpc.s:258    .text:0000000000000066 __vector_11
-     /tmp/ccPouEpc.s:405    .text:0000000000000144 initializeSonarSensors
-     /tmp/ccPouEpc.s:483    .text:0000000000000198 vTaskSonar
+     /tmp/ccjGy1eQ.s:135    .bss:0000000000000000 lastSonarData
+     /tmp/ccjGy1eQ.s:143    .text:0000000000000000 setSonarData
+     /tmp/ccjGy1eQ.s:186    .text:000000000000002a getSonarData
+     /tmp/ccjGy1eQ.s:226    .text:0000000000000050 getTimerCount
+     /tmp/ccjGy1eQ.s:258    .text:0000000000000066 __vector_11
+     /tmp/ccjGy1eQ.s:405    .text:0000000000000144 initializeSonarSensors
+     /tmp/ccjGy1eQ.s:483    .text:0000000000000198 vTaskSonar
 
 UNDEFINED SYMBOLS
 xQueueGenericSendFromISR

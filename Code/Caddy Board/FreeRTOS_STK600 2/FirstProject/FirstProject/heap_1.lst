@@ -346,18 +346,18 @@
  354               	.global __do_clear_bss
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 heap_1.c
-     /tmp/cceNqncy.s:2      *ABS*:000000000000003e __SP_H__
-     /tmp/cceNqncy.s:3      *ABS*:000000000000003d __SP_L__
-     /tmp/cceNqncy.s:4      *ABS*:000000000000003f __SREG__
-     /tmp/cceNqncy.s:5      *ABS*:000000000000003b __RAMPZ__
-     /tmp/cceNqncy.s:6      *ABS*:0000000000000000 __tmp_reg__
-     /tmp/cceNqncy.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccYLqKTJ.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccYLqKTJ.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccYLqKTJ.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccYLqKTJ.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccYLqKTJ.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccYLqKTJ.s:7      *ABS*:0000000000000001 __zero_reg__
                              .bss:0000000000000000 xHeap
-     /tmp/cceNqncy.s:149    .bss:0000000000001800 xNextFreeByte
-     /tmp/cceNqncy.s:156    .text:0000000000000000 pvPortMalloc
-     /tmp/cceNqncy.s:254    .text:000000000000008c vPortFree
-     /tmp/cceNqncy.s:286    .text:00000000000000a6 vPortInitialiseBlocks
-     /tmp/cceNqncy.s:316    .text:00000000000000bc xPortGetFreeHeapSize
+     /tmp/ccYLqKTJ.s:149    .bss:0000000000001800 xNextFreeByte
+     /tmp/ccYLqKTJ.s:156    .text:0000000000000000 pvPortMalloc
+     /tmp/ccYLqKTJ.s:254    .text:000000000000008c vPortFree
+     /tmp/ccYLqKTJ.s:286    .text:00000000000000a6 vPortInitialiseBlocks
+     /tmp/ccYLqKTJ.s:316    .text:00000000000000bc xPortGetFreeHeapSize
 
 UNDEFINED SYMBOLS
 vTaskSuspendAll
