@@ -1,0 +1,214 @@
+   1               		.file	"Steering.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  62               	.global	setAngle
+  64               	setAngle:
+  65               		.stabd	46,0,0
+   1:Components/Steering/Steering.c **** 
+   2:Components/Steering/Steering.c **** //Steering group
+   3:Components/Steering/Steering.c **** 
+   4:Components/Steering/Steering.c **** //JUST SETS ANGLE TARGET. Actual angle changing is lower level
+   5:Components/Steering/Steering.c **** char setAngle(char angleTarget) {
+  67               	.LM0:
+  68               	.LFBB1:
+  69 0000 CF93      		push r28
+  70 0002 DF93      		push r29
+  71 0004 1F92      		push __zero_reg__
+  72 0006 CDB7      		in r28,__SP_L__
+  73 0008 DEB7      		in r29,__SP_H__
+  74               	/* prologue: function */
+  75               	/* frame size = 1 */
+  76               	/* stack size = 3 */
+  77               	.L__stack_usage = 3
+  78 000a 8983      		std Y+1,r24
+   6:Components/Steering/Steering.c ****    //dummy function, nothing will happen for now...
+   7:Components/Steering/Steering.c ****    //return success
+   8:Components/Steering/Steering.c ****    return 1;
+  80               	.LM1:
+  81 000c 81E0      		ldi r24,lo8(1)
+  82               	/* epilogue start */
+   9:Components/Steering/Steering.c **** }
+  84               	.LM2:
+  85 000e 0F90      		pop __tmp_reg__
+  86 0010 DF91      		pop r29
+  87 0012 CF91      		pop r28
+  88 0014 0895      		ret
+  90               	.Lscope1:
+  92               		.stabd	78,0,0
+  95               	.global	getAngle
+  97               	getAngle:
+  98               		.stabd	46,0,0
+  10:Components/Steering/Steering.c **** 
+  11:Components/Steering/Steering.c **** //get the current angle of the steering system
+  12:Components/Steering/Steering.c **** char getAngle(char* sensorResponse) {
+ 100               	.LM3:
+ 101               	.LFBB2:
+ 102 0016 CF93      		push r28
+ 103 0018 DF93      		push r29
+ 104 001a 1F92      		push __zero_reg__
+ 105 001c 1F92      		push __zero_reg__
+ 106 001e CDB7      		in r28,__SP_L__
+ 107 0020 DEB7      		in r29,__SP_H__
+ 108               	/* prologue: function */
+ 109               	/* frame size = 2 */
+ 110               	/* stack size = 4 */
+ 111               	.L__stack_usage = 4
+ 112 0022 9A83      		std Y+2,r25
+ 113 0024 8983      		std Y+1,r24
+  13:Components/Steering/Steering.c ****    //store fake angle reading
+  14:Components/Steering/Steering.c ****    *sensorResponse = 0;
+ 115               	.LM4:
+ 116 0026 8981      		ldd r24,Y+1
+ 117 0028 9A81      		ldd r25,Y+2
+ 118 002a FC01      		movw r30,r24
+ 119 002c 1082      		st Z,__zero_reg__
+  15:Components/Steering/Steering.c ****    //return success
+  16:Components/Steering/Steering.c ****    return 1;
+ 121               	.LM5:
+ 122 002e 81E0      		ldi r24,lo8(1)
+ 123               	/* epilogue start */
+  17:Components/Steering/Steering.c **** }
+ 125               	.LM6:
+ 126 0030 0F90      		pop __tmp_reg__
+ 127 0032 0F90      		pop __tmp_reg__
+ 128 0034 DF91      		pop r29
+ 129 0036 CF91      		pop r28
+ 130 0038 0895      		ret
+ 132               	.Lscope2:
+ 134               		.stabd	78,0,0
+ 137               	.global	getDesiredAngle
+ 139               	getDesiredAngle:
+ 140               		.stabd	46,0,0
+  18:Components/Steering/Steering.c **** 
+  19:Components/Steering/Steering.c **** //get the angle target. argument name is sensorResponse for the sake of consistancy
+  20:Components/Steering/Steering.c **** char getDesiredAngle(char* sensorResponse) {
+ 142               	.LM7:
+ 143               	.LFBB3:
+ 144 003a CF93      		push r28
+ 145 003c DF93      		push r29
+ 146 003e 1F92      		push __zero_reg__
+ 147 0040 1F92      		push __zero_reg__
+ 148 0042 CDB7      		in r28,__SP_L__
+ 149 0044 DEB7      		in r29,__SP_H__
+ 150               	/* prologue: function */
+ 151               	/* frame size = 2 */
+ 152               	/* stack size = 4 */
+ 153               	.L__stack_usage = 4
+ 154 0046 9A83      		std Y+2,r25
+ 155 0048 8983      		std Y+1,r24
+  21:Components/Steering/Steering.c ****    //fake response
+  22:Components/Steering/Steering.c ****    *sensorResponse = 0;
+ 157               	.LM8:
+ 158 004a 8981      		ldd r24,Y+1
+ 159 004c 9A81      		ldd r25,Y+2
+ 160 004e FC01      		movw r30,r24
+ 161 0050 1082      		st Z,__zero_reg__
+  23:Components/Steering/Steering.c ****    //return success
+  24:Components/Steering/Steering.c ****    return 1;
+ 163               	.LM9:
+ 164 0052 81E0      		ldi r24,lo8(1)
+ 165               	/* epilogue start */
+  25:Components/Steering/Steering.c **** }
+ 167               	.LM10:
+ 168 0054 0F90      		pop __tmp_reg__
+ 169 0056 0F90      		pop __tmp_reg__
+ 170 0058 DF91      		pop r29
+ 171 005a CF91      		pop r28
+ 172 005c 0895      		ret
+ 174               	.Lscope3:
+ 176               		.stabd	78,0,0
+ 181               	.global	changePID
+ 183               	changePID:
+ 184               		.stabd	46,0,0
+  26:Components/Steering/Steering.c **** 
+  27:Components/Steering/Steering.c **** //change the PID controller
+  28:Components/Steering/Steering.c **** char changePID(char P, char I, char D) {
+ 186               	.LM11:
+ 187               	.LFBB4:
+ 188 005e CF93      		push r28
+ 189 0060 DF93      		push r29
+ 190 0062 00D0      		rcall .
+ 191 0064 CDB7      		in r28,__SP_L__
+ 192 0066 DEB7      		in r29,__SP_H__
+ 193               	/* prologue: function */
+ 194               	/* frame size = 3 */
+ 195               	/* stack size = 5 */
+ 196               	.L__stack_usage = 5
+ 197 0068 8983      		std Y+1,r24
+ 198 006a 6A83      		std Y+2,r22
+ 199 006c 4B83      		std Y+3,r20
+  29:Components/Steering/Steering.c ****    //dummy function, nothing happens
+  30:Components/Steering/Steering.c ****    //return success
+  31:Components/Steering/Steering.c ****    return 1;
+ 201               	.LM12:
+ 202 006e 81E0      		ldi r24,lo8(1)
+ 203               	/* epilogue start */
+  32:Components/Steering/Steering.c **** }
+ 205               	.LM13:
+ 206 0070 0F90      		pop __tmp_reg__
+ 207 0072 0F90      		pop __tmp_reg__
+ 208 0074 0F90      		pop __tmp_reg__
+ 209 0076 DF91      		pop r29
+ 210 0078 CF91      		pop r28
+ 211 007a 0895      		ret
+ 213               	.Lscope4:
+ 215               		.stabd	78,0,0
+ 219               	.global	setLimits
+ 221               	setLimits:
+ 222               		.stabd	46,0,0
+  33:Components/Steering/Steering.c **** 
+  34:Components/Steering/Steering.c **** //not sure what this does. Also not sure why upper and lower are separated
+  35:Components/Steering/Steering.c **** //but its in the specs so...
+  36:Components/Steering/Steering.c **** char setLimits(char upper, char lower) {
+ 224               	.LM14:
+ 225               	.LFBB5:
+ 226 007c CF93      		push r28
+ 227 007e DF93      		push r29
+ 228 0080 1F92      		push __zero_reg__
+ 229 0082 1F92      		push __zero_reg__
+ 230 0084 CDB7      		in r28,__SP_L__
+ 231 0086 DEB7      		in r29,__SP_H__
+ 232               	/* prologue: function */
+ 233               	/* frame size = 2 */
+ 234               	/* stack size = 4 */
+ 235               	.L__stack_usage = 4
+ 236 0088 8983      		std Y+1,r24
+ 237 008a 6A83      		std Y+2,r22
+  37:Components/Steering/Steering.c ****    //dummy function, nothing happens
+  38:Components/Steering/Steering.c ****    //return success
+  39:Components/Steering/Steering.c ****    return 1;
+ 239               	.LM15:
+ 240 008c 81E0      		ldi r24,lo8(1)
+ 241               	/* epilogue start */
+  40:Components/Steering/Steering.c **** }
+ 243               	.LM16:
+ 244 008e 0F90      		pop __tmp_reg__
+ 245 0090 0F90      		pop __tmp_reg__
+ 246 0092 DF91      		pop r29
+ 247 0094 CF91      		pop r28
+ 248 0096 0895      		ret
+ 250               	.Lscope5:
+ 252               		.stabd	78,0,0
+ 254               	.Letext0:
+ 255               		.ident	"GCC: (GNU) 4.8.2"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Steering.c
+     /tmp/ccZmSoXq.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccZmSoXq.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccZmSoXq.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccZmSoXq.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccZmSoXq.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccZmSoXq.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccZmSoXq.s:64     .text:0000000000000000 setAngle
+     /tmp/ccZmSoXq.s:97     .text:0000000000000016 getAngle
+     /tmp/ccZmSoXq.s:139    .text:000000000000003a getDesiredAngle
+     /tmp/ccZmSoXq.s:183    .text:000000000000005e changePID
+     /tmp/ccZmSoXq.s:221    .text:000000000000007c setLimits
+
+NO UNDEFINED SYMBOLS

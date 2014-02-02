@@ -1,0 +1,97 @@
+   1               		.file	"Speed.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  62               	.global	getSpeed
+  64               	getSpeed:
+  65               		.stabd	46,0,0
+   1:Components/Speed/Speed.c **** //Speed Sensor group
+   2:Components/Speed/Speed.c **** 
+   3:Components/Speed/Speed.c **** //get the speed of the vehicle
+   4:Components/Speed/Speed.c **** char getSpeed(char* sensorResponse) {
+  67               	.LM0:
+  68               	.LFBB1:
+  69 0000 CF93      		push r28
+  70 0002 DF93      		push r29
+  71 0004 1F92      		push __zero_reg__
+  72 0006 1F92      		push __zero_reg__
+  73 0008 CDB7      		in r28,__SP_L__
+  74 000a DEB7      		in r29,__SP_H__
+  75               	/* prologue: function */
+  76               	/* frame size = 2 */
+  77               	/* stack size = 4 */
+  78               	.L__stack_usage = 4
+  79 000c 9A83      		std Y+2,r25
+  80 000e 8983      		std Y+1,r24
+   5:Components/Speed/Speed.c ****    //store dummy speed value
+   6:Components/Speed/Speed.c ****    *sensorResponse = 0;
+  82               	.LM1:
+  83 0010 8981      		ldd r24,Y+1
+  84 0012 9A81      		ldd r25,Y+2
+  85 0014 FC01      		movw r30,r24
+  86 0016 1082      		st Z,__zero_reg__
+   7:Components/Speed/Speed.c ****    //return success
+   8:Components/Speed/Speed.c ****    return 1;
+  88               	.LM2:
+  89 0018 81E0      		ldi r24,lo8(1)
+  90               	/* epilogue start */
+   9:Components/Speed/Speed.c **** }
+  92               	.LM3:
+  93 001a 0F90      		pop __tmp_reg__
+  94 001c 0F90      		pop __tmp_reg__
+  95 001e DF91      		pop r29
+  96 0020 CF91      		pop r28
+  97 0022 0895      		ret
+  99               	.Lscope1:
+ 101               		.stabd	78,0,0
+ 104               	.global	setSpeed
+ 106               	setSpeed:
+ 107               		.stabd	46,0,0
+  10:Components/Speed/Speed.c **** 
+  11:Components/Speed/Speed.c **** //will set just the speed of the wheels of the car
+  12:Components/Speed/Speed.c **** char setSpeed(char speedTarget) {
+ 109               	.LM4:
+ 110               	.LFBB2:
+ 111 0024 CF93      		push r28
+ 112 0026 DF93      		push r29
+ 113 0028 1F92      		push __zero_reg__
+ 114 002a CDB7      		in r28,__SP_L__
+ 115 002c DEB7      		in r29,__SP_H__
+ 116               	/* prologue: function */
+ 117               	/* frame size = 1 */
+ 118               	/* stack size = 3 */
+ 119               	.L__stack_usage = 3
+ 120 002e 8983      		std Y+1,r24
+  13:Components/Speed/Speed.c ****    //nothing done down here
+  14:Components/Speed/Speed.c ****    //return success
+  15:Components/Speed/Speed.c ****    return 1;
+ 122               	.LM5:
+ 123 0030 81E0      		ldi r24,lo8(1)
+ 124               	/* epilogue start */
+  16:Components/Speed/Speed.c **** }
+ 126               	.LM6:
+ 127 0032 0F90      		pop __tmp_reg__
+ 128 0034 DF91      		pop r29
+ 129 0036 CF91      		pop r28
+ 130 0038 0895      		ret
+ 132               	.Lscope2:
+ 134               		.stabd	78,0,0
+ 136               	.Letext0:
+ 137               		.ident	"GCC: (GNU) 4.8.2"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Speed.c
+     /tmp/cc1lSivl.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/cc1lSivl.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/cc1lSivl.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/cc1lSivl.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/cc1lSivl.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cc1lSivl.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/cc1lSivl.s:64     .text:0000000000000000 getSpeed
+     /tmp/cc1lSivl.s:106    .text:0000000000000024 setSpeed
+
+NO UNDEFINED SYMBOLS

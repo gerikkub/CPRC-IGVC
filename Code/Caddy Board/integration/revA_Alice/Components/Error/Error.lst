@@ -1,0 +1,21 @@
+   1               		.file	"Error.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  61               	.Letext0:
+  62               		.ident	"GCC: (GNU) 4.8.2"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Error.c
+     /tmp/ccEN4itY.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccEN4itY.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccEN4itY.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccEN4itY.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccEN4itY.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccEN4itY.s:7      *ABS*:0000000000000001 __zero_reg__
+
+NO UNDEFINED SYMBOLS

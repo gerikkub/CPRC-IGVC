@@ -1,0 +1,97 @@
+   1               		.file	"FNR.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  62               	.global	setFNR
+  64               	setFNR:
+  65               		.stabd	46,0,0
+   1:Components/FNR/FNR.c **** //FNR controller functions
+   2:Components/FNR/FNR.c **** 
+   3:Components/FNR/FNR.c **** //set the FNR controller, inputs are either -1, 0, or 1.
+   4:Components/FNR/FNR.c **** char setFNR(char FNR) {
+  67               	.LM0:
+  68               	.LFBB1:
+  69 0000 CF93      		push r28
+  70 0002 DF93      		push r29
+  71 0004 1F92      		push __zero_reg__
+  72 0006 CDB7      		in r28,__SP_L__
+  73 0008 DEB7      		in r29,__SP_H__
+  74               	/* prologue: function */
+  75               	/* frame size = 1 */
+  76               	/* stack size = 3 */
+  77               	.L__stack_usage = 3
+  78 000a 8983      		std Y+1,r24
+   5:Components/FNR/FNR.c ****    //dummy function, nothing happens
+   6:Components/FNR/FNR.c ****    //return success
+   7:Components/FNR/FNR.c ****    return 1;
+  80               	.LM1:
+  81 000c 81E0      		ldi r24,lo8(1)
+  82               	/* epilogue start */
+   8:Components/FNR/FNR.c **** }
+  84               	.LM2:
+  85 000e 0F90      		pop __tmp_reg__
+  86 0010 DF91      		pop r29
+  87 0012 CF91      		pop r28
+  88 0014 0895      		ret
+  90               	.Lscope1:
+  92               		.stabd	78,0,0
+  95               	.global	getFNR
+  97               	getFNR:
+  98               		.stabd	46,0,0
+   9:Components/FNR/FNR.c **** 
+  10:Components/FNR/FNR.c **** //get the current FNR state. Function follows same format for consistancy
+  11:Components/FNR/FNR.c **** char getFNR(char *sensorResponse) {
+ 100               	.LM3:
+ 101               	.LFBB2:
+ 102 0016 CF93      		push r28
+ 103 0018 DF93      		push r29
+ 104 001a 1F92      		push __zero_reg__
+ 105 001c 1F92      		push __zero_reg__
+ 106 001e CDB7      		in r28,__SP_L__
+ 107 0020 DEB7      		in r29,__SP_H__
+ 108               	/* prologue: function */
+ 109               	/* frame size = 2 */
+ 110               	/* stack size = 4 */
+ 111               	.L__stack_usage = 4
+ 112 0022 9A83      		std Y+2,r25
+ 113 0024 8983      		std Y+1,r24
+  12:Components/FNR/FNR.c ****    //fake reading
+  13:Components/FNR/FNR.c ****    *sensorResponse = 0;
+ 115               	.LM4:
+ 116 0026 8981      		ldd r24,Y+1
+ 117 0028 9A81      		ldd r25,Y+2
+ 118 002a FC01      		movw r30,r24
+ 119 002c 1082      		st Z,__zero_reg__
+  14:Components/FNR/FNR.c ****    //return success
+  15:Components/FNR/FNR.c ****    return 1;
+ 121               	.LM5:
+ 122 002e 81E0      		ldi r24,lo8(1)
+ 123               	/* epilogue start */
+  16:Components/FNR/FNR.c **** }
+ 125               	.LM6:
+ 126 0030 0F90      		pop __tmp_reg__
+ 127 0032 0F90      		pop __tmp_reg__
+ 128 0034 DF91      		pop r29
+ 129 0036 CF91      		pop r28
+ 130 0038 0895      		ret
+ 132               	.Lscope2:
+ 134               		.stabd	78,0,0
+ 136               	.Letext0:
+ 137               		.ident	"GCC: (GNU) 4.8.2"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 FNR.c
+     /tmp/ccIUjsS0.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccIUjsS0.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccIUjsS0.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccIUjsS0.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccIUjsS0.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccIUjsS0.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccIUjsS0.s:64     .text:0000000000000000 setFNR
+     /tmp/ccIUjsS0.s:97     .text:0000000000000016 getFNR
+
+NO UNDEFINED SYMBOLS

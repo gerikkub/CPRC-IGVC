@@ -1,0 +1,209 @@
+   1               		.file	"Sonar.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  63               	.global	getCertainSensor
+  65               	getCertainSensor:
+  66               		.stabd	46,0,0
+   1:Components/Sonar/Sonar.c **** 
+   2:Components/Sonar/Sonar.c **** //Ultrasonic group
+   3:Components/Sonar/Sonar.c **** 
+   4:Components/Sonar/Sonar.c **** //distance in cm stored as int in sensorResponse, returns success
+   5:Components/Sonar/Sonar.c **** char getCertainSensor(char sensor, int* sensorResponse) {
+  68               	.LM0:
+  69               	.LFBB1:
+  70 0000 CF93      		push r28
+  71 0002 DF93      		push r29
+  72 0004 00D0      		rcall .
+  73 0006 CDB7      		in r28,__SP_L__
+  74 0008 DEB7      		in r29,__SP_H__
+  75               	/* prologue: function */
+  76               	/* frame size = 3 */
+  77               	/* stack size = 5 */
+  78               	.L__stack_usage = 5
+  79 000a 8983      		std Y+1,r24
+  80 000c 7B83      		std Y+3,r23
+  81 000e 6A83      		std Y+2,r22
+   6:Components/Sonar/Sonar.c ****    //returns dummy value for now
+   7:Components/Sonar/Sonar.c ****    *sensorResponse = 0;
+  83               	.LM1:
+  84 0010 8A81      		ldd r24,Y+2
+  85 0012 9B81      		ldd r25,Y+3
+  86 0014 FC01      		movw r30,r24
+  87 0016 1182      		std Z+1,__zero_reg__
+  88 0018 1082      		st Z,__zero_reg__
+   8:Components/Sonar/Sonar.c ****    //return success
+   9:Components/Sonar/Sonar.c ****    return 1;
+  90               	.LM2:
+  91 001a 81E0      		ldi r24,lo8(1)
+  92               	/* epilogue start */
+  10:Components/Sonar/Sonar.c **** }
+  94               	.LM3:
+  95 001c 0F90      		pop __tmp_reg__
+  96 001e 0F90      		pop __tmp_reg__
+  97 0020 0F90      		pop __tmp_reg__
+  98 0022 DF91      		pop r29
+  99 0024 CF91      		pop r28
+ 100 0026 0895      		ret
+ 102               	.Lscope1:
+ 104               		.stabd	78,0,0
+ 107               	.global	getAllSensors
+ 109               	getAllSensors:
+ 110               		.stabd	46,0,0
+  11:Components/Sonar/Sonar.c **** 
+  12:Components/Sonar/Sonar.c **** //takes in 6 int array to store response, returns success
+  13:Components/Sonar/Sonar.c **** char getAllSensors(int* sensorResponse) {
+ 112               	.LM4:
+ 113               	.LFBB2:
+ 114 0028 CF93      		push r28
+ 115 002a DF93      		push r29
+ 116 002c 00D0      		rcall .
+ 117 002e CDB7      		in r28,__SP_L__
+ 118 0030 DEB7      		in r29,__SP_H__
+ 119               	/* prologue: function */
+ 120               	/* frame size = 3 */
+ 121               	/* stack size = 5 */
+ 122               	.L__stack_usage = 5
+ 123 0032 9B83      		std Y+3,r25
+ 124 0034 8A83      		std Y+2,r24
+ 125               	.LBB2:
+  14:Components/Sonar/Sonar.c ****    for(char i = 0; i < 6; i++) {
+ 127               	.LM5:
+ 128 0036 1982      		std Y+1,__zero_reg__
+ 129 0038 00C0      		rjmp .L4
+ 130               	.L5:
+  15:Components/Sonar/Sonar.c ****       getCertainSensor(i, &sensorResponse[i]);
+ 132               	.LM6:
+ 133 003a 8981      		ldd r24,Y+1
+ 134 003c 9927      		clr r25
+ 135 003e 87FD      		sbrc r24,7
+ 136 0040 9095      		com r25
+ 137 0042 880F      		lsl r24
+ 138 0044 991F      		rol r25
+ 139 0046 2A81      		ldd r18,Y+2
+ 140 0048 3B81      		ldd r19,Y+3
+ 141 004a 820F      		add r24,r18
+ 142 004c 931F      		adc r25,r19
+ 143 004e BC01      		movw r22,r24
+ 144 0050 8981      		ldd r24,Y+1
+ 145 0052 0E94 0000 		call getCertainSensor
+  14:Components/Sonar/Sonar.c ****    for(char i = 0; i < 6; i++) {
+ 147               	.LM7:
+ 148 0056 8981      		ldd r24,Y+1
+ 149 0058 8F5F      		subi r24,lo8(-(1))
+ 150 005a 8983      		std Y+1,r24
+ 151               	.L4:
+  14:Components/Sonar/Sonar.c ****    for(char i = 0; i < 6; i++) {
+ 153               	.LM8:
+ 154 005c 8981      		ldd r24,Y+1
+ 155 005e 8630      		cpi r24,lo8(6)
+ 156 0060 04F0      		brlt .L5
+ 157               	.LBE2:
+  16:Components/Sonar/Sonar.c ****    }
+  17:Components/Sonar/Sonar.c ****    //no error checking for now, return success
+  18:Components/Sonar/Sonar.c ****    return 1;
+ 159               	.LM9:
+ 160 0062 81E0      		ldi r24,lo8(1)
+ 161               	/* epilogue start */
+  19:Components/Sonar/Sonar.c **** }
+ 163               	.LM10:
+ 164 0064 0F90      		pop __tmp_reg__
+ 165 0066 0F90      		pop __tmp_reg__
+ 166 0068 0F90      		pop __tmp_reg__
+ 167 006a DF91      		pop r29
+ 168 006c CF91      		pop r28
+ 169 006e 0895      		ret
+ 174               	.Lscope2:
+ 176               		.stabd	78,0,0
+ 180               	.global	getSensorGroup
+ 182               	getSensorGroup:
+ 183               		.stabd	46,0,0
+  20:Components/Sonar/Sonar.c **** 
+  21:Components/Sonar/Sonar.c **** //stores cm values of a sensor group in sensorResponse
+  22:Components/Sonar/Sonar.c **** char getSensorGroup(char groupID, int *sensorResponse) {
+ 185               	.LM11:
+ 186               	.LFBB3:
+ 187 0070 CF93      		push r28
+ 188 0072 DF93      		push r29
+ 189 0074 00D0      		rcall .
+ 190 0076 1F92      		push __zero_reg__
+ 191 0078 1F92      		push __zero_reg__
+ 192 007a CDB7      		in r28,__SP_L__
+ 193 007c DEB7      		in r29,__SP_H__
+ 194               	/* prologue: function */
+ 195               	/* frame size = 5 */
+ 196               	/* stack size = 7 */
+ 197               	.L__stack_usage = 7
+ 198 007e 8B83      		std Y+3,r24
+ 199 0080 7D83      		std Y+5,r23
+ 200 0082 6C83      		std Y+4,r22
+ 201               	.LBB3:
+  23:Components/Sonar/Sonar.c ****    //different group ID's might mean different lengths. the dummy
+  24:Components/Sonar/Sonar.c ****    //implementation will place 3 0x0000's in the response
+  25:Components/Sonar/Sonar.c ****    for(int i = 0; i < 3; i++) {
+ 203               	.LM12:
+ 204 0084 1A82      		std Y+2,__zero_reg__
+ 205 0086 1982      		std Y+1,__zero_reg__
+ 206 0088 00C0      		rjmp .L8
+ 207               	.L9:
+  26:Components/Sonar/Sonar.c ****       *sensorResponse=0;
+ 209               	.LM13:
+ 210 008a 8C81      		ldd r24,Y+4
+ 211 008c 9D81      		ldd r25,Y+5
+ 212 008e FC01      		movw r30,r24
+ 213 0090 1182      		std Z+1,__zero_reg__
+ 214 0092 1082      		st Z,__zero_reg__
+  25:Components/Sonar/Sonar.c ****    for(int i = 0; i < 3; i++) {
+ 216               	.LM14:
+ 217 0094 8981      		ldd r24,Y+1
+ 218 0096 9A81      		ldd r25,Y+2
+ 219 0098 0196      		adiw r24,1
+ 220 009a 9A83      		std Y+2,r25
+ 221 009c 8983      		std Y+1,r24
+ 222               	.L8:
+  25:Components/Sonar/Sonar.c ****    for(int i = 0; i < 3; i++) {
+ 224               	.LM15:
+ 225 009e 8981      		ldd r24,Y+1
+ 226 00a0 9A81      		ldd r25,Y+2
+ 227 00a2 8330      		cpi r24,3
+ 228 00a4 9105      		cpc r25,__zero_reg__
+ 229 00a6 04F0      		brlt .L9
+ 230               	.LBE3:
+  27:Components/Sonar/Sonar.c ****    }
+  28:Components/Sonar/Sonar.c ****    //return success
+  29:Components/Sonar/Sonar.c ****    return 1;
+ 232               	.LM16:
+ 233 00a8 81E0      		ldi r24,lo8(1)
+ 234               	/* epilogue start */
+  30:Components/Sonar/Sonar.c **** }
+ 236               	.LM17:
+ 237 00aa 0F90      		pop __tmp_reg__
+ 238 00ac 0F90      		pop __tmp_reg__
+ 239 00ae 0F90      		pop __tmp_reg__
+ 240 00b0 0F90      		pop __tmp_reg__
+ 241 00b2 0F90      		pop __tmp_reg__
+ 242 00b4 DF91      		pop r29
+ 243 00b6 CF91      		pop r28
+ 244 00b8 0895      		ret
+ 249               	.Lscope3:
+ 251               		.stabd	78,0,0
+ 253               	.Letext0:
+ 254               		.ident	"GCC: (GNU) 4.8.2"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Sonar.c
+     /tmp/ccnuYoPf.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccnuYoPf.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccnuYoPf.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccnuYoPf.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccnuYoPf.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccnuYoPf.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccnuYoPf.s:65     .text:0000000000000000 getCertainSensor
+     /tmp/ccnuYoPf.s:109    .text:0000000000000028 getAllSensors
+     /tmp/ccnuYoPf.s:182    .text:0000000000000070 getSensorGroup
+
+NO UNDEFINED SYMBOLS

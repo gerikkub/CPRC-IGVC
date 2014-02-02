@@ -1,0 +1,55 @@
+   1               		.file	"Lights.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  62               	.global	setLight
+  64               	setLight:
+  65               		.stabd	46,0,0
+   1:Components/Lights/Lights.c **** //light controller functions
+   2:Components/Lights/Lights.c **** 
+   3:Components/Lights/Lights.c **** //turn lights on and off
+   4:Components/Lights/Lights.c **** char setLight(char lightTarget) {
+  67               	.LM0:
+  68               	.LFBB1:
+  69 0000 CF93      		push r28
+  70 0002 DF93      		push r29
+  71 0004 1F92      		push __zero_reg__
+  72 0006 CDB7      		in r28,__SP_L__
+  73 0008 DEB7      		in r29,__SP_H__
+  74               	/* prologue: function */
+  75               	/* frame size = 1 */
+  76               	/* stack size = 3 */
+  77               	.L__stack_usage = 3
+  78 000a 8983      		std Y+1,r24
+   5:Components/Lights/Lights.c ****    //dummy function, nothing happens
+   6:Components/Lights/Lights.c ****    //return success
+   7:Components/Lights/Lights.c ****    return 1;
+  80               	.LM1:
+  81 000c 81E0      		ldi r24,lo8(1)
+  82               	/* epilogue start */
+   8:Components/Lights/Lights.c **** }
+  84               	.LM2:
+  85 000e 0F90      		pop __tmp_reg__
+  86 0010 DF91      		pop r29
+  87 0012 CF91      		pop r28
+  88 0014 0895      		ret
+  90               	.Lscope1:
+  92               		.stabd	78,0,0
+  94               	.Letext0:
+  95               		.ident	"GCC: (GNU) 4.8.2"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Lights.c
+     /tmp/ccaJ5ppd.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccaJ5ppd.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccaJ5ppd.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccaJ5ppd.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccaJ5ppd.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccaJ5ppd.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccaJ5ppd.s:64     .text:0000000000000000 setLight
+
+NO UNDEFINED SYMBOLS

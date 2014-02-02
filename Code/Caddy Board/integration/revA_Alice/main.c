@@ -152,7 +152,7 @@ void vIO_init(void)
 {
     //- set PortB as output
 	DDRB = 0xFF; 
-    PORTB = 0xFF; 
+    PORTB = 0; 
 }
 
 

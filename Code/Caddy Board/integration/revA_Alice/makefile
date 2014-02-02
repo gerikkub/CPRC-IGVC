@@ -39,6 +39,12 @@ FORMAT = ihex
 # Target file name (without extension).
 TARGET = rtosdemo
 
+# RTOS Source file directory
+RTOS_SOURCE = ../../FreeRTOS/Source
+
+# Build dircetory
+BUILD = build
+
 # Optimization level, can be [0, 1, 2, 3, s]. 0 turns off optimization.
 # (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
 OPT = 0
@@ -46,19 +52,27 @@ OPT = 0
 
 # List C source files here. (C dependencies are automatically generated.)
 DEMO_DIR = ../Common/Minimal
-SOURCE_DIR = ../../Source ../../../protocol
+SOURCE_DIR = ../../FreeRTOS/Source  
 PORT_DIR = ../../Source/portable/GCC/ATMega323
 
 SRC	= \
 main.c \
-tasks.c \
-queue.c \
-list.c \
-croutine.c \
-heap_1.c \
-port.c \
+$(RTOS_SOURCE)/tasks.c \
+$(RTOS_SOURCE)/queue.c \
+$(RTOS_SOURCE)/list.c \
+$(RTOS_SOURCE)/croutine.c \
+$(RTOS_SOURCE)/heap_1.c \
+$(RTOS_SOURCE)/port.c \
 usart.c\
 sonar.c\
+Components/Battery/Battery.c \
+Components/Brake/Brake.c \
+Components/Error/Error.c \
+Components/FNR/FNR.c \
+Components/Lights/Lights.c \
+Components/Sonar/Sonar.c \
+Components/Speed/Speed.c \
+Components/Steering/Steering.c
 
 
 # If there is more than one source file, append them above, or modify and
@@ -98,7 +112,7 @@ DEBUG_LEVEL=-g
 WARNINGS=-Wall -Wextra -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wsign-compare \
 		-Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wunused
 
-CFLAGS = -D GCC_MEGA_AVR -I. -I../../Source/include -I../Common/include  \
+CFLAGS = -D GCC_MEGA_AVR -I. -I../../FreeRTOS/Source/include -I../FreeRTOS/First\ Project/Common/include  \
 $(DEBUG_LEVEL) -O$(OPT) \
 -fsigned-char -funsigned-bitfields -fpack-struct -fshort-enums \
 $(WARNINGS) \
@@ -360,14 +374,14 @@ program: $(TARGET).hex $(TARGET).eep
 
 # Compile: create assembler files from C source files.
 %.s : %.c
-	$(CC) -S $(ALL_CFLAGS) $< -o $@
+	$(CC) -S $(ALL_CFLAGS) $< -o $(BUILD)/$@
 
 
 # Assemble: create object files from assembler source files.
 %.o : %.S
 	@echo
 	@echo $(MSG_ASSEMBLING) $<
-	$(CC) -c $(ALL_ASFLAGS) $< -o $@
+	$(CC) -c $(ALL_ASFLAGS) $< -o $(BUILD)/$@
 
 
 

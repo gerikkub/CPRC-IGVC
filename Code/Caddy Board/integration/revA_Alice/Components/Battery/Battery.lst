@@ -1,0 +1,108 @@
+   1               		.file	"Battery.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  62               	.global	getBatteryVoltage
+  64               	getBatteryVoltage:
+  65               		.stabd	46,0,0
+   1:Components/Battery/Battery.c **** 
+   2:Components/Battery/Battery.c **** //battery controller functions
+   3:Components/Battery/Battery.c **** 
+   4:Components/Battery/Battery.c **** //read battery strength in a char. Might need to be unsigned, specs don't say
+   5:Components/Battery/Battery.c **** //anything regarding that.
+   6:Components/Battery/Battery.c **** char getBatteryVoltage(char *sensorResponse) {
+  67               	.LM0:
+  68               	.LFBB1:
+  69 0000 CF93      		push r28
+  70 0002 DF93      		push r29
+  71 0004 1F92      		push __zero_reg__
+  72 0006 1F92      		push __zero_reg__
+  73 0008 CDB7      		in r28,__SP_L__
+  74 000a DEB7      		in r29,__SP_H__
+  75               	/* prologue: function */
+  76               	/* frame size = 2 */
+  77               	/* stack size = 4 */
+  78               	.L__stack_usage = 4
+  79 000c 9A83      		std Y+2,r25
+  80 000e 8983      		std Y+1,r24
+   7:Components/Battery/Battery.c ****    //fake battery reading
+   8:Components/Battery/Battery.c ****    *sensorResponse = 0;
+  82               	.LM1:
+  83 0010 8981      		ldd r24,Y+1
+  84 0012 9A81      		ldd r25,Y+2
+  85 0014 FC01      		movw r30,r24
+  86 0016 1082      		st Z,__zero_reg__
+   9:Components/Battery/Battery.c ****    //return success
+  10:Components/Battery/Battery.c ****    return 1;
+  88               	.LM2:
+  89 0018 81E0      		ldi r24,lo8(1)
+  90               	/* epilogue start */
+  11:Components/Battery/Battery.c **** }
+  92               	.LM3:
+  93 001a 0F90      		pop __tmp_reg__
+  94 001c 0F90      		pop __tmp_reg__
+  95 001e DF91      		pop r29
+  96 0020 CF91      		pop r28
+  97 0022 0895      		ret
+  99               	.Lscope1:
+ 101               		.stabd	78,0,0
+ 104               	.global	getSteeringVoltage
+ 106               	getSteeringVoltage:
+ 107               		.stabd	46,0,0
+  12:Components/Battery/Battery.c **** 
+  13:Components/Battery/Battery.c **** //gets voltage from steering?
+  14:Components/Battery/Battery.c **** char getSteeringVoltage(char *sensorResponse) {
+ 109               	.LM4:
+ 110               	.LFBB2:
+ 111 0024 CF93      		push r28
+ 112 0026 DF93      		push r29
+ 113 0028 1F92      		push __zero_reg__
+ 114 002a 1F92      		push __zero_reg__
+ 115 002c CDB7      		in r28,__SP_L__
+ 116 002e DEB7      		in r29,__SP_H__
+ 117               	/* prologue: function */
+ 118               	/* frame size = 2 */
+ 119               	/* stack size = 4 */
+ 120               	.L__stack_usage = 4
+ 121 0030 9A83      		std Y+2,r25
+ 122 0032 8983      		std Y+1,r24
+  15:Components/Battery/Battery.c ****    //fake steering voltage reading
+  16:Components/Battery/Battery.c ****    *sensorResponse = 0;
+ 124               	.LM5:
+ 125 0034 8981      		ldd r24,Y+1
+ 126 0036 9A81      		ldd r25,Y+2
+ 127 0038 FC01      		movw r30,r24
+ 128 003a 1082      		st Z,__zero_reg__
+  17:Components/Battery/Battery.c ****    //return success
+  18:Components/Battery/Battery.c ****    return 1;
+ 130               	.LM6:
+ 131 003c 81E0      		ldi r24,lo8(1)
+ 132               	/* epilogue start */
+  19:Components/Battery/Battery.c **** }
+ 134               	.LM7:
+ 135 003e 0F90      		pop __tmp_reg__
+ 136 0040 0F90      		pop __tmp_reg__
+ 137 0042 DF91      		pop r29
+ 138 0044 CF91      		pop r28
+ 139 0046 0895      		ret
+ 141               	.Lscope2:
+ 143               		.stabd	78,0,0
+ 145               	.Letext0:
+ 146               		.ident	"GCC: (GNU) 4.8.2"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Battery.c
+     /tmp/ccAn6moY.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccAn6moY.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccAn6moY.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccAn6moY.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccAn6moY.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccAn6moY.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccAn6moY.s:64     .text:0000000000000000 getBatteryVoltage
+     /tmp/ccAn6moY.s:106    .text:0000000000000024 getSteeringVoltage
+
+NO UNDEFINED SYMBOLS
