@@ -15,6 +15,37 @@
 #define LIGHTS_GROUP 0x07
 #define ERROR_GROUP 0x08
 
+//ultrasonic commands
+#define GET_ALL_SENSORS 0x00
+#define GET_CERTAIN_SENSORS 0x01
+#define GET_SENSOR_GROUP 0x02
+
+//speed commands
+#define GET_SPEED 0x00
+#define SET_SPEED 0x01
+
+//steering commands
+#define SET_ANGLE 0x00
+#define GET_ANGLE 0x01
+#define GET_DESIRED_ANGLE 0x02
+#define CHANGE_PID 0x03
+#define SET_LIMITS 0x04
+
+//FNR commands
+#define SET_FNR 0x00
+#define GET_FNR 0x01
+
+//brake commands
+#define SET_BRAKE 0x00
+#define GET_BRAKE 0x01
+
+//battery commands
+#define GET_BATTERY_VOLTAGE 0x00
+#define GET_STEERING_VOLTAGE 0x01
+
+//light commands
+#define SET_LIGHT 0x00
+
 struct __attribute__ ((__packed__)) command {
    char groupID;
    char cmd;

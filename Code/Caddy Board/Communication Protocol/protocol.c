@@ -171,10 +171,10 @@ char processUltrasonicCommand(char commandCode, void* commandData, void* respons
          getAllSensors((int*) responseData);
          break;
       case GET_CERTAIN_SENSORS:
-         getCertainSensor((char) *commandData, (int*) responseData);
+         getCertainSensor(*((char*)commandData), (int*) responseData);
          break;
       case GET_SENSOR_GROUP:
-         getSensorGroup((char) *commandData, (int*) responseData);
+         getSensorGroup(*((char*)commandData), (int*) responseData);
          break;
    }
    //return success for now...
@@ -184,10 +184,10 @@ char processUltrasonicCommand(char commandCode, void* commandData, void* respons
 char processSpeedCommand(char commandCode, void* commandData, void* responseData) {
    switch(commandCode) {
       case GET_SPEED:
-         getSpeed((int*) responseData);
+         getSpeed((char*) responseData);
          break;
       case SET_SPEED:
-         setSpeed((char) *commandData);
+         setSpeed(*((char*)commandData));
          break;
    }
    //return success for now
@@ -197,13 +197,13 @@ char processSpeedCommand(char commandCode, void* commandData, void* responseData
 char processSteeringCommand(char commandCode, void* commandData, void* responseData) {
    switch(commandCode) {
       case SET_ANGLE:
-         setAngle((char) *commandData);
+         setAngle(*((char*)commandData));
          break;
       case GET_ANGLE:
-         getAngle((*char) responseData);
+         getAngle((char*) responseData);
          break;
       case GET_DESIRED_ANGLE:
-         getDesiredAngle((*char) responseData);
+         getDesiredAngle((char*) responseData);
          break;
       case CHANGE_PID:
          changePID(((char*)commandData)[0], ((char*)commandData)[1], ((char*)commandData)[2]);
@@ -219,7 +219,7 @@ char processSteeringCommand(char commandCode, void* commandData, void* responseD
 char processFNRCommand(char commandCode, void* commandData, void* responseData) {
    switch(commandCode) {
       case SET_FNR:
-         setFNR((char) *commandData);
+         setFNR(*((char*)commandData));
          break;
       case GET_FNR:
          getFNR((char*) responseData);
@@ -227,10 +227,10 @@ char processFNRCommand(char commandCode, void* commandData, void* responseData) 
    }
 }
 
-char processBrakeCommand(char commandCode, void* commandData, void* responseDate) {
+char processBrakeCommand(char commandCode, void* commandData, void* responseData) {
    switch(commandCode) {
       case SET_BRAKE:
-	 setBrake((char) *commandData);
+	 setBrake(*((char*)commandData));
 	 break;
       case GET_BRAKE:
 	 getBrake((char*) responseData);
@@ -245,14 +245,14 @@ char processBatteryCommand(char commandCode, void* commandData, void* responseDa
          break;
       case GET_STEERING_VOLTAGE:
          getSteeringVoltage((char*) responseData);
-	 break;
+         break;
    }
 }
 
 char processLightCommand(char commandCode, void* commandData, void* responseDate) {
    switch(commandCode) {
       case SET_LIGHT:
-	 setLight((char) *commandData);
+	 setLight(*((char*)commandData));
          break;
    }
 }
