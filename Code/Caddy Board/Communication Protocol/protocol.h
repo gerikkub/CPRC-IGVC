@@ -46,14 +46,14 @@
 //light commands
 #define SET_LIGHT 0x00
 
-struct __attribute__ ((__packed__)) command {
+struct command {
    char groupID;
    char cmd;
    char crc;
    char payload[MAX_PAYLOAD_SIZE];
 };
 
-struct __attribute__ ((__packed__)) response {
+struct response {
    char commandBack;
    char size;
    char payload[MAX_PAYLOAD_SIZE];
