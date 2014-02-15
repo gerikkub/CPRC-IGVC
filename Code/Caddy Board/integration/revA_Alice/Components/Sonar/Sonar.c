@@ -1,31 +1,129 @@
+// Code to controller the Sonar sensors
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include <avr/interrupt.h>
+#include <avr/io.h>
 
-//Ultrasonic group
+#include "../../protocol.h"
+#include "Sonar.h"
 
-//distance in cm stored as int in sensorResponse, returns success
-char getCertainSensor(char sensor, int* sensorResponse) {
-   //returns dummy value for now
-   *sensorResponse = 0;
-   //return success
-   return 1;
+xSemaphoreHandle* sonarSemaphore;
+xSemaphoreHandle* sonarDataMutex[6];
+
+unsigned char sonarData[6];
+extern int count;
+
+unsigned char currSonar;
+unsigned char lastSonarData = 0;
+   
+void setSonarData(int i,unsigned char data){
+// xSemaphoreTake(sonarDataMutex[i],portMAX_DELAY);
+   sonarData[i] = data;
+   //xSemaphoreGive(sonarDataMutex[i]);
 }
 
-//takes in 6 int array to store response, returns success
-char getAllSensors(int* sensorResponse) {
-   for(char i = 0; i < 6; i++) {
-      getCertainSensor(i, &sensorResponse[i]);
+unsigned char getSonarData(int i){
+   //xSemaphoreTake(sonarDataMutex[i],portMAX_DELAY);
+   return sonarData[i];
+   //xSemaphoreGive(sonarDataMutex[i]);
+}
+
+unsigned char getTimerCount(){
+   return TCNT0;
+}
+
+inline void setTimerCount(unsigned char i){
+   TCNT0 = i;
+}
+
+ISR(PCINT2_vect) {
+
+   unsigned char beginCount;
+   unsigned char currCount;
+   char i=0;   
+
+   if(PINK&(1<<currSonar)){
+      beginCount = getTimerCount();
+      PORTE = 0xFF;
+   } else {
+      currCount = getTimerCount();
+      if(currCount > beginCount){
+         lastSonarData = currCount - beginCount;
+      }
+      PORTE = 0;
+      xSemaphoreGiveFromISR(sonarSemaphore,0);
    }
-   //no error checking for now, return success
-   return 1;
+
 }
 
-//stores cm values of a sensor group in sensorResponse
-char getSensorGroup(char groupID, int *sensorResponse) {
-   //different group ID's might mean different lengths. the dummy
-   //implementation will place 3 0x0000's in the response
-   for(int i = 0; i < 3; i++) {
-      *sensorResponse=0;
+void initializeSonarSensors(){
+   //DDRD &= 0xFE;   
+   DIDR2 = 0;
+   DDRK = 0;
+   DDRC = 0;
+
+   PORTC = 0;
+
+   //EICRA = 1;
+   //EIMSK = 1;
+
+   PCMSK2 = 0xFF;
+   PCICR = 0x7;
+
+   TCCR0A = 0;
+   TCCR0B = 5;
+
+}
+
+void vTaskSonar(void* parameter){
+
+   int i;
+   initializeSonarSensors();
+   
+   vSemaphoreCreateBinary(sonarSemaphore);
+      
+   currSonar = 0;
+
+   while(1){
+      for(i=0;i<2;i++){
+         currSonar = i;
+         PORTC = (1<<i);
+         xSemaphoreTake(sonarSemaphore,portMAX_DELAY);
+         setSonarData(i,lastSonarData);
+      }
    }
-   //return success
-   return 1;
+            
+} 
+
+char getAllSensors(int* responseData){
+   int i;
+   for(i=0;i<6;i++){
+      //responseData[i] = getSonarData(i);
+      responseData[i] = i;
+   }
 }
 
+char getCertainSensor(char commandData,int* responseData){
+   if(commandData < 6){
+      responseData[commandData] = getSonarData(commandData);
+   }
+}
+
+char getSensorGroup(char commandData,int* responseData){
+
+   switch(commandData){
+      case SONAR_GROUP_LEFT:
+         responseData[0] = getSonarData(0);
+         responseData[1] = getSonarData(1);
+         break;
+      case SONAR_GROUP_FRONT:
+         responseData[0] = getSonarData(2);
+         responseData[1] = getSonarData(3);
+         break;
+      case SONAR_GROUP_RIGHT:
+         responseData[0] = getSonarData(4);
+         responseData[1] = getSonarData(5);
+         break;
+   }
+
+}

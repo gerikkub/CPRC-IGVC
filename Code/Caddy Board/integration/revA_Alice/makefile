@@ -63,8 +63,8 @@ $(RTOS_SOURCE)/list.c \
 $(RTOS_SOURCE)/croutine.c \
 $(RTOS_SOURCE)/heap_1.c \
 $(RTOS_SOURCE)/port.c \
-usart.c\
-sonar.c\
+usart.c \
+protocol.c \
 Components/Battery/Battery.c \
 Components/Brake/Brake.c \
 Components/Error/Error.c \

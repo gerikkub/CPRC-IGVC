@@ -1,0 +1,522 @@
+   1               		.file	"sonar.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+ 127               		.comm	sonarSemaphore,2,1
+ 128               		.comm	sonarDataMutex,12,1
+ 129               		.comm	sonarData,6,1
+ 130               		.comm	currSonar,1,1
+ 131               	.global	lastSonarData
+ 132               		.section .bss
+ 135               	lastSonarData:
+ 136 0000 00        		.zero	1
+ 137               		.text
+ 141               	.global	setSonarData
+ 143               	setSonarData:
+ 144               		.stabd	46,0,0
+   1:sonar.c       **** // Code to controller the Sonar sensors
+   2:sonar.c       **** #include "FreeRTOS.h"
+   3:sonar.c       **** #include "semphr.h"
+   4:sonar.c       **** #include <avr/interrupt.h>
+   5:sonar.c       **** #include "sonar.h"
+   6:sonar.c       **** #include <avr/io.h>
+   7:sonar.c       **** 
+   8:sonar.c       **** xSemaphoreHandle*	sonarSemaphore;
+   9:sonar.c       **** xSemaphoreHandle* sonarDataMutex[6];
+  10:sonar.c       **** 
+  11:sonar.c       **** unsigned char sonarData[6];
+  12:sonar.c       **** extern int count;
+  13:sonar.c       **** 
+  14:sonar.c       **** unsigned char currSonar;
+  15:sonar.c       **** unsigned char lastSonarData = 0;
+  16:sonar.c       **** 	
+  17:sonar.c       **** void setSonarData(int i,unsigned char data){
+ 146               	.LM0:
+ 147               	.LFBB1:
+ 148 0000 CF93      		push r28
+ 149 0002 DF93      		push r29
+ 150 0004 00D0      		rcall .
+ 151 0006 CDB7      		in r28,__SP_L__
+ 152 0008 DEB7      		in r29,__SP_H__
+ 153               	/* prologue: function */
+ 154               	/* frame size = 3 */
+ 155               	/* stack size = 5 */
+ 156               	.L__stack_usage = 5
+ 157 000a 9A83      		std Y+2,r25
+ 158 000c 8983      		std Y+1,r24
+ 159 000e 6B83      		std Y+3,r22
+  18:sonar.c       **** //	xSemaphoreTake(sonarDataMutex[i],portMAX_DELAY);
+  19:sonar.c       **** 	sonarData[i] = data;
+ 161               	.LM1:
+ 162 0010 8981      		ldd r24,Y+1
+ 163 0012 9A81      		ldd r25,Y+2
+ 164 0014 8050      		subi r24,lo8(-(sonarData))
+ 165 0016 9040      		sbci r25,hi8(-(sonarData))
+ 166 0018 2B81      		ldd r18,Y+3
+ 167 001a FC01      		movw r30,r24
+ 168 001c 2083      		st Z,r18
+ 169               	/* epilogue start */
+  20:sonar.c       **** 	//xSemaphoreGive(sonarDataMutex[i]);
+  21:sonar.c       **** }
+ 171               	.LM2:
+ 172 001e 0F90      		pop __tmp_reg__
+ 173 0020 0F90      		pop __tmp_reg__
+ 174 0022 0F90      		pop __tmp_reg__
+ 175 0024 DF91      		pop r29
+ 176 0026 CF91      		pop r28
+ 177 0028 0895      		ret
+ 179               	.Lscope1:
+ 181               		.stabd	78,0,0
+ 184               	.global	getSonarData
+ 186               	getSonarData:
+ 187               		.stabd	46,0,0
+  22:sonar.c       **** 
+  23:sonar.c       **** unsigned char getSonarData(int i){
+ 189               	.LM3:
+ 190               	.LFBB2:
+ 191 002a CF93      		push r28
+ 192 002c DF93      		push r29
+ 193 002e 1F92      		push __zero_reg__
+ 194 0030 1F92      		push __zero_reg__
+ 195 0032 CDB7      		in r28,__SP_L__
+ 196 0034 DEB7      		in r29,__SP_H__
+ 197               	/* prologue: function */
+ 198               	/* frame size = 2 */
+ 199               	/* stack size = 4 */
+ 200               	.L__stack_usage = 4
+ 201 0036 9A83      		std Y+2,r25
+ 202 0038 8983      		std Y+1,r24
+  24:sonar.c       **** 	//xSemaphoreTake(sonarDataMutex[i],portMAX_DELAY);
+  25:sonar.c       **** 	return sonarData[i];
+ 204               	.LM4:
+ 205 003a 8981      		ldd r24,Y+1
+ 206 003c 9A81      		ldd r25,Y+2
+ 207 003e 8050      		subi r24,lo8(-(sonarData))
+ 208 0040 9040      		sbci r25,hi8(-(sonarData))
+ 209 0042 FC01      		movw r30,r24
+ 210 0044 8081      		ld r24,Z
+ 211               	/* epilogue start */
+  26:sonar.c       **** 	//xSemaphoreGive(sonarDataMutex[i]);
+  27:sonar.c       **** }
+ 213               	.LM5:
+ 214 0046 0F90      		pop __tmp_reg__
+ 215 0048 0F90      		pop __tmp_reg__
+ 216 004a DF91      		pop r29
+ 217 004c CF91      		pop r28
+ 218 004e 0895      		ret
+ 220               	.Lscope2:
+ 222               		.stabd	78,0,0
+ 224               	.global	getTimerCount
+ 226               	getTimerCount:
+ 227               		.stabd	46,0,0
+  28:sonar.c       **** 
+  29:sonar.c       **** unsigned char getTimerCount(){
+ 229               	.LM6:
+ 230               	.LFBB3:
+ 231 0050 CF93      		push r28
+ 232 0052 DF93      		push r29
+ 233 0054 CDB7      		in r28,__SP_L__
+ 234 0056 DEB7      		in r29,__SP_H__
+ 235               	/* prologue: function */
+ 236               	/* frame size = 0 */
+ 237               	/* stack size = 2 */
+ 238               	.L__stack_usage = 2
+  30:sonar.c       **** 	return TCNT0;
+ 240               	.LM7:
+ 241 0058 86E4      		ldi r24,lo8(70)
+ 242 005a 90E0      		ldi r25,0
+ 243 005c FC01      		movw r30,r24
+ 244 005e 8081      		ld r24,Z
+ 245               	/* epilogue start */
+  31:sonar.c       **** }
+ 247               	.LM8:
+ 248 0060 DF91      		pop r29
+ 249 0062 CF91      		pop r28
+ 250 0064 0895      		ret
+ 252               	.Lscope3:
+ 254               		.stabd	78,0,0
+ 256               	.global	__vector_11
+ 258               	__vector_11:
+ 259               		.stabd	46,0,0
+  32:sonar.c       **** 
+  33:sonar.c       **** inline void setTimerCount(unsigned char i){
+  34:sonar.c       **** 	TCNT0 = i;
+  35:sonar.c       **** }
+  36:sonar.c       **** 
+  37:sonar.c       **** ISR(PCINT2_vect) {
+ 261               	.LM9:
+ 262               	.LFBB4:
+ 263 0066 1F92      		push r1
+ 264 0068 0F92      		push r0
+ 265 006a 0090 5F00 		lds r0,95
+ 266 006e 0F92      		push r0
+ 267 0070 1124      		clr __zero_reg__
+ 268 0072 0090 5B00 		lds r0,91
+ 269 0076 0F92      		push r0
+ 270 0078 2F93      		push r18
+ 271 007a 3F93      		push r19
+ 272 007c 4F93      		push r20
+ 273 007e 5F93      		push r21
+ 274 0080 6F93      		push r22
+ 275 0082 7F93      		push r23
+ 276 0084 8F93      		push r24
+ 277 0086 9F93      		push r25
+ 278 0088 AF93      		push r26
+ 279 008a BF93      		push r27
+ 280 008c EF93      		push r30
+ 281 008e FF93      		push r31
+ 282 0090 CF93      		push r28
+ 283 0092 DF93      		push r29
+ 284 0094 00D0      		rcall .
+ 285 0096 CDB7      		in r28,__SP_L__
+ 286 0098 DEB7      		in r29,__SP_H__
+ 287               	/* prologue: Signal */
+ 288               	/* frame size = 3 */
+ 289               	/* stack size = 21 */
+ 290               	.L__stack_usage = 21
+  38:sonar.c       **** 
+  39:sonar.c       **** 	unsigned char beginCount;
+  40:sonar.c       **** 	unsigned char currCount;
+  41:sonar.c       **** 	char i=0;	
+ 292               	.LM10:
+ 293 009a 1982      		std Y+1,__zero_reg__
+  42:sonar.c       **** 
+  43:sonar.c       **** 	if(PINK&(1<<currSonar)){
+ 295               	.LM11:
+ 296 009c 86E0      		ldi r24,lo8(6)
+ 297 009e 91E0      		ldi r25,lo8(1)
+ 298 00a0 FC01      		movw r30,r24
+ 299 00a2 8081      		ld r24,Z
+ 300 00a4 882F      		mov r24,r24
+ 301 00a6 90E0      		ldi r25,0
+ 302 00a8 2091 0000 		lds r18,currSonar
+ 303 00ac 222F      		mov r18,r18
+ 304 00ae 30E0      		ldi r19,0
+ 305 00b0 022E      		mov r0,r18
+ 306 00b2 00C0      		rjmp 2f
+ 307               		1:
+ 308 00b4 9595      		asr r25
+ 309 00b6 8795      		ror r24
+ 310               		2:
+ 311 00b8 0A94      		dec r0
+ 312 00ba 02F4      		brpl 1b
+ 313 00bc 8170      		andi r24,1
+ 314 00be 9927      		clr r25
+ 315 00c0 0097      		sbiw r24,0
+ 316 00c2 01F0      		breq .L7
+  44:sonar.c       **** 		beginCount = getTimerCount();
+ 318               	.LM12:
+ 319 00c4 0E94 0000 		call getTimerCount
+ 320 00c8 8A83      		std Y+2,r24
+  45:sonar.c       **** 		PORTE = 0xFF;
+ 322               	.LM13:
+ 323 00ca 8EE2      		ldi r24,lo8(46)
+ 324 00cc 90E0      		ldi r25,0
+ 325 00ce 2FEF      		ldi r18,lo8(-1)
+ 326 00d0 FC01      		movw r30,r24
+ 327 00d2 2083      		st Z,r18
+ 328 00d4 00C0      		rjmp .L6
+ 329               	.L7:
+  46:sonar.c       **** 	} else {
+  47:sonar.c       **** 		currCount = getTimerCount();
+ 331               	.LM14:
+ 332 00d6 0E94 0000 		call getTimerCount
+ 333 00da 8B83      		std Y+3,r24
+  48:sonar.c       **** 		if(currCount > beginCount){
+ 335               	.LM15:
+ 336 00dc 9B81      		ldd r25,Y+3
+ 337 00de 8A81      		ldd r24,Y+2
+ 338 00e0 8917      		cp r24,r25
+ 339 00e2 00F4      		brsh .L9
+  49:sonar.c       **** 			lastSonarData = currCount - beginCount;
+ 341               	.LM16:
+ 342 00e4 9B81      		ldd r25,Y+3
+ 343 00e6 8A81      		ldd r24,Y+2
+ 344 00e8 F92F      		mov r31,r25
+ 345 00ea F81B      		sub r31,r24
+ 346 00ec 8F2F      		mov r24,r31
+ 347 00ee 8093 0000 		sts lastSonarData,r24
+ 348               	.L9:
+  50:sonar.c       **** 		}
+  51:sonar.c       **** 		PORTE = 0;
+ 350               	.LM17:
+ 351 00f2 8EE2      		ldi r24,lo8(46)
+ 352 00f4 90E0      		ldi r25,0
+ 353 00f6 FC01      		movw r30,r24
+ 354 00f8 1082      		st Z,__zero_reg__
+  52:sonar.c       **** 		xSemaphoreGiveFromISR(sonarSemaphore,0);
+ 356               	.LM18:
+ 357 00fa 8091 0000 		lds r24,sonarSemaphore
+ 358 00fe 9091 0000 		lds r25,sonarSemaphore+1
+ 359 0102 20E0      		ldi r18,0
+ 360 0104 40E0      		ldi r20,0
+ 361 0106 50E0      		ldi r21,0
+ 362 0108 60E0      		ldi r22,0
+ 363 010a 70E0      		ldi r23,0
+ 364 010c 0E94 0000 		call xQueueGenericSendFromISR
+ 365               	.L6:
+ 366               	/* epilogue start */
+  53:sonar.c       **** 	}
+  54:sonar.c       **** 
+  55:sonar.c       **** }
+ 368               	.LM19:
+ 369 0110 0F90      		pop __tmp_reg__
+ 370 0112 0F90      		pop __tmp_reg__
+ 371 0114 0F90      		pop __tmp_reg__
+ 372 0116 DF91      		pop r29
+ 373 0118 CF91      		pop r28
+ 374 011a FF91      		pop r31
+ 375 011c EF91      		pop r30
+ 376 011e BF91      		pop r27
+ 377 0120 AF91      		pop r26
+ 378 0122 9F91      		pop r25
+ 379 0124 8F91      		pop r24
+ 380 0126 7F91      		pop r23
+ 381 0128 6F91      		pop r22
+ 382 012a 5F91      		pop r21
+ 383 012c 4F91      		pop r20
+ 384 012e 3F91      		pop r19
+ 385 0130 2F91      		pop r18
+ 386 0132 0F90      		pop r0
+ 387 0134 0092 5B00 		sts 91,r0
+ 388 0138 0F90      		pop r0
+ 389 013a 0092 5F00 		sts 95,r0
+ 390 013e 0F90      		pop r0
+ 391 0140 1F90      		pop r1
+ 392 0142 1895      		reti
+ 399               	.Lscope4:
+ 401               		.stabd	78,0,0
+ 403               	.global	initializeSonarSensors
+ 405               	initializeSonarSensors:
+ 406               		.stabd	46,0,0
+  56:sonar.c       **** 
+  57:sonar.c       **** void initializeSonarSensors(){
+ 408               	.LM20:
+ 409               	.LFBB5:
+ 410 0144 CF93      		push r28
+ 411 0146 DF93      		push r29
+ 412 0148 CDB7      		in r28,__SP_L__
+ 413 014a DEB7      		in r29,__SP_H__
+ 414               	/* prologue: function */
+ 415               	/* frame size = 0 */
+ 416               	/* stack size = 2 */
+ 417               	.L__stack_usage = 2
+  58:sonar.c       **** 	//DDRD &= 0xFE;	
+  59:sonar.c       **** 	DIDR2 = 0;
+ 419               	.LM21:
+ 420 014c 8DE7      		ldi r24,lo8(125)
+ 421 014e 90E0      		ldi r25,0
+ 422 0150 FC01      		movw r30,r24
+ 423 0152 1082      		st Z,__zero_reg__
+  60:sonar.c       **** 	DDRK = 0;
+ 425               	.LM22:
+ 426 0154 87E0      		ldi r24,lo8(7)
+ 427 0156 91E0      		ldi r25,lo8(1)
+ 428 0158 FC01      		movw r30,r24
+ 429 015a 1082      		st Z,__zero_reg__
+  61:sonar.c       **** 	DDRC = 0;
+ 431               	.LM23:
+ 432 015c 87E2      		ldi r24,lo8(39)
+ 433 015e 90E0      		ldi r25,0
+ 434 0160 FC01      		movw r30,r24
+ 435 0162 1082      		st Z,__zero_reg__
+  62:sonar.c       **** 
+  63:sonar.c       **** 	PORTC = 0;
+ 437               	.LM24:
+ 438 0164 88E2      		ldi r24,lo8(40)
+ 439 0166 90E0      		ldi r25,0
+ 440 0168 FC01      		movw r30,r24
+ 441 016a 1082      		st Z,__zero_reg__
+  64:sonar.c       **** 
+  65:sonar.c       **** 	//EICRA = 1;
+  66:sonar.c       **** 	//EIMSK = 1;
+  67:sonar.c       **** 
+  68:sonar.c       **** 	PCMSK2 = 0xFF;
+ 443               	.LM25:
+ 444 016c 8DE6      		ldi r24,lo8(109)
+ 445 016e 90E0      		ldi r25,0
+ 446 0170 2FEF      		ldi r18,lo8(-1)
+ 447 0172 FC01      		movw r30,r24
+ 448 0174 2083      		st Z,r18
+  69:sonar.c       **** 	PCICR = 0x7;
+ 450               	.LM26:
+ 451 0176 88E6      		ldi r24,lo8(104)
+ 452 0178 90E0      		ldi r25,0
+ 453 017a 27E0      		ldi r18,lo8(7)
+ 454 017c FC01      		movw r30,r24
+ 455 017e 2083      		st Z,r18
+  70:sonar.c       **** 
+  71:sonar.c       **** 	TCCR0A = 0;
+ 457               	.LM27:
+ 458 0180 84E4      		ldi r24,lo8(68)
+ 459 0182 90E0      		ldi r25,0
+ 460 0184 FC01      		movw r30,r24
+ 461 0186 1082      		st Z,__zero_reg__
+  72:sonar.c       **** 	TCCR0B = 5;
+ 463               	.LM28:
+ 464 0188 85E4      		ldi r24,lo8(69)
+ 465 018a 90E0      		ldi r25,0
+ 466 018c 25E0      		ldi r18,lo8(5)
+ 467 018e FC01      		movw r30,r24
+ 468 0190 2083      		st Z,r18
+ 469               	/* epilogue start */
+  73:sonar.c       **** 
+  74:sonar.c       **** }
+ 471               	.LM29:
+ 472 0192 DF91      		pop r29
+ 473 0194 CF91      		pop r28
+ 474 0196 0895      		ret
+ 476               	.Lscope5:
+ 478               		.stabd	78,0,0
+ 481               	.global	vTaskSonar
+ 483               	vTaskSonar:
+ 484               		.stabd	46,0,0
+  75:sonar.c       **** 
+  76:sonar.c       **** void vTaskSonar(void* parameter){
+ 486               	.LM30:
+ 487               	.LFBB6:
+ 488 0198 CF93      		push r28
+ 489 019a DF93      		push r29
+ 490 019c 00D0      		rcall .
+ 491 019e 1F92      		push __zero_reg__
+ 492 01a0 CDB7      		in r28,__SP_L__
+ 493 01a2 DEB7      		in r29,__SP_H__
+ 494               	/* prologue: function */
+ 495               	/* frame size = 4 */
+ 496               	/* stack size = 6 */
+ 497               	.L__stack_usage = 6
+ 498 01a4 9C83      		std Y+4,r25
+ 499 01a6 8B83      		std Y+3,r24
+  77:sonar.c       **** 
+  78:sonar.c       **** 	int i;
+  79:sonar.c       **** 	initializeSonarSensors();
+ 501               	.LM31:
+ 502 01a8 0E94 0000 		call initializeSonarSensors
+  80:sonar.c       **** 	
+  81:sonar.c       **** 	vSemaphoreCreateBinary(sonarSemaphore);
+ 504               	.LM32:
+ 505 01ac 43E0      		ldi r20,lo8(3)
+ 506 01ae 60E0      		ldi r22,0
+ 507 01b0 81E0      		ldi r24,lo8(1)
+ 508 01b2 0E94 0000 		call xQueueGenericCreate
+ 509 01b6 9093 0000 		sts sonarSemaphore+1,r25
+ 510 01ba 8093 0000 		sts sonarSemaphore,r24
+ 511 01be 8091 0000 		lds r24,sonarSemaphore
+ 512 01c2 9091 0000 		lds r25,sonarSemaphore+1
+ 513 01c6 0097      		sbiw r24,0
+ 514 01c8 01F0      		breq .L12
+ 516               	.LM33:
+ 517 01ca 8091 0000 		lds r24,sonarSemaphore
+ 518 01ce 9091 0000 		lds r25,sonarSemaphore+1
+ 519 01d2 20E0      		ldi r18,0
+ 520 01d4 40E0      		ldi r20,0
+ 521 01d6 50E0      		ldi r21,0
+ 522 01d8 60E0      		ldi r22,0
+ 523 01da 70E0      		ldi r23,0
+ 524 01dc 0E94 0000 		call xQueueGenericSend
+ 525               	.L12:
+  82:sonar.c       **** 		
+  83:sonar.c       **** 	currSonar = 0;
+ 527               	.LM34:
+ 528 01e0 1092 0000 		sts currSonar,__zero_reg__
+ 529               	.L15:
+  84:sonar.c       **** 
+  85:sonar.c       **** 	while(1){
+  86:sonar.c       **** 		for(i=0;i<2;i++){
+ 531               	.LM35:
+ 532 01e4 1A82      		std Y+2,__zero_reg__
+ 533 01e6 1982      		std Y+1,__zero_reg__
+ 534 01e8 00C0      		rjmp .L13
+ 535               	.L14:
+  87:sonar.c       **** 			currSonar = i;
+ 537               	.LM36:
+ 538 01ea 8981      		ldd r24,Y+1
+ 539 01ec 8093 0000 		sts currSonar,r24
+  88:sonar.c       **** 			PORTC = (1<<i);
+ 541               	.LM37:
+ 542 01f0 88E2      		ldi r24,lo8(40)
+ 543 01f2 90E0      		ldi r25,0
+ 544 01f4 21E0      		ldi r18,lo8(1)
+ 545 01f6 30E0      		ldi r19,0
+ 546 01f8 0980      		ldd r0,Y+1
+ 547 01fa 00C0      		rjmp 2f
+ 548               		1:
+ 549 01fc 220F      		lsl r18
+ 550 01fe 331F      		rol r19
+ 551               		2:
+ 552 0200 0A94      		dec r0
+ 553 0202 02F4      		brpl 1b
+ 554 0204 FC01      		movw r30,r24
+ 555 0206 2083      		st Z,r18
+  89:sonar.c       **** 			xSemaphoreTake(sonarSemaphore,portMAX_DELAY);
+ 557               	.LM38:
+ 558 0208 8091 0000 		lds r24,sonarSemaphore
+ 559 020c 9091 0000 		lds r25,sonarSemaphore+1
+ 560 0210 20E0      		ldi r18,0
+ 561 0212 4FEF      		ldi r20,lo8(-1)
+ 562 0214 5FEF      		ldi r21,lo8(-1)
+ 563 0216 60E0      		ldi r22,0
+ 564 0218 70E0      		ldi r23,0
+ 565 021a 0E94 0000 		call xQueueGenericReceive
+  90:sonar.c       **** 			setSonarData(i,lastSonarData);
+ 567               	.LM39:
+ 568 021e 2091 0000 		lds r18,lastSonarData
+ 569 0222 8981      		ldd r24,Y+1
+ 570 0224 9A81      		ldd r25,Y+2
+ 571 0226 622F      		mov r22,r18
+ 572 0228 0E94 0000 		call setSonarData
+  86:sonar.c       **** 		for(i=0;i<2;i++){
+ 574               	.LM40:
+ 575 022c 8981      		ldd r24,Y+1
+ 576 022e 9A81      		ldd r25,Y+2
+ 577 0230 0196      		adiw r24,1
+ 578 0232 9A83      		std Y+2,r25
+ 579 0234 8983      		std Y+1,r24
+ 580               	.L13:
+  86:sonar.c       **** 		for(i=0;i<2;i++){
+ 582               	.LM41:
+ 583 0236 8981      		ldd r24,Y+1
+ 584 0238 9A81      		ldd r25,Y+2
+ 585 023a 8230      		cpi r24,2
+ 586 023c 9105      		cpc r25,__zero_reg__
+ 587 023e 04F0      		brlt .L14
+  91:sonar.c       **** 		}
+  92:sonar.c       **** 	}
+ 589               	.LM42:
+ 590 0240 00C0      		rjmp .L15
+ 595               	.Lscope6:
+ 597               		.stabd	78,0,0
+ 604               	.Letext0:
+ 605               		.ident	"GCC: (GNU) 4.8.2"
+ 606               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sonar.c
+     /tmp/ccjGy1eQ.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccjGy1eQ.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccjGy1eQ.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccjGy1eQ.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/ccjGy1eQ.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccjGy1eQ.s:7      *ABS*:0000000000000001 __zero_reg__
+                            *COM*:0000000000000002 sonarSemaphore
+                            *COM*:000000000000000c sonarDataMutex
+                            *COM*:0000000000000006 sonarData
+                            *COM*:0000000000000001 currSonar
+     /tmp/ccjGy1eQ.s:135    .bss:0000000000000000 lastSonarData
+     /tmp/ccjGy1eQ.s:143    .text:0000000000000000 setSonarData
+     /tmp/ccjGy1eQ.s:186    .text:000000000000002a getSonarData
+     /tmp/ccjGy1eQ.s:226    .text:0000000000000050 getTimerCount
+     /tmp/ccjGy1eQ.s:258    .text:0000000000000066 __vector_11
+     /tmp/ccjGy1eQ.s:405    .text:0000000000000144 initializeSonarSensors
+     /tmp/ccjGy1eQ.s:483    .text:0000000000000198 vTaskSonar
+
+UNDEFINED SYMBOLS
+xQueueGenericSendFromISR
+xQueueGenericCreate
+xQueueGenericSend
+xQueueGenericReceive
+__do_clear_bss

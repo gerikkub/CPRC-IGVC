@@ -1,98 +1,92 @@
    1               		.file	"Brake.c"
-   2               	__SP_H__ = 0x3e
-   3               	__SP_L__ = 0x3d
-   4               	__SREG__ = 0x3f
-   5               	__RAMPZ__ = 0x3b
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
    6               	__tmp_reg__ = 0
    7               	__zero_reg__ = 1
   10               		.text
   11               	.Ltext0:
-  62               	.global	setBrake
-  64               	setBrake:
-  65               		.stabd	46,0,0
+  30               	.global	setBrake
+  32               	setBrake:
+  33               		.stabd	46,0,0
    1:Components/Brake/Brake.c **** //Brake controller functions. THERE IS CURRENTLY NO WAY TO GET THE DESIRED
    2:Components/Brake/Brake.c **** //BRAKE TARGET IN THE SPECS
    3:Components/Brake/Brake.c **** 
    4:Components/Brake/Brake.c **** //set brake target
    5:Components/Brake/Brake.c **** char setBrake(char gainTarget) {
-  67               	.LM0:
-  68               	.LFBB1:
-  69 0000 CF93      		push r28
-  70 0002 DF93      		push r29
-  71 0004 1F92      		push __zero_reg__
-  72 0006 CDB7      		in r28,__SP_L__
-  73 0008 DEB7      		in r29,__SP_H__
-  74               	/* prologue: function */
-  75               	/* frame size = 1 */
-  76               	/* stack size = 3 */
-  77               	.L__stack_usage = 3
-  78 000a 8983      		std Y+1,r24
+  35               	.LM0:
+  36               	.LFBB1:
+  37 0000 DF93      		push r29
+  38 0002 CF93      		push r28
+  39 0004 0F92      		push __tmp_reg__
+  40 0006 CDB7      		in r28,__SP_L__
+  41 0008 DEB7      		in r29,__SP_H__
+  42               	/* prologue: function */
+  43               	/* frame size = 1 */
+  44 000a 8983      		std Y+1,r24
    6:Components/Brake/Brake.c ****    //dummy function, nothing happens
    7:Components/Brake/Brake.c ****    //return success
    8:Components/Brake/Brake.c ****    return 1;
-  80               	.LM1:
-  81 000c 81E0      		ldi r24,lo8(1)
-  82               	/* epilogue start */
+  46               	.LM1:
+  47 000c 81E0      		ldi r24,lo8(1)
+  48               	/* epilogue start */
    9:Components/Brake/Brake.c **** }
-  84               	.LM2:
-  85 000e 0F90      		pop __tmp_reg__
-  86 0010 DF91      		pop r29
-  87 0012 CF91      		pop r28
-  88 0014 0895      		ret
-  90               	.Lscope1:
-  92               		.stabd	78,0,0
-  95               	.global	getBrake
-  97               	getBrake:
-  98               		.stabd	46,0,0
+  50               	.LM2:
+  51 000e 0F90      		pop __tmp_reg__
+  52 0010 CF91      		pop r28
+  53 0012 DF91      		pop r29
+  54 0014 0895      		ret
+  56               	.Lscope1:
+  58               		.stabd	78,0,0
+  61               	.global	getBrake
+  63               	getBrake:
+  64               		.stabd	46,0,0
   10:Components/Brake/Brake.c **** 
   11:Components/Brake/Brake.c **** //get what is assumed to be the current brake value?
   12:Components/Brake/Brake.c **** char getBrake(char* sensorResponse) {
- 100               	.LM3:
- 101               	.LFBB2:
- 102 0016 CF93      		push r28
- 103 0018 DF93      		push r29
- 104 001a 1F92      		push __zero_reg__
- 105 001c 1F92      		push __zero_reg__
- 106 001e CDB7      		in r28,__SP_L__
- 107 0020 DEB7      		in r29,__SP_H__
- 108               	/* prologue: function */
- 109               	/* frame size = 2 */
- 110               	/* stack size = 4 */
- 111               	.L__stack_usage = 4
- 112 0022 9A83      		std Y+2,r25
- 113 0024 8983      		std Y+1,r24
+  66               	.LM3:
+  67               	.LFBB2:
+  68 0016 DF93      		push r29
+  69 0018 CF93      		push r28
+  70 001a 0F92      		push __tmp_reg__
+  71 001c 0F92      		push __tmp_reg__
+  72 001e CDB7      		in r28,__SP_L__
+  73 0020 DEB7      		in r29,__SP_H__
+  74               	/* prologue: function */
+  75               	/* frame size = 2 */
+  76 0022 9A83      		std Y+2,r25
+  77 0024 8983      		std Y+1,r24
   13:Components/Brake/Brake.c ****    //fake brake reading
   14:Components/Brake/Brake.c ****    *sensorResponse = 0;
- 115               	.LM4:
- 116 0026 8981      		ldd r24,Y+1
- 117 0028 9A81      		ldd r25,Y+2
- 118 002a FC01      		movw r30,r24
- 119 002c 1082      		st Z,__zero_reg__
+  79               	.LM4:
+  80 0026 E981      		ldd r30,Y+1
+  81 0028 FA81      		ldd r31,Y+2
+  82 002a 1082      		st Z,__zero_reg__
   15:Components/Brake/Brake.c ****    //return success
   16:Components/Brake/Brake.c ****    return 1;
- 121               	.LM5:
- 122 002e 81E0      		ldi r24,lo8(1)
- 123               	/* epilogue start */
+  84               	.LM5:
+  85 002c 81E0      		ldi r24,lo8(1)
+  86               	/* epilogue start */
   17:Components/Brake/Brake.c **** }
- 125               	.LM6:
- 126 0030 0F90      		pop __tmp_reg__
- 127 0032 0F90      		pop __tmp_reg__
- 128 0034 DF91      		pop r29
- 129 0036 CF91      		pop r28
- 130 0038 0895      		ret
- 132               	.Lscope2:
- 134               		.stabd	78,0,0
- 136               	.Letext0:
- 137               		.ident	"GCC: (GNU) 4.8.2"
+  88               	.LM6:
+  89 002e 0F90      		pop __tmp_reg__
+  90 0030 0F90      		pop __tmp_reg__
+  91 0032 CF91      		pop r28
+  92 0034 DF91      		pop r29
+  93 0036 0895      		ret
+  95               	.Lscope2:
+  97               		.stabd	78,0,0
+  99               	.Letext0:
 DEFINED SYMBOLS
-                            *ABS*:0000000000000000 Brake.c
-     /tmp/ccmBt9M2.s:2      *ABS*:000000000000003e __SP_H__
-     /tmp/ccmBt9M2.s:3      *ABS*:000000000000003d __SP_L__
-     /tmp/ccmBt9M2.s:4      *ABS*:000000000000003f __SREG__
-     /tmp/ccmBt9M2.s:5      *ABS*:000000000000003b __RAMPZ__
-     /tmp/ccmBt9M2.s:6      *ABS*:0000000000000000 __tmp_reg__
-     /tmp/ccmBt9M2.s:7      *ABS*:0000000000000001 __zero_reg__
-     /tmp/ccmBt9M2.s:64     .text:0000000000000000 setBrake
-     /tmp/ccmBt9M2.s:97     .text:0000000000000016 getBrake
+                            *ABS*:00000000 Brake.c
+     /tmp/ccW5Fn9Q.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccW5Fn9Q.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccW5Fn9Q.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccW5Fn9Q.s:5      *ABS*:00000034 __CCP__
+     /tmp/ccW5Fn9Q.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/ccW5Fn9Q.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/ccW5Fn9Q.s:32     .text:00000000 setBrake
+     /tmp/ccW5Fn9Q.s:63     .text:00000016 getBrake
 
 NO UNDEFINED SYMBOLS

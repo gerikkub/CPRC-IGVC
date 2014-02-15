@@ -1,0 +1,1690 @@
+   1               		.file	"port.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+ 118               	.global	pxPortInitialiseStack
+ 120               	pxPortInitialiseStack:
+ 121               		.stabd	46,0,0
+   1:../../FreeRTOS/Source/port.c **** /*
+   2:../../FreeRTOS/Source/port.c ****     FreeRTOS V7.3.0 - Copyright (C) 2012 Real Time Engineers Ltd.
+   3:../../FreeRTOS/Source/port.c **** 
+   4:../../FreeRTOS/Source/port.c ****     FEATURES AND PORTS ARE ADDED TO FREERTOS ALL THE TIME.  PLEASE VISIT
+   5:../../FreeRTOS/Source/port.c ****     http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
+   6:../../FreeRTOS/Source/port.c **** 
+   7:../../FreeRTOS/Source/port.c ****     ***************************************************************************
+   8:../../FreeRTOS/Source/port.c ****      *                                                                       *
+   9:../../FreeRTOS/Source/port.c ****      *    FreeRTOS tutorial books are available in pdf and paperback.        *
+  10:../../FreeRTOS/Source/port.c ****      *    Complete, revised, and edited pdf reference manuals are also       *
+  11:../../FreeRTOS/Source/port.c ****      *    available.                                                         *
+  12:../../FreeRTOS/Source/port.c ****      *                                                                       *
+  13:../../FreeRTOS/Source/port.c ****      *    Purchasing FreeRTOS documentation will not only help you, by       *
+  14:../../FreeRTOS/Source/port.c ****      *    ensuring you get running as quickly as possible and with an        *
+  15:../../FreeRTOS/Source/port.c ****      *    in-depth knowledge of how to use FreeRTOS, it will also help       *
+  16:../../FreeRTOS/Source/port.c ****      *    the FreeRTOS project to continue with its mission of providing     *
+  17:../../FreeRTOS/Source/port.c ****      *    professional grade, cross platform, de facto standard solutions    *
+  18:../../FreeRTOS/Source/port.c ****      *    for microcontrollers - completely free of charge!                  *
+  19:../../FreeRTOS/Source/port.c ****      *                                                                       *
+  20:../../FreeRTOS/Source/port.c ****      *    >>> See http://www.FreeRTOS.org/Documentation for details. <<<     *
+  21:../../FreeRTOS/Source/port.c ****      *                                                                       *
+  22:../../FreeRTOS/Source/port.c ****      *    Thank you for using FreeRTOS, and thank you for your support!      *
+  23:../../FreeRTOS/Source/port.c ****      *                                                                       *
+  24:../../FreeRTOS/Source/port.c ****     ***************************************************************************
+  25:../../FreeRTOS/Source/port.c **** 
+  26:../../FreeRTOS/Source/port.c **** 
+  27:../../FreeRTOS/Source/port.c ****     This file is part of the FreeRTOS distribution.
+  28:../../FreeRTOS/Source/port.c **** 
+  29:../../FreeRTOS/Source/port.c ****     FreeRTOS is free software; you can redistribute it and/or modify it under
+  30:../../FreeRTOS/Source/port.c ****     the terms of the GNU General Public License (version 2) as published by the
+  31:../../FreeRTOS/Source/port.c ****     Free Software Foundation AND MODIFIED BY the FreeRTOS exception.
+  32:../../FreeRTOS/Source/port.c ****     >>>NOTE<<< The modification to the GPL is included to allow you to
+  33:../../FreeRTOS/Source/port.c ****     distribute a combined work that includes FreeRTOS without being obliged to
+  34:../../FreeRTOS/Source/port.c ****     provide the source code for proprietary components outside of the FreeRTOS
+  35:../../FreeRTOS/Source/port.c ****     kernel.  FreeRTOS is distributed in the hope that it will be useful, but
+  36:../../FreeRTOS/Source/port.c ****     WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  37:../../FreeRTOS/Source/port.c ****     or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+  38:../../FreeRTOS/Source/port.c ****     more details. You should have received a copy of the GNU General Public
+  39:../../FreeRTOS/Source/port.c ****     License and the FreeRTOS license exception along with FreeRTOS; if not it
+  40:../../FreeRTOS/Source/port.c ****     can be viewed here: http://www.freertos.org/a00114.html and also obtained
+  41:../../FreeRTOS/Source/port.c ****     by writing to Richard Barry, contact details for whom are available on the
+  42:../../FreeRTOS/Source/port.c ****     FreeRTOS WEB site.
+  43:../../FreeRTOS/Source/port.c **** 
+  44:../../FreeRTOS/Source/port.c ****     1 tab == 4 spaces!
+  45:../../FreeRTOS/Source/port.c **** 
+  46:../../FreeRTOS/Source/port.c ****     ***************************************************************************
+  47:../../FreeRTOS/Source/port.c ****      *                                                                       *
+  48:../../FreeRTOS/Source/port.c ****      *    Having a problem?  Start by reading the FAQ "My application does   *
+  49:../../FreeRTOS/Source/port.c ****      *    not run, what could be wrong?"                                     *
+  50:../../FreeRTOS/Source/port.c ****      *                                                                       *
+  51:../../FreeRTOS/Source/port.c ****      *    http://www.FreeRTOS.org/FAQHelp.html                               *
+  52:../../FreeRTOS/Source/port.c ****      *                                                                       *
+  53:../../FreeRTOS/Source/port.c ****     ***************************************************************************
+  54:../../FreeRTOS/Source/port.c **** 
+  55:../../FreeRTOS/Source/port.c **** 
+  56:../../FreeRTOS/Source/port.c ****     http://www.FreeRTOS.org - Documentation, training, latest versions, license
+  57:../../FreeRTOS/Source/port.c ****     and contact details.
+  58:../../FreeRTOS/Source/port.c **** 
+  59:../../FreeRTOS/Source/port.c ****     http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
+  60:../../FreeRTOS/Source/port.c ****     including FreeRTOS+Trace - an indispensable productivity tool.
+  61:../../FreeRTOS/Source/port.c **** 
+  62:../../FreeRTOS/Source/port.c ****     Real Time Engineers ltd license FreeRTOS to High Integrity Systems, who sell
+  63:../../FreeRTOS/Source/port.c ****     the code with commercial support, indemnification, and middleware, under
+  64:../../FreeRTOS/Source/port.c ****     the OpenRTOS brand: http://www.OpenRTOS.com.  High Integrity Systems also
+  65:../../FreeRTOS/Source/port.c ****     provide a safety engineered and independently SIL3 certified version under
+  66:../../FreeRTOS/Source/port.c ****     the SafeRTOS brand: http://www.SafeRTOS.com.
+  67:../../FreeRTOS/Source/port.c **** */
+  68:../../FreeRTOS/Source/port.c **** 
+  69:../../FreeRTOS/Source/port.c **** /*
+  70:../../FreeRTOS/Source/port.c **** 
+  71:../../FreeRTOS/Source/port.c **** Changes from V2.6.0
+  72:../../FreeRTOS/Source/port.c **** 
+  73:../../FreeRTOS/Source/port.c **** 	+ AVR port - Replaced the inb() and outb() functions with direct memory
+  74:../../FreeRTOS/Source/port.c **** 	  access.  This allows the port to be built with the 20050414 build of
+  75:../../FreeRTOS/Source/port.c **** 	  WinAVR.
+  76:../../FreeRTOS/Source/port.c **** */
+  77:../../FreeRTOS/Source/port.c **** 
+  78:../../FreeRTOS/Source/port.c **** /*
+  79:../../FreeRTOS/Source/port.c **** Changes for FiFiSMSer
+  80:../../FreeRTOS/Source/port.c ****     Made the Scheduler Timer selectable (Between Timer0, Timer1 & Timer3)
+  81:../../FreeRTOS/Source/port.c ****     Richard Barry
+  82:../../FreeRTOS/Source/port.c ****     http://o28.sischa.net/fimser/svn/branches/yfe_rtos/port.c
+  83:../../FreeRTOS/Source/port.c **** */
+  84:../../FreeRTOS/Source/port.c **** 
+  85:../../FreeRTOS/Source/port.c **** #include <stdlib.h>
+  86:../../FreeRTOS/Source/port.c **** #include <avr/interrupt.h>
+  87:../../FreeRTOS/Source/port.c **** 
+  88:../../FreeRTOS/Source/port.c **** #include "FreeRTOS.h"
+  89:../../FreeRTOS/Source/port.c **** #include "task.h"
+  90:../../FreeRTOS/Source/port.c **** 
+  91:../../FreeRTOS/Source/port.c **** #include "ext_ram.h"
+  92:../../FreeRTOS/Source/port.c **** 
+  93:../../FreeRTOS/Source/port.c **** /*-----------------------------------------------------------
+  94:../../FreeRTOS/Source/port.c ****  * Implementation of functions defined in portable.h for the AVR port.
+  95:../../FreeRTOS/Source/port.c ****  *----------------------------------------------------------*/
+  96:../../FreeRTOS/Source/port.c **** 
+  97:../../FreeRTOS/Source/port.c **** 
+  98:../../FreeRTOS/Source/port.c **** 
+  99:../../FreeRTOS/Source/port.c **** /* Start tasks with interrupts enabled. */
+ 100:../../FreeRTOS/Source/port.c **** #define portFLAGS_INT_ENABLED			( ( portSTACK_TYPE ) 0x80 )
+ 101:../../FreeRTOS/Source/port.c **** 
+ 102:../../FreeRTOS/Source/port.c **** #if defined( portUSE_TIMER0 )
+ 103:../../FreeRTOS/Source/port.c **** /* Hardware constants for Timer0. */
+ 104:../../FreeRTOS/Source/port.c ****     #define portCLEAR_COUNTER_ON_MATCH			        ( ( unsigned portCHAR ) (1<<WGM01) )
+ 105:../../FreeRTOS/Source/port.c ****     #define portPRESCALE_1024     			            ( ( unsigned portCHAR ) ((1<<CS02)|(1<<CS00)) )
+ 106:../../FreeRTOS/Source/port.c ****     #define portCLOCK_PRESCALER				            ( ( unsigned portLONG ) 1024 )
+ 107:../../FreeRTOS/Source/port.c ****     #define portCOMPARE_MATCH_A_INTERRUPT_ENABLE	    ( ( unsigned portCHAR ) (1<<OCIE0A) )
+ 108:../../FreeRTOS/Source/port.c ****     #define portOCRL                                	OCR0A
+ 109:../../FreeRTOS/Source/port.c ****     #define portTCCRa                               	TCCR0A
+ 110:../../FreeRTOS/Source/port.c ****     #define portTCCRb                               	TCCR0B
+ 111:../../FreeRTOS/Source/port.c ****     #define portTIMSK                               	TIMSK0
+ 112:../../FreeRTOS/Source/port.c **** 
+ 113:../../FreeRTOS/Source/port.c **** #elif defined( portUSE_TIMER1 )
+ 114:../../FreeRTOS/Source/port.c **** /* Hardware constants for Timer1. */
+ 115:../../FreeRTOS/Source/port.c **** 	#define portCLEAR_COUNTER_ON_MATCH			    ( ( unsigned portCHAR ) (1<<WGM12) )
+ 116:../../FreeRTOS/Source/port.c **** 	#define portPRESCALE_64				            ( ( unsigned portCHAR ) ((1<<CS11)|(1<<CS10)) )
+ 117:../../FreeRTOS/Source/port.c **** 	#define portCLOCK_PRESCALER				        ( ( unsigned portLONG ) 64 )
+ 118:../../FreeRTOS/Source/port.c **** 	#define portCOMPARE_MATCH_A_INTERRUPT_ENABLE	( ( unsigned portCHAR ) (1<<OCIE1A) )
+ 119:../../FreeRTOS/Source/port.c **** 	#define portOCRL                              	OCR1AL
+ 120:../../FreeRTOS/Source/port.c **** 	#define portOCRH                                OCR1AH
+ 121:../../FreeRTOS/Source/port.c **** 	#define portTCCRa                               TCCR1A
+ 122:../../FreeRTOS/Source/port.c **** 	#define portTCCRb                              	TCCR1B
+ 123:../../FreeRTOS/Source/port.c **** 	#define portTIMSK                               TIMSK1
+ 124:../../FreeRTOS/Source/port.c **** 
+ 125:../../FreeRTOS/Source/port.c **** #elif defined( portUSE_TIMER3 )
+ 126:../../FreeRTOS/Source/port.c **** /* Hardware constants for Timer3. */
+ 127:../../FreeRTOS/Source/port.c **** 	#define portCLEAR_COUNTER_ON_MATCH			    ( ( unsigned portCHAR ) (1<<WGM32) )
+ 128:../../FreeRTOS/Source/port.c **** 	#define portPRESCALE_64				            ( ( unsigned portCHAR ) ((1<<CS31)|(1<<CS30)) )
+ 129:../../FreeRTOS/Source/port.c **** 	#define portCLOCK_PRESCALER				        ( ( unsigned portLONG ) 64 )
+ 130:../../FreeRTOS/Source/port.c **** 	#define portCOMPARE_MATCH_A_INTERRUPT_ENABLE	( ( unsigned portCHAR ) (1<<OCIE3A) )
+ 131:../../FreeRTOS/Source/port.c **** 	#define portOCRL                              	OCR3AL
+ 132:../../FreeRTOS/Source/port.c **** 	#define portOCRH                                OCR3AH
+ 133:../../FreeRTOS/Source/port.c **** 	#define portTCCRa                               TCCR3A
+ 134:../../FreeRTOS/Source/port.c **** 	#define portTCCRb                              	TCCR3B
+ 135:../../FreeRTOS/Source/port.c **** 	#define portTIMSK                               TIMSK3
+ 136:../../FreeRTOS/Source/port.c **** 
+ 137:../../FreeRTOS/Source/port.c **** #endif
+ 138:../../FreeRTOS/Source/port.c **** 
+ 139:../../FreeRTOS/Source/port.c **** /*-----------------------------------------------------------*/
+ 140:../../FreeRTOS/Source/port.c **** 
+ 141:../../FreeRTOS/Source/port.c **** /* We require the address of the pxCurrentTCB variable, but don't want to know
+ 142:../../FreeRTOS/Source/port.c **** any details of its type. */
+ 143:../../FreeRTOS/Source/port.c **** typedef void tskTCB;
+ 144:../../FreeRTOS/Source/port.c **** extern volatile tskTCB * volatile pxCurrentTCB;
+ 145:../../FreeRTOS/Source/port.c **** 
+ 146:../../FreeRTOS/Source/port.c **** /*-----------------------------------------------------------*/
+ 147:../../FreeRTOS/Source/port.c **** 
+ 148:../../FreeRTOS/Source/port.c **** /*
+ 149:../../FreeRTOS/Source/port.c ****  * Macro to save all the general purpose registers, the save the stack pointer
+ 150:../../FreeRTOS/Source/port.c ****  * into the TCB.
+ 151:../../FreeRTOS/Source/port.c ****  *
+ 152:../../FreeRTOS/Source/port.c ****  * The first thing we do is save the flags then disable interrupts.  This is to
+ 153:../../FreeRTOS/Source/port.c ****  * guard our stack against having a context switch interrupt after we have already
+ 154:../../FreeRTOS/Source/port.c ****  * pushed the registers onto the stack - causing the 32 registers to be on the
+ 155:../../FreeRTOS/Source/port.c ****  * stack twice.
+ 156:../../FreeRTOS/Source/port.c ****  *
+ 157:../../FreeRTOS/Source/port.c ****  * r1 is set to zero as the compiler expects it to be thus, however some
+ 158:../../FreeRTOS/Source/port.c ****  * of the math routines make use of R1.
+ 159:../../FreeRTOS/Source/port.c ****  *
+ 160:../../FreeRTOS/Source/port.c ****  * The interrupts will have been disabled during the call to portSAVE_CONTEXT()
+ 161:../../FreeRTOS/Source/port.c ****  * so we need not worry about reading/writing to the stack pointer.
+ 162:../../FreeRTOS/Source/port.c ****  */
+ 163:../../FreeRTOS/Source/port.c **** #if defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
+ 164:../../FreeRTOS/Source/port.c **** /* 3-Byte PC Save */
+ 165:../../FreeRTOS/Source/port.c **** #define portSAVE_CONTEXT()									\
+ 166:../../FreeRTOS/Source/port.c **** 	asm volatile (	"push	r0						\n\t"	\
+ 167:../../FreeRTOS/Source/port.c **** 					"in		r0, __SREG__			\n\t"	\
+ 168:../../FreeRTOS/Source/port.c **** 					"cli							\n\t"	\
+ 169:../../FreeRTOS/Source/port.c **** 					"push	r0						\n\t"	\
+ 170:../../FreeRTOS/Source/port.c **** 					"in		r0, 0x3b				\n\t"	\
+ 171:../../FreeRTOS/Source/port.c **** 					"push	r0						\n\t"	\
+ 172:../../FreeRTOS/Source/port.c **** 					"in		r0, 0x3c				\n\t"	\
+ 173:../../FreeRTOS/Source/port.c **** 					"push	r0						\n\t"	\
+ 174:../../FreeRTOS/Source/port.c **** 					"push	r1						\n\t"	\
+ 175:../../FreeRTOS/Source/port.c **** 					"clr	r1						\n\t"	\
+ 176:../../FreeRTOS/Source/port.c **** 					"push	r2						\n\t"	\
+ 177:../../FreeRTOS/Source/port.c **** 					"push	r3						\n\t"	\
+ 178:../../FreeRTOS/Source/port.c **** 					"push	r4						\n\t"	\
+ 179:../../FreeRTOS/Source/port.c **** 					"push	r5						\n\t"	\
+ 180:../../FreeRTOS/Source/port.c **** 					"push	r6						\n\t"	\
+ 181:../../FreeRTOS/Source/port.c **** 					"push	r7						\n\t"	\
+ 182:../../FreeRTOS/Source/port.c **** 					"push	r8						\n\t"	\
+ 183:../../FreeRTOS/Source/port.c **** 					"push	r9						\n\t"	\
+ 184:../../FreeRTOS/Source/port.c **** 					"push	r10						\n\t"	\
+ 185:../../FreeRTOS/Source/port.c **** 					"push	r11						\n\t"	\
+ 186:../../FreeRTOS/Source/port.c **** 					"push	r12						\n\t"	\
+ 187:../../FreeRTOS/Source/port.c **** 					"push	r13						\n\t"	\
+ 188:../../FreeRTOS/Source/port.c **** 					"push	r14						\n\t"	\
+ 189:../../FreeRTOS/Source/port.c **** 					"push	r15						\n\t"	\
+ 190:../../FreeRTOS/Source/port.c **** 					"push	r16						\n\t"	\
+ 191:../../FreeRTOS/Source/port.c **** 					"push	r17						\n\t"	\
+ 192:../../FreeRTOS/Source/port.c **** 					"push	r18						\n\t"	\
+ 193:../../FreeRTOS/Source/port.c **** 					"push	r19						\n\t"	\
+ 194:../../FreeRTOS/Source/port.c **** 					"push	r20						\n\t"	\
+ 195:../../FreeRTOS/Source/port.c **** 					"push	r21						\n\t"	\
+ 196:../../FreeRTOS/Source/port.c **** 					"push	r22						\n\t"	\
+ 197:../../FreeRTOS/Source/port.c **** 					"push	r23						\n\t"	\
+ 198:../../FreeRTOS/Source/port.c **** 					"push	r24						\n\t"	\
+ 199:../../FreeRTOS/Source/port.c **** 					"push	r25						\n\t"	\
+ 200:../../FreeRTOS/Source/port.c **** 					"push	r26						\n\t"	\
+ 201:../../FreeRTOS/Source/port.c **** 					"push	r27						\n\t"	\
+ 202:../../FreeRTOS/Source/port.c **** 					"push	r28						\n\t"	\
+ 203:../../FreeRTOS/Source/port.c **** 					"push	r29						\n\t"	\
+ 204:../../FreeRTOS/Source/port.c **** 					"push	r30						\n\t"	\
+ 205:../../FreeRTOS/Source/port.c **** 					"push	r31						\n\t"	\
+ 206:../../FreeRTOS/Source/port.c **** 					"lds	r26, pxCurrentTCB		\n\t"	\
+ 207:../../FreeRTOS/Source/port.c **** 					"lds	r27, pxCurrentTCB + 1	\n\t"	\
+ 208:../../FreeRTOS/Source/port.c **** 					"in		r0, 0x3d				\n\t"	\
+ 209:../../FreeRTOS/Source/port.c **** 					"st		x+, r0					\n\t"	\
+ 210:../../FreeRTOS/Source/port.c **** 					"in		r0, 0x3e				\n\t"	\
+ 211:../../FreeRTOS/Source/port.c **** 					"st		x+, r0					\n\t"	\
+ 212:../../FreeRTOS/Source/port.c **** 				);
+ 213:../../FreeRTOS/Source/port.c **** #else
+ 214:../../FreeRTOS/Source/port.c **** /* 2-Byte PC Save */
+ 215:../../FreeRTOS/Source/port.c **** #define portSAVE_CONTEXT()									\
+ 216:../../FreeRTOS/Source/port.c **** 	asm volatile (	"push	r0						\n\t"	\
+ 217:../../FreeRTOS/Source/port.c **** 					"in		r0, __SREG__			\n\t"	\
+ 218:../../FreeRTOS/Source/port.c **** 					"cli							\n\t"	\
+ 219:../../FreeRTOS/Source/port.c **** 					"push	r0						\n\t"	\
+ 220:../../FreeRTOS/Source/port.c **** 					"push	r1						\n\t"	\
+ 221:../../FreeRTOS/Source/port.c **** 					"clr	r1						\n\t"	\
+ 222:../../FreeRTOS/Source/port.c **** 					"push	r2						\n\t"	\
+ 223:../../FreeRTOS/Source/port.c **** 					"push	r3						\n\t"	\
+ 224:../../FreeRTOS/Source/port.c **** 					"push	r4						\n\t"	\
+ 225:../../FreeRTOS/Source/port.c **** 					"push	r5						\n\t"	\
+ 226:../../FreeRTOS/Source/port.c **** 					"push	r6						\n\t"	\
+ 227:../../FreeRTOS/Source/port.c **** 					"push	r7						\n\t"	\
+ 228:../../FreeRTOS/Source/port.c **** 					"push	r8						\n\t"	\
+ 229:../../FreeRTOS/Source/port.c **** 					"push	r9						\n\t"	\
+ 230:../../FreeRTOS/Source/port.c **** 					"push	r10						\n\t"	\
+ 231:../../FreeRTOS/Source/port.c **** 					"push	r11						\n\t"	\
+ 232:../../FreeRTOS/Source/port.c **** 					"push	r12						\n\t"	\
+ 233:../../FreeRTOS/Source/port.c **** 					"push	r13						\n\t"	\
+ 234:../../FreeRTOS/Source/port.c **** 					"push	r14						\n\t"	\
+ 235:../../FreeRTOS/Source/port.c **** 					"push	r15						\n\t"	\
+ 236:../../FreeRTOS/Source/port.c **** 					"push	r16						\n\t"	\
+ 237:../../FreeRTOS/Source/port.c **** 					"push	r17						\n\t"	\
+ 238:../../FreeRTOS/Source/port.c **** 					"push	r18						\n\t"	\
+ 239:../../FreeRTOS/Source/port.c **** 					"push	r19						\n\t"	\
+ 240:../../FreeRTOS/Source/port.c **** 					"push	r20						\n\t"	\
+ 241:../../FreeRTOS/Source/port.c **** 					"push	r21						\n\t"	\
+ 242:../../FreeRTOS/Source/port.c **** 					"push	r22						\n\t"	\
+ 243:../../FreeRTOS/Source/port.c **** 					"push	r23						\n\t"	\
+ 244:../../FreeRTOS/Source/port.c **** 					"push	r24						\n\t"	\
+ 245:../../FreeRTOS/Source/port.c **** 					"push	r25						\n\t"	\
+ 246:../../FreeRTOS/Source/port.c **** 					"push	r26						\n\t"	\
+ 247:../../FreeRTOS/Source/port.c **** 					"push	r27						\n\t"	\
+ 248:../../FreeRTOS/Source/port.c **** 					"push	r28						\n\t"	\
+ 249:../../FreeRTOS/Source/port.c **** 					"push	r29						\n\t"	\
+ 250:../../FreeRTOS/Source/port.c **** 					"push	r30						\n\t"	\
+ 251:../../FreeRTOS/Source/port.c **** 					"push	r31						\n\t"	\
+ 252:../../FreeRTOS/Source/port.c **** 					"lds	r26, pxCurrentTCB		\n\t"	\
+ 253:../../FreeRTOS/Source/port.c **** 					"lds	r27, pxCurrentTCB + 1	\n\t"	\
+ 254:../../FreeRTOS/Source/port.c **** 					"in		r0, 0x3d				\n\t"	\
+ 255:../../FreeRTOS/Source/port.c **** 					"st		x+, r0					\n\t"	\
+ 256:../../FreeRTOS/Source/port.c **** 					"in		r0, 0x3e				\n\t"	\
+ 257:../../FreeRTOS/Source/port.c **** 					"st		x+, r0					\n\t"	\
+ 258:../../FreeRTOS/Source/port.c **** 				);
+ 259:../../FreeRTOS/Source/port.c **** #endif
+ 260:../../FreeRTOS/Source/port.c **** 
+ 261:../../FreeRTOS/Source/port.c **** 
+ 262:../../FreeRTOS/Source/port.c **** 
+ 263:../../FreeRTOS/Source/port.c **** 
+ 264:../../FreeRTOS/Source/port.c **** /*
+ 265:../../FreeRTOS/Source/port.c ****  * Opposite to portSAVE_CONTEXT().  Interrupts will have been disabled during
+ 266:../../FreeRTOS/Source/port.c ****  * the context save so we can write to the stack pointer.
+ 267:../../FreeRTOS/Source/port.c ****  */
+ 268:../../FreeRTOS/Source/port.c **** #if defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
+ 269:../../FreeRTOS/Source/port.c **** /* 3-Byte PC Restore */
+ 270:../../FreeRTOS/Source/port.c **** #define portRESTORE_CONTEXT()								\
+ 271:../../FreeRTOS/Source/port.c **** 	asm volatile (	"lds	r26, pxCurrentTCB		\n\t"	\
+ 272:../../FreeRTOS/Source/port.c **** 					"lds	r27, pxCurrentTCB + 1	\n\t"	\
+ 273:../../FreeRTOS/Source/port.c **** 					"ld		r28, x+					\n\t"	\
+ 274:../../FreeRTOS/Source/port.c **** 					"out	__SP_L__, r28			\n\t"	\
+ 275:../../FreeRTOS/Source/port.c **** 					"ld		r29, x+					\n\t"	\
+ 276:../../FreeRTOS/Source/port.c **** 					"out	__SP_H__, r29			\n\t"	\
+ 277:../../FreeRTOS/Source/port.c **** 					"pop	r31						\n\t"	\
+ 278:../../FreeRTOS/Source/port.c **** 					"pop	r30						\n\t"	\
+ 279:../../FreeRTOS/Source/port.c **** 					"pop	r29						\n\t"	\
+ 280:../../FreeRTOS/Source/port.c **** 					"pop	r28						\n\t"	\
+ 281:../../FreeRTOS/Source/port.c **** 					"pop	r27						\n\t"	\
+ 282:../../FreeRTOS/Source/port.c **** 					"pop	r26						\n\t"	\
+ 283:../../FreeRTOS/Source/port.c **** 					"pop	r25						\n\t"	\
+ 284:../../FreeRTOS/Source/port.c **** 					"pop	r24						\n\t"	\
+ 285:../../FreeRTOS/Source/port.c **** 					"pop	r23						\n\t"	\
+ 286:../../FreeRTOS/Source/port.c **** 					"pop	r22						\n\t"	\
+ 287:../../FreeRTOS/Source/port.c **** 					"pop	r21						\n\t"	\
+ 288:../../FreeRTOS/Source/port.c **** 					"pop	r20						\n\t"	\
+ 289:../../FreeRTOS/Source/port.c **** 					"pop	r19						\n\t"	\
+ 290:../../FreeRTOS/Source/port.c **** 					"pop	r18						\n\t"	\
+ 291:../../FreeRTOS/Source/port.c **** 					"pop	r17						\n\t"	\
+ 292:../../FreeRTOS/Source/port.c **** 					"pop	r16						\n\t"	\
+ 293:../../FreeRTOS/Source/port.c **** 					"pop	r15						\n\t"	\
+ 294:../../FreeRTOS/Source/port.c **** 					"pop	r14						\n\t"	\
+ 295:../../FreeRTOS/Source/port.c **** 					"pop	r13						\n\t"	\
+ 296:../../FreeRTOS/Source/port.c **** 					"pop	r12						\n\t"	\
+ 297:../../FreeRTOS/Source/port.c **** 					"pop	r11						\n\t"	\
+ 298:../../FreeRTOS/Source/port.c **** 					"pop	r10						\n\t"	\
+ 299:../../FreeRTOS/Source/port.c **** 					"pop	r9						\n\t"	\
+ 300:../../FreeRTOS/Source/port.c **** 					"pop	r8						\n\t"	\
+ 301:../../FreeRTOS/Source/port.c **** 					"pop	r7						\n\t"	\
+ 302:../../FreeRTOS/Source/port.c **** 					"pop	r6						\n\t"	\
+ 303:../../FreeRTOS/Source/port.c **** 					"pop	r5						\n\t"	\
+ 304:../../FreeRTOS/Source/port.c **** 					"pop	r4						\n\t"	\
+ 305:../../FreeRTOS/Source/port.c **** 					"pop	r3						\n\t"	\
+ 306:../../FreeRTOS/Source/port.c **** 					"pop	r2						\n\t"	\
+ 307:../../FreeRTOS/Source/port.c **** 					"pop	r1						\n\t"	\
+ 308:../../FreeRTOS/Source/port.c **** 					"pop	r0						\n\t"	\
+ 309:../../FreeRTOS/Source/port.c **** 					"out	0x3c, r0				\n\t"	\
+ 310:../../FreeRTOS/Source/port.c **** 					"pop	r0						\n\t"	\
+ 311:../../FreeRTOS/Source/port.c **** 					"out	0x3b, r0				\n\t"	\
+ 312:../../FreeRTOS/Source/port.c **** 					"pop	r0						\n\t"	\
+ 313:../../FreeRTOS/Source/port.c **** 					"out	__SREG__, r0			\n\t"	\
+ 314:../../FreeRTOS/Source/port.c **** 					"pop	r0						\n\t"	\
+ 315:../../FreeRTOS/Source/port.c **** 				);
+ 316:../../FreeRTOS/Source/port.c **** #else
+ 317:../../FreeRTOS/Source/port.c **** /* 2-Byte PC Restore */
+ 318:../../FreeRTOS/Source/port.c **** #define portRESTORE_CONTEXT()								\
+ 319:../../FreeRTOS/Source/port.c **** 	asm volatile (	"lds	r26, pxCurrentTCB		\n\t"	\
+ 320:../../FreeRTOS/Source/port.c **** 					"lds	r27, pxCurrentTCB + 1	\n\t"	\
+ 321:../../FreeRTOS/Source/port.c **** 					"ld		r28, x+					\n\t"	\
+ 322:../../FreeRTOS/Source/port.c **** 					"out	__SP_L__, r28			\n\t"	\
+ 323:../../FreeRTOS/Source/port.c **** 					"ld		r29, x+					\n\t"	\
+ 324:../../FreeRTOS/Source/port.c **** 					"out	__SP_H__, r29			\n\t"	\
+ 325:../../FreeRTOS/Source/port.c **** 					"pop	r31						\n\t"	\
+ 326:../../FreeRTOS/Source/port.c **** 					"pop	r30						\n\t"	\
+ 327:../../FreeRTOS/Source/port.c **** 					"pop	r29						\n\t"	\
+ 328:../../FreeRTOS/Source/port.c **** 					"pop	r28						\n\t"	\
+ 329:../../FreeRTOS/Source/port.c **** 					"pop	r27						\n\t"	\
+ 330:../../FreeRTOS/Source/port.c **** 					"pop	r26						\n\t"	\
+ 331:../../FreeRTOS/Source/port.c **** 					"pop	r25						\n\t"	\
+ 332:../../FreeRTOS/Source/port.c **** 					"pop	r24						\n\t"	\
+ 333:../../FreeRTOS/Source/port.c **** 					"pop	r23						\n\t"	\
+ 334:../../FreeRTOS/Source/port.c **** 					"pop	r22						\n\t"	\
+ 335:../../FreeRTOS/Source/port.c **** 					"pop	r21						\n\t"	\
+ 336:../../FreeRTOS/Source/port.c **** 					"pop	r20						\n\t"	\
+ 337:../../FreeRTOS/Source/port.c **** 					"pop	r19						\n\t"	\
+ 338:../../FreeRTOS/Source/port.c **** 					"pop	r18						\n\t"	\
+ 339:../../FreeRTOS/Source/port.c **** 					"pop	r17						\n\t"	\
+ 340:../../FreeRTOS/Source/port.c **** 					"pop	r16						\n\t"	\
+ 341:../../FreeRTOS/Source/port.c **** 					"pop	r15						\n\t"	\
+ 342:../../FreeRTOS/Source/port.c **** 					"pop	r14						\n\t"	\
+ 343:../../FreeRTOS/Source/port.c **** 					"pop	r13						\n\t"	\
+ 344:../../FreeRTOS/Source/port.c **** 					"pop	r12						\n\t"	\
+ 345:../../FreeRTOS/Source/port.c **** 					"pop	r11						\n\t"	\
+ 346:../../FreeRTOS/Source/port.c **** 					"pop	r10						\n\t"	\
+ 347:../../FreeRTOS/Source/port.c **** 					"pop	r9						\n\t"	\
+ 348:../../FreeRTOS/Source/port.c **** 					"pop	r8						\n\t"	\
+ 349:../../FreeRTOS/Source/port.c **** 					"pop	r7						\n\t"	\
+ 350:../../FreeRTOS/Source/port.c **** 					"pop	r6						\n\t"	\
+ 351:../../FreeRTOS/Source/port.c **** 					"pop	r5						\n\t"	\
+ 352:../../FreeRTOS/Source/port.c **** 					"pop	r4						\n\t"	\
+ 353:../../FreeRTOS/Source/port.c **** 					"pop	r3						\n\t"	\
+ 354:../../FreeRTOS/Source/port.c **** 					"pop	r2						\n\t"	\
+ 355:../../FreeRTOS/Source/port.c **** 					"pop	r1						\n\t"	\
+ 356:../../FreeRTOS/Source/port.c **** 					"pop	r0						\n\t"	\
+ 357:../../FreeRTOS/Source/port.c **** 					"out	__SREG__, r0			\n\t"	\
+ 358:../../FreeRTOS/Source/port.c **** 					"pop	r0						\n\t"	\
+ 359:../../FreeRTOS/Source/port.c **** 				);
+ 360:../../FreeRTOS/Source/port.c **** #endif
+ 361:../../FreeRTOS/Source/port.c **** /*-----------------------------------------------------------*/
+ 362:../../FreeRTOS/Source/port.c **** 
+ 363:../../FreeRTOS/Source/port.c **** /*
+ 364:../../FreeRTOS/Source/port.c ****  * Perform hardware setup to enable ticks from timer 0/3, compare match A.
+ 365:../../FreeRTOS/Source/port.c ****  */
+ 366:../../FreeRTOS/Source/port.c **** static void prvSetupTimerInterrupt( void );
+ 367:../../FreeRTOS/Source/port.c **** /*-----------------------------------------------------------*/
+ 368:../../FreeRTOS/Source/port.c **** 
+ 369:../../FreeRTOS/Source/port.c **** /*
+ 370:../../FreeRTOS/Source/port.c ****  * See header file for description.
+ 371:../../FreeRTOS/Source/port.c ****  */
+ 372:../../FreeRTOS/Source/port.c **** portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE pxCode, void *pvPa
+ 373:../../FreeRTOS/Source/port.c **** {
+ 123               	.LM0:
+ 124               	.LFBB1:
+ 125 0000 DF93      		push r29
+ 126 0002 CF93      		push r28
+ 127 0004 CDB7      		in r28,__SP_L__
+ 128 0006 DEB7      		in r29,__SP_H__
+ 129 0008 2897      		sbiw r28,8
+ 130 000a 0FB6      		in __tmp_reg__,__SREG__
+ 131 000c F894      		cli
+ 132 000e DEBF      		out __SP_H__,r29
+ 133 0010 0FBE      		out __SREG__,__tmp_reg__
+ 134 0012 CDBF      		out __SP_L__,r28
+ 135               	/* prologue: function */
+ 136               	/* frame size = 8 */
+ 137 0014 9C83      		std Y+4,r25
+ 138 0016 8B83      		std Y+3,r24
+ 139 0018 7E83      		std Y+6,r23
+ 140 001a 6D83      		std Y+5,r22
+ 141 001c 5887      		std Y+8,r21
+ 142 001e 4F83      		std Y+7,r20
+ 374:../../FreeRTOS/Source/port.c **** unsigned short usAddress;
+ 375:../../FreeRTOS/Source/port.c **** 
+ 376:../../FreeRTOS/Source/port.c **** #if defined (portQUAD_RAM) || defined (portMEGA_RAM)
+ 377:../../FreeRTOS/Source/port.c **** 	// This function just here to ensure the library is included.
+ 378:../../FreeRTOS/Source/port.c **** 	// Can go anywhere, as it is just to ensure that the .init3 code is included
+ 379:../../FreeRTOS/Source/port.c **** 	extRAMcheck(); // This function just returns XMCRA. SRE is set if extended RAM enabled.
+ 380:../../FreeRTOS/Source/port.c **** #warning "Ext RAM Enabled."
+ 381:../../FreeRTOS/Source/port.c **** #endif
+ 382:../../FreeRTOS/Source/port.c **** 
+ 383:../../FreeRTOS/Source/port.c **** 	/* Place a few bytes of known values on the bottom of the stack.
+ 384:../../FreeRTOS/Source/port.c **** 	This is just useful for debugging. */
+ 385:../../FreeRTOS/Source/port.c **** 
+ 386:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = 0x11;
+ 144               	.LM1:
+ 145 0020 EB81      		ldd r30,Y+3
+ 146 0022 FC81      		ldd r31,Y+4
+ 147 0024 81E1      		ldi r24,lo8(17)
+ 148 0026 8083      		st Z,r24
+ 387:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 150               	.LM2:
+ 151 0028 8B81      		ldd r24,Y+3
+ 152 002a 9C81      		ldd r25,Y+4
+ 153 002c 0197      		sbiw r24,1
+ 154 002e 9C83      		std Y+4,r25
+ 155 0030 8B83      		std Y+3,r24
+ 388:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = 0x22;
+ 157               	.LM3:
+ 158 0032 EB81      		ldd r30,Y+3
+ 159 0034 FC81      		ldd r31,Y+4
+ 160 0036 82E2      		ldi r24,lo8(34)
+ 161 0038 8083      		st Z,r24
+ 389:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 163               	.LM4:
+ 164 003a 8B81      		ldd r24,Y+3
+ 165 003c 9C81      		ldd r25,Y+4
+ 166 003e 0197      		sbiw r24,1
+ 167 0040 9C83      		std Y+4,r25
+ 168 0042 8B83      		std Y+3,r24
+ 390:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = 0x33;
+ 170               	.LM5:
+ 171 0044 EB81      		ldd r30,Y+3
+ 172 0046 FC81      		ldd r31,Y+4
+ 173 0048 83E3      		ldi r24,lo8(51)
+ 174 004a 8083      		st Z,r24
+ 391:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 176               	.LM6:
+ 177 004c 8B81      		ldd r24,Y+3
+ 178 004e 9C81      		ldd r25,Y+4
+ 179 0050 0197      		sbiw r24,1
+ 180 0052 9C83      		std Y+4,r25
+ 181 0054 8B83      		std Y+3,r24
+ 392:../../FreeRTOS/Source/port.c **** 
+ 393:../../FreeRTOS/Source/port.c **** 	/* Simulate how the stack would look after a call to vPortYield() generated by
+ 394:../../FreeRTOS/Source/port.c **** 	the compiler. */
+ 395:../../FreeRTOS/Source/port.c **** 
+ 396:../../FreeRTOS/Source/port.c **** 	/*lint -e950 -e611 -e923 Lint doesn't like this much - but nothing I can do about it. */
+ 397:../../FreeRTOS/Source/port.c **** 
+ 398:../../FreeRTOS/Source/port.c **** 	/* The start of the task code will be popped off the stack last, so place
+ 399:../../FreeRTOS/Source/port.c **** 	it on first. */
+ 400:../../FreeRTOS/Source/port.c **** 
+ 401:../../FreeRTOS/Source/port.c **** #if defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
+ 402:../../FreeRTOS/Source/port.c **** 	/* The AVR ATmega2560/ATmega2561 have 256KBytes of program memory and a 17-bit
+ 403:../../FreeRTOS/Source/port.c **** 	 * program counter.  When a code address is stored on the stack, it takes 3 bytes
+ 404:../../FreeRTOS/Source/port.c **** 	 * instead of 2 for the other ATmega* chips.
+ 405:../../FreeRTOS/Source/port.c **** 	 *
+ 406:../../FreeRTOS/Source/port.c **** 	 * Store 0 as the top byte since we force all task routines to the bottom 128K
+ 407:../../FreeRTOS/Source/port.c **** 	 * of flash. We do this by adding the .task label in the linker script.
+ 408:../../FreeRTOS/Source/port.c **** 	 *
+ 409:../../FreeRTOS/Source/port.c **** 	 * In order to do this properly, we would need to get a full 3-byte pointer to
+ 410:../../FreeRTOS/Source/port.c **** 	 * pxCode.  That requires a change to GCC.  Not likely to happen any time soon.
+ 411:../../FreeRTOS/Source/port.c **** 	 */
+ 412:../../FreeRTOS/Source/port.c **** 	usAddress = ( unsigned portSHORT ) pxCode;
+ 183               	.LM7:
+ 184 0056 8D81      		ldd r24,Y+5
+ 185 0058 9E81      		ldd r25,Y+6
+ 186 005a 9A83      		std Y+2,r25
+ 187 005c 8983      		std Y+1,r24
+ 413:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned portSHORT ) 0x00ff );
+ 189               	.LM8:
+ 190 005e 8981      		ldd r24,Y+1
+ 191 0060 EB81      		ldd r30,Y+3
+ 192 0062 FC81      		ldd r31,Y+4
+ 193 0064 8083      		st Z,r24
+ 414:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 195               	.LM9:
+ 196 0066 8B81      		ldd r24,Y+3
+ 197 0068 9C81      		ldd r25,Y+4
+ 198 006a 0197      		sbiw r24,1
+ 199 006c 9C83      		std Y+4,r25
+ 200 006e 8B83      		std Y+3,r24
+ 415:../../FreeRTOS/Source/port.c **** 
+ 416:../../FreeRTOS/Source/port.c **** 	usAddress >>= 8;
+ 202               	.LM10:
+ 203 0070 8981      		ldd r24,Y+1
+ 204 0072 9A81      		ldd r25,Y+2
+ 205 0074 892F      		mov r24,r25
+ 206 0076 9927      		clr r25
+ 207 0078 9A83      		std Y+2,r25
+ 208 007a 8983      		std Y+1,r24
+ 417:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned portSHORT ) 0x00ff );
+ 210               	.LM11:
+ 211 007c 8981      		ldd r24,Y+1
+ 212 007e EB81      		ldd r30,Y+3
+ 213 0080 FC81      		ldd r31,Y+4
+ 214 0082 8083      		st Z,r24
+ 418:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 216               	.LM12:
+ 217 0084 8B81      		ldd r24,Y+3
+ 218 0086 9C81      		ldd r25,Y+4
+ 219 0088 0197      		sbiw r24,1
+ 220 008a 9C83      		std Y+4,r25
+ 221 008c 8B83      		std Y+3,r24
+ 419:../../FreeRTOS/Source/port.c **** 
+ 420:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = 0;
+ 223               	.LM13:
+ 224 008e EB81      		ldd r30,Y+3
+ 225 0090 FC81      		ldd r31,Y+4
+ 226 0092 1082      		st Z,__zero_reg__
+ 421:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 228               	.LM14:
+ 229 0094 8B81      		ldd r24,Y+3
+ 230 0096 9C81      		ldd r25,Y+4
+ 231 0098 0197      		sbiw r24,1
+ 232 009a 9C83      		std Y+4,r25
+ 233 009c 8B83      		std Y+3,r24
+ 422:../../FreeRTOS/Source/port.c **** #else
+ 423:../../FreeRTOS/Source/port.c **** 	usAddress = ( unsigned short ) pxCode;
+ 424:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned short ) 0x00ff );
+ 425:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 426:../../FreeRTOS/Source/port.c **** 
+ 427:../../FreeRTOS/Source/port.c **** 	usAddress >>= 8;
+ 428:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned short ) 0x00ff );
+ 429:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 430:../../FreeRTOS/Source/port.c **** #endif
+ 431:../../FreeRTOS/Source/port.c **** 
+ 432:../../FreeRTOS/Source/port.c **** 	/* Next simulate the stack as if after a call to portSAVE_CONTEXT().
+ 433:../../FreeRTOS/Source/port.c **** 	portSAVE_CONTEXT places the flags on the stack immediately after r0
+ 434:../../FreeRTOS/Source/port.c **** 	to ensure the interrupts get disabled as soon as possible, and so ensuring
+ 435:../../FreeRTOS/Source/port.c **** 	the stack use is minimal should a context switch interrupt occur. */
+ 436:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x00;	/* R0 */
+ 235               	.LM15:
+ 236 009e EB81      		ldd r30,Y+3
+ 237 00a0 FC81      		ldd r31,Y+4
+ 238 00a2 1082      		st Z,__zero_reg__
+ 437:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 240               	.LM16:
+ 241 00a4 8B81      		ldd r24,Y+3
+ 242 00a6 9C81      		ldd r25,Y+4
+ 243 00a8 0197      		sbiw r24,1
+ 244 00aa 9C83      		std Y+4,r25
+ 245 00ac 8B83      		std Y+3,r24
+ 438:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = portFLAGS_INT_ENABLED;
+ 247               	.LM17:
+ 248 00ae EB81      		ldd r30,Y+3
+ 249 00b0 FC81      		ldd r31,Y+4
+ 250 00b2 80E8      		ldi r24,lo8(-128)
+ 251 00b4 8083      		st Z,r24
+ 439:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 253               	.LM18:
+ 254 00b6 8B81      		ldd r24,Y+3
+ 255 00b8 9C81      		ldd r25,Y+4
+ 256 00ba 0197      		sbiw r24,1
+ 257 00bc 9C83      		std Y+4,r25
+ 258 00be 8B83      		std Y+3,r24
+ 440:../../FreeRTOS/Source/port.c **** 
+ 441:../../FreeRTOS/Source/port.c **** #if defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
+ 442:../../FreeRTOS/Source/port.c **** 
+ 443:../../FreeRTOS/Source/port.c **** 	/* If we have an ATmega256x, we are also saving the RAMPZ and EIND registers.
+ 444:../../FreeRTOS/Source/port.c **** 	 * We should default those to 0.
+ 445:../../FreeRTOS/Source/port.c **** 	 */
+ 446:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x00;	/* EIND */
+ 260               	.LM19:
+ 261 00c0 EB81      		ldd r30,Y+3
+ 262 00c2 FC81      		ldd r31,Y+4
+ 263 00c4 1082      		st Z,__zero_reg__
+ 447:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 265               	.LM20:
+ 266 00c6 8B81      		ldd r24,Y+3
+ 267 00c8 9C81      		ldd r25,Y+4
+ 268 00ca 0197      		sbiw r24,1
+ 269 00cc 9C83      		std Y+4,r25
+ 270 00ce 8B83      		std Y+3,r24
+ 448:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x00;	/* RAMPZ */
+ 272               	.LM21:
+ 273 00d0 EB81      		ldd r30,Y+3
+ 274 00d2 FC81      		ldd r31,Y+4
+ 275 00d4 1082      		st Z,__zero_reg__
+ 449:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 277               	.LM22:
+ 278 00d6 8B81      		ldd r24,Y+3
+ 279 00d8 9C81      		ldd r25,Y+4
+ 280 00da 0197      		sbiw r24,1
+ 281 00dc 9C83      		std Y+4,r25
+ 282 00de 8B83      		std Y+3,r24
+ 450:../../FreeRTOS/Source/port.c **** 
+ 451:../../FreeRTOS/Source/port.c **** #endif
+ 452:../../FreeRTOS/Source/port.c **** 
+ 453:../../FreeRTOS/Source/port.c **** 	/* Now the remaining registers.   The compiler expects R1 to be 0. */
+ 454:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x00;	/* R1 */
+ 284               	.LM23:
+ 285 00e0 EB81      		ldd r30,Y+3
+ 286 00e2 FC81      		ldd r31,Y+4
+ 287 00e4 1082      		st Z,__zero_reg__
+ 455:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 289               	.LM24:
+ 290 00e6 8B81      		ldd r24,Y+3
+ 291 00e8 9C81      		ldd r25,Y+4
+ 292 00ea 0197      		sbiw r24,1
+ 293 00ec 9C83      		std Y+4,r25
+ 294 00ee 8B83      		std Y+3,r24
+ 456:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x02;	/* R2 */
+ 296               	.LM25:
+ 297 00f0 EB81      		ldd r30,Y+3
+ 298 00f2 FC81      		ldd r31,Y+4
+ 299 00f4 82E0      		ldi r24,lo8(2)
+ 300 00f6 8083      		st Z,r24
+ 457:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 302               	.LM26:
+ 303 00f8 8B81      		ldd r24,Y+3
+ 304 00fa 9C81      		ldd r25,Y+4
+ 305 00fc 0197      		sbiw r24,1
+ 306 00fe 9C83      		std Y+4,r25
+ 307 0100 8B83      		std Y+3,r24
+ 458:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x03;	/* R3 */
+ 309               	.LM27:
+ 310 0102 EB81      		ldd r30,Y+3
+ 311 0104 FC81      		ldd r31,Y+4
+ 312 0106 83E0      		ldi r24,lo8(3)
+ 313 0108 8083      		st Z,r24
+ 459:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 315               	.LM28:
+ 316 010a 8B81      		ldd r24,Y+3
+ 317 010c 9C81      		ldd r25,Y+4
+ 318 010e 0197      		sbiw r24,1
+ 319 0110 9C83      		std Y+4,r25
+ 320 0112 8B83      		std Y+3,r24
+ 460:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x04;	/* R4 */
+ 322               	.LM29:
+ 323 0114 EB81      		ldd r30,Y+3
+ 324 0116 FC81      		ldd r31,Y+4
+ 325 0118 84E0      		ldi r24,lo8(4)
+ 326 011a 8083      		st Z,r24
+ 461:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 328               	.LM30:
+ 329 011c 8B81      		ldd r24,Y+3
+ 330 011e 9C81      		ldd r25,Y+4
+ 331 0120 0197      		sbiw r24,1
+ 332 0122 9C83      		std Y+4,r25
+ 333 0124 8B83      		std Y+3,r24
+ 462:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x05;	/* R5 */
+ 335               	.LM31:
+ 336 0126 EB81      		ldd r30,Y+3
+ 337 0128 FC81      		ldd r31,Y+4
+ 338 012a 85E0      		ldi r24,lo8(5)
+ 339 012c 8083      		st Z,r24
+ 463:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 341               	.LM32:
+ 342 012e 8B81      		ldd r24,Y+3
+ 343 0130 9C81      		ldd r25,Y+4
+ 344 0132 0197      		sbiw r24,1
+ 345 0134 9C83      		std Y+4,r25
+ 346 0136 8B83      		std Y+3,r24
+ 464:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x06;	/* R6 */
+ 348               	.LM33:
+ 349 0138 EB81      		ldd r30,Y+3
+ 350 013a FC81      		ldd r31,Y+4
+ 351 013c 86E0      		ldi r24,lo8(6)
+ 352 013e 8083      		st Z,r24
+ 465:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 354               	.LM34:
+ 355 0140 8B81      		ldd r24,Y+3
+ 356 0142 9C81      		ldd r25,Y+4
+ 357 0144 0197      		sbiw r24,1
+ 358 0146 9C83      		std Y+4,r25
+ 359 0148 8B83      		std Y+3,r24
+ 466:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x07;	/* R7 */
+ 361               	.LM35:
+ 362 014a EB81      		ldd r30,Y+3
+ 363 014c FC81      		ldd r31,Y+4
+ 364 014e 87E0      		ldi r24,lo8(7)
+ 365 0150 8083      		st Z,r24
+ 467:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 367               	.LM36:
+ 368 0152 8B81      		ldd r24,Y+3
+ 369 0154 9C81      		ldd r25,Y+4
+ 370 0156 0197      		sbiw r24,1
+ 371 0158 9C83      		std Y+4,r25
+ 372 015a 8B83      		std Y+3,r24
+ 468:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x08;	/* R8 */
+ 374               	.LM37:
+ 375 015c EB81      		ldd r30,Y+3
+ 376 015e FC81      		ldd r31,Y+4
+ 377 0160 88E0      		ldi r24,lo8(8)
+ 378 0162 8083      		st Z,r24
+ 469:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 380               	.LM38:
+ 381 0164 8B81      		ldd r24,Y+3
+ 382 0166 9C81      		ldd r25,Y+4
+ 383 0168 0197      		sbiw r24,1
+ 384 016a 9C83      		std Y+4,r25
+ 385 016c 8B83      		std Y+3,r24
+ 470:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x09;	/* R9 */
+ 387               	.LM39:
+ 388 016e EB81      		ldd r30,Y+3
+ 389 0170 FC81      		ldd r31,Y+4
+ 390 0172 89E0      		ldi r24,lo8(9)
+ 391 0174 8083      		st Z,r24
+ 471:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 393               	.LM40:
+ 394 0176 8B81      		ldd r24,Y+3
+ 395 0178 9C81      		ldd r25,Y+4
+ 396 017a 0197      		sbiw r24,1
+ 397 017c 9C83      		std Y+4,r25
+ 398 017e 8B83      		std Y+3,r24
+ 472:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x10;	/* R10 */
+ 400               	.LM41:
+ 401 0180 EB81      		ldd r30,Y+3
+ 402 0182 FC81      		ldd r31,Y+4
+ 403 0184 80E1      		ldi r24,lo8(16)
+ 404 0186 8083      		st Z,r24
+ 473:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 406               	.LM42:
+ 407 0188 8B81      		ldd r24,Y+3
+ 408 018a 9C81      		ldd r25,Y+4
+ 409 018c 0197      		sbiw r24,1
+ 410 018e 9C83      		std Y+4,r25
+ 411 0190 8B83      		std Y+3,r24
+ 474:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x11;	/* R11 */
+ 413               	.LM43:
+ 414 0192 EB81      		ldd r30,Y+3
+ 415 0194 FC81      		ldd r31,Y+4
+ 416 0196 81E1      		ldi r24,lo8(17)
+ 417 0198 8083      		st Z,r24
+ 475:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 419               	.LM44:
+ 420 019a 8B81      		ldd r24,Y+3
+ 421 019c 9C81      		ldd r25,Y+4
+ 422 019e 0197      		sbiw r24,1
+ 423 01a0 9C83      		std Y+4,r25
+ 424 01a2 8B83      		std Y+3,r24
+ 476:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x12;	/* R12 */
+ 426               	.LM45:
+ 427 01a4 EB81      		ldd r30,Y+3
+ 428 01a6 FC81      		ldd r31,Y+4
+ 429 01a8 82E1      		ldi r24,lo8(18)
+ 430 01aa 8083      		st Z,r24
+ 477:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 432               	.LM46:
+ 433 01ac 8B81      		ldd r24,Y+3
+ 434 01ae 9C81      		ldd r25,Y+4
+ 435 01b0 0197      		sbiw r24,1
+ 436 01b2 9C83      		std Y+4,r25
+ 437 01b4 8B83      		std Y+3,r24
+ 478:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x13;	/* R13 */
+ 439               	.LM47:
+ 440 01b6 EB81      		ldd r30,Y+3
+ 441 01b8 FC81      		ldd r31,Y+4
+ 442 01ba 83E1      		ldi r24,lo8(19)
+ 443 01bc 8083      		st Z,r24
+ 479:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 445               	.LM48:
+ 446 01be 8B81      		ldd r24,Y+3
+ 447 01c0 9C81      		ldd r25,Y+4
+ 448 01c2 0197      		sbiw r24,1
+ 449 01c4 9C83      		std Y+4,r25
+ 450 01c6 8B83      		std Y+3,r24
+ 480:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x14;	/* R14 */
+ 452               	.LM49:
+ 453 01c8 EB81      		ldd r30,Y+3
+ 454 01ca FC81      		ldd r31,Y+4
+ 455 01cc 84E1      		ldi r24,lo8(20)
+ 456 01ce 8083      		st Z,r24
+ 481:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 458               	.LM50:
+ 459 01d0 8B81      		ldd r24,Y+3
+ 460 01d2 9C81      		ldd r25,Y+4
+ 461 01d4 0197      		sbiw r24,1
+ 462 01d6 9C83      		std Y+4,r25
+ 463 01d8 8B83      		std Y+3,r24
+ 482:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x15;	/* R15 */
+ 465               	.LM51:
+ 466 01da EB81      		ldd r30,Y+3
+ 467 01dc FC81      		ldd r31,Y+4
+ 468 01de 85E1      		ldi r24,lo8(21)
+ 469 01e0 8083      		st Z,r24
+ 483:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 471               	.LM52:
+ 472 01e2 8B81      		ldd r24,Y+3
+ 473 01e4 9C81      		ldd r25,Y+4
+ 474 01e6 0197      		sbiw r24,1
+ 475 01e8 9C83      		std Y+4,r25
+ 476 01ea 8B83      		std Y+3,r24
+ 484:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x16;	/* R16 */
+ 478               	.LM53:
+ 479 01ec EB81      		ldd r30,Y+3
+ 480 01ee FC81      		ldd r31,Y+4
+ 481 01f0 86E1      		ldi r24,lo8(22)
+ 482 01f2 8083      		st Z,r24
+ 485:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 484               	.LM54:
+ 485 01f4 8B81      		ldd r24,Y+3
+ 486 01f6 9C81      		ldd r25,Y+4
+ 487 01f8 0197      		sbiw r24,1
+ 488 01fa 9C83      		std Y+4,r25
+ 489 01fc 8B83      		std Y+3,r24
+ 486:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x17;	/* R17 */
+ 491               	.LM55:
+ 492 01fe EB81      		ldd r30,Y+3
+ 493 0200 FC81      		ldd r31,Y+4
+ 494 0202 87E1      		ldi r24,lo8(23)
+ 495 0204 8083      		st Z,r24
+ 487:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 497               	.LM56:
+ 498 0206 8B81      		ldd r24,Y+3
+ 499 0208 9C81      		ldd r25,Y+4
+ 500 020a 0197      		sbiw r24,1
+ 501 020c 9C83      		std Y+4,r25
+ 502 020e 8B83      		std Y+3,r24
+ 488:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x18;	/* R18 */
+ 504               	.LM57:
+ 505 0210 EB81      		ldd r30,Y+3
+ 506 0212 FC81      		ldd r31,Y+4
+ 507 0214 88E1      		ldi r24,lo8(24)
+ 508 0216 8083      		st Z,r24
+ 489:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 510               	.LM58:
+ 511 0218 8B81      		ldd r24,Y+3
+ 512 021a 9C81      		ldd r25,Y+4
+ 513 021c 0197      		sbiw r24,1
+ 514 021e 9C83      		std Y+4,r25
+ 515 0220 8B83      		std Y+3,r24
+ 490:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x19;	/* R19 */
+ 517               	.LM59:
+ 518 0222 EB81      		ldd r30,Y+3
+ 519 0224 FC81      		ldd r31,Y+4
+ 520 0226 89E1      		ldi r24,lo8(25)
+ 521 0228 8083      		st Z,r24
+ 491:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 523               	.LM60:
+ 524 022a 8B81      		ldd r24,Y+3
+ 525 022c 9C81      		ldd r25,Y+4
+ 526 022e 0197      		sbiw r24,1
+ 527 0230 9C83      		std Y+4,r25
+ 528 0232 8B83      		std Y+3,r24
+ 492:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x20;	/* R20 */
+ 530               	.LM61:
+ 531 0234 EB81      		ldd r30,Y+3
+ 532 0236 FC81      		ldd r31,Y+4
+ 533 0238 80E2      		ldi r24,lo8(32)
+ 534 023a 8083      		st Z,r24
+ 493:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 536               	.LM62:
+ 537 023c 8B81      		ldd r24,Y+3
+ 538 023e 9C81      		ldd r25,Y+4
+ 539 0240 0197      		sbiw r24,1
+ 540 0242 9C83      		std Y+4,r25
+ 541 0244 8B83      		std Y+3,r24
+ 494:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x21;	/* R21 */
+ 543               	.LM63:
+ 544 0246 EB81      		ldd r30,Y+3
+ 545 0248 FC81      		ldd r31,Y+4
+ 546 024a 81E2      		ldi r24,lo8(33)
+ 547 024c 8083      		st Z,r24
+ 495:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 549               	.LM64:
+ 550 024e 8B81      		ldd r24,Y+3
+ 551 0250 9C81      		ldd r25,Y+4
+ 552 0252 0197      		sbiw r24,1
+ 553 0254 9C83      		std Y+4,r25
+ 554 0256 8B83      		std Y+3,r24
+ 496:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x22;	/* R22 */
+ 556               	.LM65:
+ 557 0258 EB81      		ldd r30,Y+3
+ 558 025a FC81      		ldd r31,Y+4
+ 559 025c 82E2      		ldi r24,lo8(34)
+ 560 025e 8083      		st Z,r24
+ 497:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 562               	.LM66:
+ 563 0260 8B81      		ldd r24,Y+3
+ 564 0262 9C81      		ldd r25,Y+4
+ 565 0264 0197      		sbiw r24,1
+ 566 0266 9C83      		std Y+4,r25
+ 567 0268 8B83      		std Y+3,r24
+ 498:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x23;	/* R23 */
+ 569               	.LM67:
+ 570 026a EB81      		ldd r30,Y+3
+ 571 026c FC81      		ldd r31,Y+4
+ 572 026e 83E2      		ldi r24,lo8(35)
+ 573 0270 8083      		st Z,r24
+ 499:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 575               	.LM68:
+ 576 0272 8B81      		ldd r24,Y+3
+ 577 0274 9C81      		ldd r25,Y+4
+ 578 0276 0197      		sbiw r24,1
+ 579 0278 9C83      		std Y+4,r25
+ 580 027a 8B83      		std Y+3,r24
+ 500:../../FreeRTOS/Source/port.c **** 
+ 501:../../FreeRTOS/Source/port.c **** 	/* Place the parameter on the stack in the expected location. */
+ 502:../../FreeRTOS/Source/port.c **** 	usAddress = ( unsigned short ) pvParameters;
+ 582               	.LM69:
+ 583 027c 8F81      		ldd r24,Y+7
+ 584 027e 9885      		ldd r25,Y+8
+ 585 0280 9A83      		std Y+2,r25
+ 586 0282 8983      		std Y+1,r24
+ 503:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned short ) 0x00ff );
+ 588               	.LM70:
+ 589 0284 8981      		ldd r24,Y+1
+ 590 0286 EB81      		ldd r30,Y+3
+ 591 0288 FC81      		ldd r31,Y+4
+ 592 028a 8083      		st Z,r24
+ 504:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 594               	.LM71:
+ 595 028c 8B81      		ldd r24,Y+3
+ 596 028e 9C81      		ldd r25,Y+4
+ 597 0290 0197      		sbiw r24,1
+ 598 0292 9C83      		std Y+4,r25
+ 599 0294 8B83      		std Y+3,r24
+ 505:../../FreeRTOS/Source/port.c **** 
+ 506:../../FreeRTOS/Source/port.c **** 	usAddress >>= 8;
+ 601               	.LM72:
+ 602 0296 8981      		ldd r24,Y+1
+ 603 0298 9A81      		ldd r25,Y+2
+ 604 029a 892F      		mov r24,r25
+ 605 029c 9927      		clr r25
+ 606 029e 9A83      		std Y+2,r25
+ 607 02a0 8983      		std Y+1,r24
+ 507:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) ( usAddress & ( unsigned short ) 0x00ff );
+ 609               	.LM73:
+ 610 02a2 8981      		ldd r24,Y+1
+ 611 02a4 EB81      		ldd r30,Y+3
+ 612 02a6 FC81      		ldd r31,Y+4
+ 613 02a8 8083      		st Z,r24
+ 508:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 615               	.LM74:
+ 616 02aa 8B81      		ldd r24,Y+3
+ 617 02ac 9C81      		ldd r25,Y+4
+ 618 02ae 0197      		sbiw r24,1
+ 619 02b0 9C83      		std Y+4,r25
+ 620 02b2 8B83      		std Y+3,r24
+ 509:../../FreeRTOS/Source/port.c **** 
+ 510:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x26;	/* R26 X */
+ 622               	.LM75:
+ 623 02b4 EB81      		ldd r30,Y+3
+ 624 02b6 FC81      		ldd r31,Y+4
+ 625 02b8 86E2      		ldi r24,lo8(38)
+ 626 02ba 8083      		st Z,r24
+ 511:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 628               	.LM76:
+ 629 02bc 8B81      		ldd r24,Y+3
+ 630 02be 9C81      		ldd r25,Y+4
+ 631 02c0 0197      		sbiw r24,1
+ 632 02c2 9C83      		std Y+4,r25
+ 633 02c4 8B83      		std Y+3,r24
+ 512:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x27;	/* R27 */
+ 635               	.LM77:
+ 636 02c6 EB81      		ldd r30,Y+3
+ 637 02c8 FC81      		ldd r31,Y+4
+ 638 02ca 87E2      		ldi r24,lo8(39)
+ 639 02cc 8083      		st Z,r24
+ 513:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 641               	.LM78:
+ 642 02ce 8B81      		ldd r24,Y+3
+ 643 02d0 9C81      		ldd r25,Y+4
+ 644 02d2 0197      		sbiw r24,1
+ 645 02d4 9C83      		std Y+4,r25
+ 646 02d6 8B83      		std Y+3,r24
+ 514:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x28;	/* R28 Y */
+ 648               	.LM79:
+ 649 02d8 EB81      		ldd r30,Y+3
+ 650 02da FC81      		ldd r31,Y+4
+ 651 02dc 88E2      		ldi r24,lo8(40)
+ 652 02de 8083      		st Z,r24
+ 515:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 654               	.LM80:
+ 655 02e0 8B81      		ldd r24,Y+3
+ 656 02e2 9C81      		ldd r25,Y+4
+ 657 02e4 0197      		sbiw r24,1
+ 658 02e6 9C83      		std Y+4,r25
+ 659 02e8 8B83      		std Y+3,r24
+ 516:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x29;	/* R29 */
+ 661               	.LM81:
+ 662 02ea EB81      		ldd r30,Y+3
+ 663 02ec FC81      		ldd r31,Y+4
+ 664 02ee 89E2      		ldi r24,lo8(41)
+ 665 02f0 8083      		st Z,r24
+ 517:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 667               	.LM82:
+ 668 02f2 8B81      		ldd r24,Y+3
+ 669 02f4 9C81      		ldd r25,Y+4
+ 670 02f6 0197      		sbiw r24,1
+ 671 02f8 9C83      		std Y+4,r25
+ 672 02fa 8B83      		std Y+3,r24
+ 518:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x30;	/* R30 Z */
+ 674               	.LM83:
+ 675 02fc EB81      		ldd r30,Y+3
+ 676 02fe FC81      		ldd r31,Y+4
+ 677 0300 80E3      		ldi r24,lo8(48)
+ 678 0302 8083      		st Z,r24
+ 519:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 680               	.LM84:
+ 681 0304 8B81      		ldd r24,Y+3
+ 682 0306 9C81      		ldd r25,Y+4
+ 683 0308 0197      		sbiw r24,1
+ 684 030a 9C83      		std Y+4,r25
+ 685 030c 8B83      		std Y+3,r24
+ 520:../../FreeRTOS/Source/port.c **** 	*pxTopOfStack = ( portSTACK_TYPE ) 0x031;	/* R31 */
+ 687               	.LM85:
+ 688 030e EB81      		ldd r30,Y+3
+ 689 0310 FC81      		ldd r31,Y+4
+ 690 0312 81E3      		ldi r24,lo8(49)
+ 691 0314 8083      		st Z,r24
+ 521:../../FreeRTOS/Source/port.c **** 	pxTopOfStack--;
+ 693               	.LM86:
+ 694 0316 8B81      		ldd r24,Y+3
+ 695 0318 9C81      		ldd r25,Y+4
+ 696 031a 0197      		sbiw r24,1
+ 697 031c 9C83      		std Y+4,r25
+ 698 031e 8B83      		std Y+3,r24
+ 522:../../FreeRTOS/Source/port.c **** 
+ 523:../../FreeRTOS/Source/port.c **** 	/*lint +e950 +e611 +e923 */
+ 524:../../FreeRTOS/Source/port.c **** 
+ 525:../../FreeRTOS/Source/port.c **** 	return pxTopOfStack;
+ 700               	.LM87:
+ 701 0320 8B81      		ldd r24,Y+3
+ 702 0322 9C81      		ldd r25,Y+4
+ 703               	/* epilogue start */
+ 526:../../FreeRTOS/Source/port.c **** }
+ 705               	.LM88:
+ 706 0324 2896      		adiw r28,8
+ 707 0326 0FB6      		in __tmp_reg__,__SREG__
+ 708 0328 F894      		cli
+ 709 032a DEBF      		out __SP_H__,r29
+ 710 032c 0FBE      		out __SREG__,__tmp_reg__
+ 711 032e CDBF      		out __SP_L__,r28
+ 712 0330 CF91      		pop r28
+ 713 0332 DF91      		pop r29
+ 714 0334 0895      		ret
+ 719               	.Lscope1:
+ 721               		.stabd	78,0,0
+ 723               	.global	xPortStartScheduler
+ 725               	xPortStartScheduler:
+ 726               		.stabd	46,0,0
+ 527:../../FreeRTOS/Source/port.c **** /*-----------------------------------------------------------*/
+ 528:../../FreeRTOS/Source/port.c **** 
+ 529:../../FreeRTOS/Source/port.c **** portBASE_TYPE xPortStartScheduler( void )
+ 530:../../FreeRTOS/Source/port.c **** {
+ 728               	.LM89:
+ 729               	.LFBB2:
+ 730 0336 DF93      		push r29
+ 731 0338 CF93      		push r28
+ 732 033a CDB7      		in r28,__SP_L__
+ 733 033c DEB7      		in r29,__SP_H__
+ 734               	/* prologue: function */
+ 735               	/* frame size = 0 */
+ 531:../../FreeRTOS/Source/port.c **** 	/* Setup the hardware to generate the tick. */
+ 532:../../FreeRTOS/Source/port.c **** 	prvSetupTimerInterrupt();
+ 737               	.LM90:
+ 738 033e 0E94 0000 		call prvSetupTimerInterrupt
+ 533:../../FreeRTOS/Source/port.c **** 
+ 534:../../FreeRTOS/Source/port.c **** 	/* Restore the context of the first task that is going to run. */
+ 535:../../FreeRTOS/Source/port.c **** 	portRESTORE_CONTEXT();
+ 740               	.LM91:
+ 741               	/* #APP */
+ 742               	 ;  535 "../../FreeRTOS/Source/port.c" 1
+ 743 0342 A091 0000 		lds	r26, pxCurrentTCB		
+ 744 0346 B091 0000 		lds	r27, pxCurrentTCB + 1	
+ 745 034a CD91      		ld		r28, x+					
+ 746 034c CDBF      		out	__SP_L__, r28			
+ 747 034e DD91      		ld		r29, x+					
+ 748 0350 DEBF      		out	__SP_H__, r29			
+ 749 0352 FF91      		pop	r31						
+ 750 0354 EF91      		pop	r30						
+ 751 0356 DF91      		pop	r29						
+ 752 0358 CF91      		pop	r28						
+ 753 035a BF91      		pop	r27						
+ 754 035c AF91      		pop	r26						
+ 755 035e 9F91      		pop	r25						
+ 756 0360 8F91      		pop	r24						
+ 757 0362 7F91      		pop	r23						
+ 758 0364 6F91      		pop	r22						
+ 759 0366 5F91      		pop	r21						
+ 760 0368 4F91      		pop	r20						
+ 761 036a 3F91      		pop	r19						
+ 762 036c 2F91      		pop	r18						
+ 763 036e 1F91      		pop	r17						
+ 764 0370 0F91      		pop	r16						
+ 765 0372 FF90      		pop	r15						
+ 766 0374 EF90      		pop	r14						
+ 767 0376 DF90      		pop	r13						
+ 768 0378 CF90      		pop	r12						
+ 769 037a BF90      		pop	r11						
+ 770 037c AF90      		pop	r10						
+ 771 037e 9F90      		pop	r9						
+ 772 0380 8F90      		pop	r8						
+ 773 0382 7F90      		pop	r7						
+ 774 0384 6F90      		pop	r6						
+ 775 0386 5F90      		pop	r5						
+ 776 0388 4F90      		pop	r4						
+ 777 038a 3F90      		pop	r3						
+ 778 038c 2F90      		pop	r2						
+ 779 038e 1F90      		pop	r1						
+ 780 0390 0F90      		pop	r0						
+ 781 0392 0CBE      		out	0x3c, r0				
+ 782 0394 0F90      		pop	r0						
+ 783 0396 0BBE      		out	0x3b, r0				
+ 784 0398 0F90      		pop	r0						
+ 785 039a 0FBE      		out	__SREG__, r0			
+ 786 039c 0F90      		pop	r0						
+ 787               		
+ 788               	 ;  0 "" 2
+ 536:../../FreeRTOS/Source/port.c **** 
+ 537:../../FreeRTOS/Source/port.c **** 	/* Simulate a function call end as generated by the compiler.  We will now
+ 538:../../FreeRTOS/Source/port.c **** 	jump to the start of the task the context of which we have just restored. */
+ 539:../../FreeRTOS/Source/port.c **** 	asm volatile ( "ret" );
+ 790               	.LM92:
+ 791               	 ;  539 "../../FreeRTOS/Source/port.c" 1
+ 792 039e 0895      		ret
+ 793               	 ;  0 "" 2
+ 540:../../FreeRTOS/Source/port.c **** 
+ 541:../../FreeRTOS/Source/port.c **** 	/* Should not get here. */
+ 542:../../FreeRTOS/Source/port.c **** 	return pdTRUE;
+ 795               	.LM93:
+ 796               	/* #NOAPP */
+ 797 03a0 81E0      		ldi r24,lo8(1)
+ 798               	/* epilogue start */
+ 543:../../FreeRTOS/Source/port.c **** }
+ 800               	.LM94:
+ 801 03a2 CF91      		pop r28
+ 802 03a4 DF91      		pop r29
+ 803 03a6 0895      		ret
+ 805               	.Lscope2:
+ 807               		.stabd	78,0,0
+ 809               	.global	vPortEndScheduler
+ 811               	vPortEndScheduler:
+ 812               		.stabd	46,0,0
+ 544:../../FreeRTOS/Source/port.c **** /*-----------------------------------------------------------*/
+ 545:../../FreeRTOS/Source/port.c **** 
+ 546:../../FreeRTOS/Source/port.c **** void vPortEndScheduler( void )
+ 547:../../FreeRTOS/Source/port.c **** {
+ 814               	.LM95:
+ 815               	.LFBB3:
+ 816 03a8 DF93      		push r29
+ 817 03aa CF93      		push r28
+ 818 03ac CDB7      		in r28,__SP_L__
+ 819 03ae DEB7      		in r29,__SP_H__
+ 820               	/* prologue: function */
+ 821               	/* frame size = 0 */
+ 822               	/* epilogue start */
+ 548:../../FreeRTOS/Source/port.c **** 	/* It is unlikely that the AVR port will get stopped.  If required simply
+ 549:../../FreeRTOS/Source/port.c **** 	disable the tick interrupt here. */
+ 550:../../FreeRTOS/Source/port.c **** }
+ 824               	.LM96:
+ 825 03b0 CF91      		pop r28
+ 826 03b2 DF91      		pop r29
+ 827 03b4 0895      		ret
+ 829               	.Lscope3:
+ 831               		.stabd	78,0,0
+ 833               	.global	vPortYield
+ 835               	vPortYield:
+ 836               		.stabd	46,0,0
+ 551:../../FreeRTOS/Source/port.c **** /*-----------------------------------------------------------*/
+ 552:../../FreeRTOS/Source/port.c **** 
+ 553:../../FreeRTOS/Source/port.c **** /*
+ 554:../../FreeRTOS/Source/port.c ****  * Manual context switch.  The first thing we do is save the registers so we
+ 555:../../FreeRTOS/Source/port.c ****  * can use a naked attribute.
+ 556:../../FreeRTOS/Source/port.c ****  */
+ 557:../../FreeRTOS/Source/port.c **** void vPortYield( void ) __attribute__ ( ( naked ) );
+ 558:../../FreeRTOS/Source/port.c **** void vPortYield( void )
+ 559:../../FreeRTOS/Source/port.c **** {
+ 838               	.LM97:
+ 839               	.LFBB4:
+ 840               	/* prologue: naked */
+ 841               	/* frame size = 0 */
+ 560:../../FreeRTOS/Source/port.c **** 	portSAVE_CONTEXT();
+ 843               	.LM98:
+ 844               	/* #APP */
+ 845               	 ;  560 "../../FreeRTOS/Source/port.c" 1
+ 846 03b6 0F92      		push	r0						
+ 847 03b8 0FB6      		in		r0, __SREG__			
+ 848 03ba F894      		cli							
+ 849 03bc 0F92      		push	r0						
+ 850 03be 0BB6      		in		r0, 0x3b				
+ 851 03c0 0F92      		push	r0						
+ 852 03c2 0CB6      		in		r0, 0x3c				
+ 853 03c4 0F92      		push	r0						
+ 854 03c6 1F92      		push	r1						
+ 855 03c8 1124      		clr	r1						
+ 856 03ca 2F92      		push	r2						
+ 857 03cc 3F92      		push	r3						
+ 858 03ce 4F92      		push	r4						
+ 859 03d0 5F92      		push	r5						
+ 860 03d2 6F92      		push	r6						
+ 861 03d4 7F92      		push	r7						
+ 862 03d6 8F92      		push	r8						
+ 863 03d8 9F92      		push	r9						
+ 864 03da AF92      		push	r10						
+ 865 03dc BF92      		push	r11						
+ 866 03de CF92      		push	r12						
+ 867 03e0 DF92      		push	r13						
+ 868 03e2 EF92      		push	r14						
+ 869 03e4 FF92      		push	r15						
+ 870 03e6 0F93      		push	r16						
+ 871 03e8 1F93      		push	r17						
+ 872 03ea 2F93      		push	r18						
+ 873 03ec 3F93      		push	r19						
+ 874 03ee 4F93      		push	r20						
+ 875 03f0 5F93      		push	r21						
+ 876 03f2 6F93      		push	r22						
+ 877 03f4 7F93      		push	r23						
+ 878 03f6 8F93      		push	r24						
+ 879 03f8 9F93      		push	r25						
+ 880 03fa AF93      		push	r26						
+ 881 03fc BF93      		push	r27						
+ 882 03fe CF93      		push	r28						
+ 883 0400 DF93      		push	r29						
+ 884 0402 EF93      		push	r30						
+ 885 0404 FF93      		push	r31						
+ 886 0406 A091 0000 		lds	r26, pxCurrentTCB		
+ 887 040a B091 0000 		lds	r27, pxCurrentTCB + 1	
+ 888 040e 0DB6      		in		r0, 0x3d				
+ 889 0410 0D92      		st		x+, r0					
+ 890 0412 0EB6      		in		r0, 0x3e				
+ 891 0414 0D92      		st		x+, r0					
+ 892               		
+ 893               	 ;  0 "" 2
+ 561:../../FreeRTOS/Source/port.c **** 	vTaskSwitchContext();
+ 895               	.LM99:
+ 896               	/* #NOAPP */
+ 897 0416 0E94 0000 		call vTaskSwitchContext
+ 562:../../FreeRTOS/Source/port.c **** 	portRESTORE_CONTEXT();
+ 899               	.LM100:
+ 900               	/* #APP */
+ 901               	 ;  562 "../../FreeRTOS/Source/port.c" 1
+ 902 041a A091 0000 		lds	r26, pxCurrentTCB		
+ 903 041e B091 0000 		lds	r27, pxCurrentTCB + 1	
+ 904 0422 CD91      		ld		r28, x+					
+ 905 0424 CDBF      		out	__SP_L__, r28			
+ 906 0426 DD91      		ld		r29, x+					
+ 907 0428 DEBF      		out	__SP_H__, r29			
+ 908 042a FF91      		pop	r31						
+ 909 042c EF91      		pop	r30						
+ 910 042e DF91      		pop	r29						
+ 911 0430 CF91      		pop	r28						
+ 912 0432 BF91      		pop	r27						
+ 913 0434 AF91      		pop	r26						
+ 914 0436 9F91      		pop	r25						
+ 915 0438 8F91      		pop	r24						
+ 916 043a 7F91      		pop	r23						
+ 917 043c 6F91      		pop	r22						
+ 918 043e 5F91      		pop	r21						
+ 919 0440 4F91      		pop	r20						
+ 920 0442 3F91      		pop	r19						
+ 921 0444 2F91      		pop	r18						
+ 922 0446 1F91      		pop	r17						
+ 923 0448 0F91      		pop	r16						
+ 924 044a FF90      		pop	r15						
+ 925 044c EF90      		pop	r14						
+ 926 044e DF90      		pop	r13						
+ 927 0450 CF90      		pop	r12						
+ 928 0452 BF90      		pop	r11						
+ 929 0454 AF90      		pop	r10						
+ 930 0456 9F90      		pop	r9						
+ 931 0458 8F90      		pop	r8						
+ 932 045a 7F90      		pop	r7						
+ 933 045c 6F90      		pop	r6						
+ 934 045e 5F90      		pop	r5						
+ 935 0460 4F90      		pop	r4						
+ 936 0462 3F90      		pop	r3						
+ 937 0464 2F90      		pop	r2						
+ 938 0466 1F90      		pop	r1						
+ 939 0468 0F90      		pop	r0						
+ 940 046a 0CBE      		out	0x3c, r0				
+ 941 046c 0F90      		pop	r0						
+ 942 046e 0BBE      		out	0x3b, r0				
+ 943 0470 0F90      		pop	r0						
+ 944 0472 0FBE      		out	__SREG__, r0			
+ 945 0474 0F90      		pop	r0						
+ 946               		
+ 947               	 ;  0 "" 2
+ 563:../../FreeRTOS/Source/port.c **** 
+ 564:../../FreeRTOS/Source/port.c **** 	asm volatile ( "ret" );
+ 949               	.LM101:
+ 950               	 ;  564 "../../FreeRTOS/Source/port.c" 1
+ 951 0476 0895      		ret
+ 952               	 ;  0 "" 2
+ 953               	/* epilogue start */
+ 565:../../FreeRTOS/Source/port.c **** }
+ 955               	.LM102:
+ 956               	/* #NOAPP */
+ 958               	.Lscope4:
+ 960               		.stabd	78,0,0
+ 962               	.global	vPortYieldFromTick
+ 964               	vPortYieldFromTick:
+ 965               		.stabd	46,0,0
+ 566:../../FreeRTOS/Source/port.c **** /*-----------------------------------------------------------*/
+ 567:../../FreeRTOS/Source/port.c **** 
+ 568:../../FreeRTOS/Source/port.c **** /*
+ 569:../../FreeRTOS/Source/port.c ****  * Context switch function used by the tick.  This must be identical to
+ 570:../../FreeRTOS/Source/port.c ****  * vPortYield() from the call to vTaskSwitchContext() onwards.  The only
+ 571:../../FreeRTOS/Source/port.c ****  * difference from vPortYield() is the tick count is incremented as the
+ 572:../../FreeRTOS/Source/port.c ****  * call comes from the tick ISR.
+ 573:../../FreeRTOS/Source/port.c ****  */
+ 574:../../FreeRTOS/Source/port.c **** void vPortYieldFromTick( void ) __attribute__ ( ( naked ) );
+ 575:../../FreeRTOS/Source/port.c **** void vPortYieldFromTick( void )
+ 576:../../FreeRTOS/Source/port.c **** {
+ 967               	.LM103:
+ 968               	.LFBB5:
+ 969               	/* prologue: naked */
+ 970               	/* frame size = 0 */
+ 577:../../FreeRTOS/Source/port.c **** 	portSAVE_CONTEXT();
+ 972               	.LM104:
+ 973               	/* #APP */
+ 974               	 ;  577 "../../FreeRTOS/Source/port.c" 1
+ 975 0478 0F92      		push	r0						
+ 976 047a 0FB6      		in		r0, __SREG__			
+ 977 047c F894      		cli							
+ 978 047e 0F92      		push	r0						
+ 979 0480 0BB6      		in		r0, 0x3b				
+ 980 0482 0F92      		push	r0						
+ 981 0484 0CB6      		in		r0, 0x3c				
+ 982 0486 0F92      		push	r0						
+ 983 0488 1F92      		push	r1						
+ 984 048a 1124      		clr	r1						
+ 985 048c 2F92      		push	r2						
+ 986 048e 3F92      		push	r3						
+ 987 0490 4F92      		push	r4						
+ 988 0492 5F92      		push	r5						
+ 989 0494 6F92      		push	r6						
+ 990 0496 7F92      		push	r7						
+ 991 0498 8F92      		push	r8						
+ 992 049a 9F92      		push	r9						
+ 993 049c AF92      		push	r10						
+ 994 049e BF92      		push	r11						
+ 995 04a0 CF92      		push	r12						
+ 996 04a2 DF92      		push	r13						
+ 997 04a4 EF92      		push	r14						
+ 998 04a6 FF92      		push	r15						
+ 999 04a8 0F93      		push	r16						
+ 1000 04aa 1F93      		push	r17						
+ 1001 04ac 2F93      		push	r18						
+ 1002 04ae 3F93      		push	r19						
+ 1003 04b0 4F93      		push	r20						
+ 1004 04b2 5F93      		push	r21						
+ 1005 04b4 6F93      		push	r22						
+ 1006 04b6 7F93      		push	r23						
+ 1007 04b8 8F93      		push	r24						
+ 1008 04ba 9F93      		push	r25						
+ 1009 04bc AF93      		push	r26						
+ 1010 04be BF93      		push	r27						
+ 1011 04c0 CF93      		push	r28						
+ 1012 04c2 DF93      		push	r29						
+ 1013 04c4 EF93      		push	r30						
+ 1014 04c6 FF93      		push	r31						
+ 1015 04c8 A091 0000 		lds	r26, pxCurrentTCB		
+ 1016 04cc B091 0000 		lds	r27, pxCurrentTCB + 1	
+ 1017 04d0 0DB6      		in		r0, 0x3d				
+ 1018 04d2 0D92      		st		x+, r0					
+ 1019 04d4 0EB6      		in		r0, 0x3e				
+ 1020 04d6 0D92      		st		x+, r0					
+ 1021               		
+ 1022               	 ;  0 "" 2
+ 578:../../FreeRTOS/Source/port.c **** 	vTaskIncrementTick();
+ 1024               	.LM105:
+ 1025               	/* #NOAPP */
+ 1026 04d8 0E94 0000 		call vTaskIncrementTick
+ 579:../../FreeRTOS/Source/port.c **** 	vTaskSwitchContext();
+ 1028               	.LM106:
+ 1029 04dc 0E94 0000 		call vTaskSwitchContext
+ 580:../../FreeRTOS/Source/port.c **** 	portRESTORE_CONTEXT();
+ 1031               	.LM107:
+ 1032               	/* #APP */
+ 1033               	 ;  580 "../../FreeRTOS/Source/port.c" 1
+ 1034 04e0 A091 0000 		lds	r26, pxCurrentTCB		
+ 1035 04e4 B091 0000 		lds	r27, pxCurrentTCB + 1	
+ 1036 04e8 CD91      		ld		r28, x+					
+ 1037 04ea CDBF      		out	__SP_L__, r28			
+ 1038 04ec DD91      		ld		r29, x+					
+ 1039 04ee DEBF      		out	__SP_H__, r29			
+ 1040 04f0 FF91      		pop	r31						
+ 1041 04f2 EF91      		pop	r30						
+ 1042 04f4 DF91      		pop	r29						
+ 1043 04f6 CF91      		pop	r28						
+ 1044 04f8 BF91      		pop	r27						
+ 1045 04fa AF91      		pop	r26						
+ 1046 04fc 9F91      		pop	r25						
+ 1047 04fe 8F91      		pop	r24						
+ 1048 0500 7F91      		pop	r23						
+ 1049 0502 6F91      		pop	r22						
+ 1050 0504 5F91      		pop	r21						
+ 1051 0506 4F91      		pop	r20						
+ 1052 0508 3F91      		pop	r19						
+ 1053 050a 2F91      		pop	r18						
+ 1054 050c 1F91      		pop	r17						
+ 1055 050e 0F91      		pop	r16						
+ 1056 0510 FF90      		pop	r15						
+ 1057 0512 EF90      		pop	r14						
+ 1058 0514 DF90      		pop	r13						
+ 1059 0516 CF90      		pop	r12						
+ 1060 0518 BF90      		pop	r11						
+ 1061 051a AF90      		pop	r10						
+ 1062 051c 9F90      		pop	r9						
+ 1063 051e 8F90      		pop	r8						
+ 1064 0520 7F90      		pop	r7						
+ 1065 0522 6F90      		pop	r6						
+ 1066 0524 5F90      		pop	r5						
+ 1067 0526 4F90      		pop	r4						
+ 1068 0528 3F90      		pop	r3						
+ 1069 052a 2F90      		pop	r2						
+ 1070 052c 1F90      		pop	r1						
+ 1071 052e 0F90      		pop	r0						
+ 1072 0530 0CBE      		out	0x3c, r0				
+ 1073 0532 0F90      		pop	r0						
+ 1074 0534 0BBE      		out	0x3b, r0				
+ 1075 0536 0F90      		pop	r0						
+ 1076 0538 0FBE      		out	__SREG__, r0			
+ 1077 053a 0F90      		pop	r0						
+ 1078               		
+ 1079               	 ;  0 "" 2
+ 581:../../FreeRTOS/Source/port.c **** 
+ 582:../../FreeRTOS/Source/port.c **** 	asm volatile ( "ret" );
+ 1081               	.LM108:
+ 1082               	 ;  582 "../../FreeRTOS/Source/port.c" 1
+ 1083 053c 0895      		ret
+ 1084               	 ;  0 "" 2
+ 1085               	/* epilogue start */
+ 583:../../FreeRTOS/Source/port.c **** }
+ 1087               	.LM109:
+ 1088               	/* #NOAPP */
+ 1090               	.Lscope5:
+ 1092               		.stabd	78,0,0
+ 1095               	prvSetupTimerInterrupt:
+ 1096               		.stabd	46,0,0
+ 584:../../FreeRTOS/Source/port.c **** /*-----------------------------------------------------------*/
+ 585:../../FreeRTOS/Source/port.c **** 
+ 586:../../FreeRTOS/Source/port.c **** /*
+ 587:../../FreeRTOS/Source/port.c ****  * Setup timer 0 or 3 or 1 compare match A to generate a tick interrupt.
+ 588:../../FreeRTOS/Source/port.c ****  */
+ 589:../../FreeRTOS/Source/port.c **** static void prvSetupTimerInterrupt( void )
+ 590:../../FreeRTOS/Source/port.c **** {
+ 1098               	.LM110:
+ 1099               	.LFBB6:
+ 1100 053e DF93      		push r29
+ 1101 0540 CF93      		push r28
+ 1102 0542 00D0      		rcall .
+ 1103 0544 00D0      		rcall .
+ 1104 0546 CDB7      		in r28,__SP_L__
+ 1105 0548 DEB7      		in r29,__SP_H__
+ 1106               	/* prologue: function */
+ 1107               	/* frame size = 6 */
+ 591:../../FreeRTOS/Source/port.c **** unsigned portLONG ulCompareMatch;
+ 592:../../FreeRTOS/Source/port.c **** #ifdef portOCRH
+ 593:../../FreeRTOS/Source/port.c **** unsigned portCHAR ucHighByte;
+ 594:../../FreeRTOS/Source/port.c **** #endif
+ 595:../../FreeRTOS/Source/port.c **** unsigned portCHAR ucLowByte;
+ 596:../../FreeRTOS/Source/port.c **** 
+ 597:../../FreeRTOS/Source/port.c ****     /* Using 8bit Timer0 or 16bit Timer1 or Timer3 to generate the tick. */
+ 598:../../FreeRTOS/Source/port.c **** 
+ 599:../../FreeRTOS/Source/port.c ****     // ulCompareMatch 40,000 = 20,000,000 / 500; 20MHz
+ 600:../../FreeRTOS/Source/port.c ****     // ulCompareMatch 110,592 = 22,118,400 / 200; 22.1184 MHz
+ 601:../../FreeRTOS/Source/port.c ****     ulCompareMatch = configCPU_CLOCK_HZ / configTICK_RATE_HZ;
+ 1109               	.LM111:
+ 1110 054a 80E0      		ldi r24,lo8(32000)
+ 1111 054c 9DE7      		ldi r25,hi8(32000)
+ 1112 054e A0E0      		ldi r26,hlo8(32000)
+ 1113 0550 B0E0      		ldi r27,hhi8(32000)
+ 1114 0552 8B83      		std Y+3,r24
+ 1115 0554 9C83      		std Y+4,r25
+ 1116 0556 AD83      		std Y+5,r26
+ 1117 0558 BE83      		std Y+6,r27
+ 602:../../FreeRTOS/Source/port.c **** 
+ 603:../../FreeRTOS/Source/port.c ****     /* We only have 8 or 16 bits so have to scale 64 or 256 to get our required tick rate. */
+ 604:../../FreeRTOS/Source/port.c ****     //ulCompareMatch = 625 /= portCLOCK_PRESCALER; 20MHz with 64 prescale
+ 605:../../FreeRTOS/Source/port.c ****     //ulCompareMatch = 108 /= portCLOCK_PRESCALER; 22.1184 MHz with 1024 prescale
+ 606:../../FreeRTOS/Source/port.c ****     ulCompareMatch /= portCLOCK_PRESCALER;
+ 1119               	.LM112:
+ 1120 055a 8B81      		ldd r24,Y+3
+ 1121 055c 9C81      		ldd r25,Y+4
+ 1122 055e AD81      		ldd r26,Y+5
+ 1123 0560 BE81      		ldd r27,Y+6
+ 1124 0562 6894      		set
+ 1125 0564 15F8      		bld __zero_reg__,6-1
+ 1126 0566 B695      	1:	lsr r27
+ 1127 0568 A795      		ror r26
+ 1128 056a 9795      		ror r25
+ 1129 056c 8795      		ror r24
+ 1130 056e 1694      		lsr __zero_reg__
+ 1131 0570 01F4      		brne 1b
+ 1132 0572 8B83      		std Y+3,r24
+ 1133 0574 9C83      		std Y+4,r25
+ 1134 0576 AD83      		std Y+5,r26
+ 1135 0578 BE83      		std Y+6,r27
+ 607:../../FreeRTOS/Source/port.c **** 
+ 608:../../FreeRTOS/Source/port.c ****     /* Adjust for correct value. */
+ 609:../../FreeRTOS/Source/port.c ****     ulCompareMatch -= ( unsigned portLONG ) 1;
+ 1137               	.LM113:
+ 1138 057a 8B81      		ldd r24,Y+3
+ 1139 057c 9C81      		ldd r25,Y+4
+ 1140 057e AD81      		ldd r26,Y+5
+ 1141 0580 BE81      		ldd r27,Y+6
+ 1142 0582 0197      		sbiw r24,1
+ 1143 0584 A109      		sbc r26,__zero_reg__
+ 1144 0586 B109      		sbc r27,__zero_reg__
+ 1145 0588 8B83      		std Y+3,r24
+ 1146 058a 9C83      		std Y+4,r25
+ 1147 058c AD83      		std Y+5,r26
+ 1148 058e BE83      		std Y+6,r27
+ 610:../../FreeRTOS/Source/port.c **** 
+ 611:../../FreeRTOS/Source/port.c ****     /* Setup compare match value for compare match A.  Interrupts are disabled
+ 612:../../FreeRTOS/Source/port.c ****     before this is called so we need not worry here. */
+ 613:../../FreeRTOS/Source/port.c ****     ucLowByte = ( unsigned portCHAR ) ( ulCompareMatch & ( unsigned portLONG ) 0xff );
+ 1150               	.LM114:
+ 1151 0590 8B81      		ldd r24,Y+3
+ 1152 0592 8983      		std Y+1,r24
+ 614:../../FreeRTOS/Source/port.c **** 
+ 615:../../FreeRTOS/Source/port.c ****     //  OCR3AH = ucHighByte;
+ 616:../../FreeRTOS/Source/port.c ****     //  OCR3AL = ucLowByte;
+ 617:../../FreeRTOS/Source/port.c **** 
+ 618:../../FreeRTOS/Source/port.c ****     // the HiByte is only needed, if a 16 Bit counter is being utilized
+ 619:../../FreeRTOS/Source/port.c **** #ifdef portOCRH
+ 620:../../FreeRTOS/Source/port.c **** 
+ 621:../../FreeRTOS/Source/port.c ****     ulCompareMatch >>= 8;
+ 1154               	.LM115:
+ 1155 0594 8B81      		ldd r24,Y+3
+ 1156 0596 9C81      		ldd r25,Y+4
+ 1157 0598 AD81      		ldd r26,Y+5
+ 1158 059a BE81      		ldd r27,Y+6
+ 1159 059c 892F      		mov r24,r25
+ 1160 059e 9A2F      		mov r25,r26
+ 1161 05a0 AB2F      		mov r26,r27
+ 1162 05a2 BB27      		clr r27
+ 1163 05a4 8B83      		std Y+3,r24
+ 1164 05a6 9C83      		std Y+4,r25
+ 1165 05a8 AD83      		std Y+5,r26
+ 1166 05aa BE83      		std Y+6,r27
+ 622:../../FreeRTOS/Source/port.c ****     ucHighByte = ( unsigned portCHAR ) ( ulCompareMatch & ( unsigned portLONG ) 0xff );
+ 1168               	.LM116:
+ 1169 05ac 8B81      		ldd r24,Y+3
+ 1170 05ae 8A83      		std Y+2,r24
+ 623:../../FreeRTOS/Source/port.c ****     portOCRH = ucHighByte;
+ 1172               	.LM117:
+ 1173 05b0 E9E9      		ldi r30,lo8(153)
+ 1174 05b2 F0E0      		ldi r31,hi8(153)
+ 1175 05b4 8A81      		ldd r24,Y+2
+ 1176 05b6 8083      		st Z,r24
+ 624:../../FreeRTOS/Source/port.c **** 
+ 625:../../FreeRTOS/Source/port.c **** #endif
+ 626:../../FreeRTOS/Source/port.c **** 
+ 627:../../FreeRTOS/Source/port.c ****     portOCRL = ucLowByte;
+ 1178               	.LM118:
+ 1179 05b8 E8E9      		ldi r30,lo8(152)
+ 1180 05ba F0E0      		ldi r31,hi8(152)
+ 1181 05bc 8981      		ldd r24,Y+1
+ 1182 05be 8083      		st Z,r24
+ 628:../../FreeRTOS/Source/port.c **** 
+ 629:../../FreeRTOS/Source/port.c **** #if defined( portUSE_TIMER0 )
+ 630:../../FreeRTOS/Source/port.c ****    /* Setup clock source and compare match behaviour. Assuming 328p (no Timer3) */
+ 631:../../FreeRTOS/Source/port.c ****    portTCCRa = portCLEAR_COUNTER_ON_MATCH;
+ 632:../../FreeRTOS/Source/port.c ****    portTCCRb = portPRESCALE_1024;
+ 633:../../FreeRTOS/Source/port.c **** 
+ 634:../../FreeRTOS/Source/port.c **** #elif defined( portUSE_TIMER1 )
+ 635:../../FreeRTOS/Source/port.c **** 	/* Setup clock source and compare match behaviour. Assuming 328p (with Timer1) */
+ 636:../../FreeRTOS/Source/port.c **** 	ucLowByte = portCLEAR_COUNTER_ON_MATCH | portPRESCALE_64;
+ 637:../../FreeRTOS/Source/port.c **** 	portTCCRb = ucLowByte;
+ 638:../../FreeRTOS/Source/port.c **** 
+ 639:../../FreeRTOS/Source/port.c **** #elif defined( portUSE_TIMER3 )
+ 640:../../FreeRTOS/Source/port.c **** 	/* Setup clock source and compare match behaviour. Assuming  640 / 1280 /1281 / 1284p / 2560 / 256
+ 641:../../FreeRTOS/Source/port.c **** 	ucLowByte = portCLEAR_COUNTER_ON_MATCH | portPRESCALE_64;
+ 1184               	.LM119:
+ 1185 05c0 8BE0      		ldi r24,lo8(11)
+ 1186 05c2 8983      		std Y+1,r24
+ 642:../../FreeRTOS/Source/port.c **** 	portTCCRb = ucLowByte;
+ 1188               	.LM120:
+ 1189 05c4 E1E9      		ldi r30,lo8(145)
+ 1190 05c6 F0E0      		ldi r31,hi8(145)
+ 1191 05c8 8981      		ldd r24,Y+1
+ 1192 05ca 8083      		st Z,r24
+ 643:../../FreeRTOS/Source/port.c **** #endif
+ 644:../../FreeRTOS/Source/port.c **** 
+ 645:../../FreeRTOS/Source/port.c ****     /* Enable the interrupt - this is okay as interrupt are currently globally
+ 646:../../FreeRTOS/Source/port.c **** 	disabled. */
+ 647:../../FreeRTOS/Source/port.c ****     ucLowByte = portTIMSK;
+ 1194               	.LM121:
+ 1195 05cc E1E7      		ldi r30,lo8(113)
+ 1196 05ce F0E0      		ldi r31,hi8(113)
+ 1197 05d0 8081      		ld r24,Z
+ 1198 05d2 8983      		std Y+1,r24
+ 648:../../FreeRTOS/Source/port.c ****     ucLowByte |= portCOMPARE_MATCH_A_INTERRUPT_ENABLE;
+ 1200               	.LM122:
+ 1201 05d4 8981      		ldd r24,Y+1
+ 1202 05d6 8260      		ori r24,lo8(2)
+ 1203 05d8 8983      		std Y+1,r24
+ 649:../../FreeRTOS/Source/port.c ****     portTIMSK = ucLowByte;
+ 1205               	.LM123:
+ 1206 05da E1E7      		ldi r30,lo8(113)
+ 1207 05dc F0E0      		ldi r31,hi8(113)
+ 1208 05de 8981      		ldd r24,Y+1
+ 1209 05e0 8083      		st Z,r24
+ 1210               	/* epilogue start */
+ 650:../../FreeRTOS/Source/port.c **** 
+ 651:../../FreeRTOS/Source/port.c **** }
+ 1212               	.LM124:
+ 1213 05e2 2696      		adiw r28,6
+ 1214 05e4 0FB6      		in __tmp_reg__,__SREG__
+ 1215 05e6 F894      		cli
+ 1216 05e8 DEBF      		out __SP_H__,r29
+ 1217 05ea 0FBE      		out __SREG__,__tmp_reg__
+ 1218 05ec CDBF      		out __SP_L__,r28
+ 1219 05ee CF91      		pop r28
+ 1220 05f0 DF91      		pop r29
+ 1221 05f2 0895      		ret
+ 1228               	.Lscope6:
+ 1230               		.stabd	78,0,0
+ 1232               	.global	__vector_32
+ 1234               	__vector_32:
+ 1235               		.stabd	46,0,0
+ 652:../../FreeRTOS/Source/port.c **** 
+ 653:../../FreeRTOS/Source/port.c **** /*-----------------------------------------------------------*/
+ 654:../../FreeRTOS/Source/port.c **** 
+ 655:../../FreeRTOS/Source/port.c **** #if configUSE_PREEMPTION == 1
+ 656:../../FreeRTOS/Source/port.c **** 
+ 657:../../FreeRTOS/Source/port.c **** 	/*
+ 658:../../FreeRTOS/Source/port.c **** 	 * Tick ISR for preemptive scheduler.  We can use a naked attribute as
+ 659:../../FreeRTOS/Source/port.c **** 	 * the context is saved at the start of vPortYieldFromTick().  The tick
+ 660:../../FreeRTOS/Source/port.c **** 	 * count is incremented after the context is saved.
+ 661:../../FreeRTOS/Source/port.c **** 	 */
+ 662:../../FreeRTOS/Source/port.c **** 	#if defined( portUSE_TIMER0 )
+ 663:../../FreeRTOS/Source/port.c **** 		#warning "Timer0 used for PRE-EMPTIVE scheduler."
+ 664:../../FreeRTOS/Source/port.c **** 		ISR(TIMER0_COMPA_vect, ISR_NAKED)
+ 665:../../FreeRTOS/Source/port.c **** 		{
+ 666:../../FreeRTOS/Source/port.c **** 			vPortYieldFromTick();
+ 667:../../FreeRTOS/Source/port.c **** 			asm volatile ( "reti" );
+ 668:../../FreeRTOS/Source/port.c **** 		}
+ 669:../../FreeRTOS/Source/port.c **** 
+ 670:../../FreeRTOS/Source/port.c **** 	#elif defined( portUSE_TIMER1 )
+ 671:../../FreeRTOS/Source/port.c **** 		#warning "Timer1 used for PRE-EMPTIVE scheduler."
+ 672:../../FreeRTOS/Source/port.c **** 		ISR(TIMER1_COMPA_vect, ISR_NAKED)
+ 673:../../FreeRTOS/Source/port.c **** 		{
+ 674:../../FreeRTOS/Source/port.c **** 			vPortYieldFromTick();
+ 675:../../FreeRTOS/Source/port.c **** 			asm volatile ( "reti" );
+ 676:../../FreeRTOS/Source/port.c **** 		}
+ 677:../../FreeRTOS/Source/port.c **** 
+ 678:../../FreeRTOS/Source/port.c **** 	#elif defined( portUSE_TIMER3 )
+ 679:../../FreeRTOS/Source/port.c **** 		#warning "Timer3 used for PRE-EMPTIVE scheduler."
+ 680:../../FreeRTOS/Source/port.c **** 		ISR(TIMER3_COMPA_vect, ISR_NAKED)
+ 681:../../FreeRTOS/Source/port.c **** 		{
+ 1237               	.LM125:
+ 1238               	.LFBB7:
+ 1239               	/* prologue: naked */
+ 1240               	/* frame size = 0 */
+ 682:../../FreeRTOS/Source/port.c **** 			vPortYieldFromTick();
+ 1242               	.LM126:
+ 1243 05f4 0E94 0000 		call vPortYieldFromTick
+ 683:../../FreeRTOS/Source/port.c **** 			asm volatile ( "reti" );
+ 1245               	.LM127:
+ 1246               	/* #APP */
+ 1247               	 ;  683 "../../FreeRTOS/Source/port.c" 1
+ 1248 05f8 1895      		reti
+ 1249               	 ;  0 "" 2
+ 1250               	/* epilogue start */
+ 684:../../FreeRTOS/Source/port.c **** 		}
+ 1252               	.LM128:
+ 1253               	/* #NOAPP */
+ 1255               	.Lscope7:
+ 1257               		.stabd	78,0,0
+ 1259               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 port.c
+     /tmp/cckeEizQ.s:2      *ABS*:0000003f __SREG__
+     /tmp/cckeEizQ.s:3      *ABS*:0000003e __SP_H__
+     /tmp/cckeEizQ.s:4      *ABS*:0000003d __SP_L__
+     /tmp/cckeEizQ.s:5      *ABS*:00000034 __CCP__
+     /tmp/cckeEizQ.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/cckeEizQ.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/cckeEizQ.s:120    .text:00000000 pxPortInitialiseStack
+     /tmp/cckeEizQ.s:725    .text:00000336 xPortStartScheduler
+     /tmp/cckeEizQ.s:1095   .text:0000053e prvSetupTimerInterrupt
+     /tmp/cckeEizQ.s:811    .text:000003a8 vPortEndScheduler
+     /tmp/cckeEizQ.s:835    .text:000003b6 vPortYield
+     /tmp/cckeEizQ.s:964    .text:00000478 vPortYieldFromTick
+     /tmp/cckeEizQ.s:1234   .text:000005f4 __vector_32
+
+UNDEFINED SYMBOLS
+pxCurrentTCB
+vTaskSwitchContext
+vTaskIncrementTick

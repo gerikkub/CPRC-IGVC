@@ -1,0 +1,866 @@
+   1               		.file	"protocol.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  10               		.text
+  11               	.Ltext0:
+  36               	.global	commandIntegCheck
+  38               	commandIntegCheck:
+  39               		.stabd	46,0,0
+   1:protocol.c    **** /**
+   2:protocol.c    ****  * Skeleton of command recieve and response
+   3:protocol.c    ****  *
+   4:protocol.c    ****  * @author Louie Thiros
+   5:protocol.c    ****  */
+   6:protocol.c    **** 
+   7:protocol.c    **** #include "protocol.h"
+   8:protocol.c    **** #include "Components/Sonar/Sonar.h"
+   9:protocol.c    **** 
+  10:protocol.c    **** 
+  11:protocol.c    **** //function to CRC the command structure
+  12:protocol.c    **** char commandIntegCheck(Command *command) {
+  41               	.LM0:
+  42               	.LFBB1:
+  43 0000 DF93      		push r29
+  44 0002 CF93      		push r28
+  45 0004 0F92      		push __tmp_reg__
+  46 0006 0F92      		push __tmp_reg__
+  47 0008 CDB7      		in r28,__SP_L__
+  48 000a DEB7      		in r29,__SP_H__
+  49               	/* prologue: function */
+  50               	/* frame size = 2 */
+  51 000c 9A83      		std Y+2,r25
+  52 000e 8983      		std Y+1,r24
+  13:protocol.c    ****    //CRC the command with 0x00 in place of the CRC
+  14:protocol.c    ****    //return success for now
+  15:protocol.c    ****    return 1;
+  54               	.LM1:
+  55 0010 81E0      		ldi r24,lo8(1)
+  56               	/* epilogue start */
+  16:protocol.c    **** }
+  58               	.LM2:
+  59 0012 0F90      		pop __tmp_reg__
+  60 0014 0F90      		pop __tmp_reg__
+  61 0016 CF91      		pop r28
+  62 0018 DF91      		pop r29
+  63 001a 0895      		ret
+  65               	.Lscope1:
+  67               		.stabd	78,0,0
+  73               	.global	processUltrasonicCommand
+  75               	processUltrasonicCommand:
+  76               		.stabd	46,0,0
+  17:protocol.c    **** 
+  18:protocol.c    **** char processUltrasonicCommand(char commandCode, void* commandData,char* size, void* responseData) {
+  78               	.LM3:
+  79               	.LFBB2:
+  80 001c DF93      		push r29
+  81 001e CF93      		push r28
+  82 0020 CDB7      		in r28,__SP_L__
+  83 0022 DEB7      		in r29,__SP_H__
+  84 0024 2997      		sbiw r28,9
+  85 0026 0FB6      		in __tmp_reg__,__SREG__
+  86 0028 F894      		cli
+  87 002a DEBF      		out __SP_H__,r29
+  88 002c 0FBE      		out __SREG__,__tmp_reg__
+  89 002e CDBF      		out __SP_L__,r28
+  90               	/* prologue: function */
+  91               	/* frame size = 9 */
+  92 0030 8983      		std Y+1,r24
+  93 0032 7B83      		std Y+3,r23
+  94 0034 6A83      		std Y+2,r22
+  95 0036 5D83      		std Y+5,r21
+  96 0038 4C83      		std Y+4,r20
+  97 003a 3F83      		std Y+7,r19
+  98 003c 2E83      		std Y+6,r18
+  19:protocol.c    ****    switch(commandCode) {
+ 100               	.LM4:
+ 101 003e 8981      		ldd r24,Y+1
+ 102 0040 282F      		mov r18,r24
+ 103 0042 3327      		clr r19
+ 104 0044 27FD      		sbrc r18,7
+ 105 0046 3095      		com r19
+ 106 0048 3987      		std Y+9,r19
+ 107 004a 2887      		std Y+8,r18
+ 108 004c 8885      		ldd r24,Y+8
+ 109 004e 9985      		ldd r25,Y+9
+ 110 0050 8230      		cpi r24,2
+ 111 0052 9105      		cpc r25,__zero_reg__
+ 112 0054 01F0      		breq .L6
+ 113 0056 2885      		ldd r18,Y+8
+ 114 0058 3985      		ldd r19,Y+9
+ 115 005a 2330      		cpi r18,3
+ 116 005c 3105      		cpc r19,__zero_reg__
+ 117 005e 01F0      		breq .L7
+ 118 0060 8885      		ldd r24,Y+8
+ 119 0062 9985      		ldd r25,Y+9
+ 120 0064 8130      		cpi r24,1
+ 121 0066 9105      		cpc r25,__zero_reg__
+ 122 0068 01F4      		brne .L4
+ 123               	.L5:
+  20:protocol.c    ****       case GET_ALL_SENSORS:
+  21:protocol.c    ****          getAllSensors((int*) responseData);
+ 125               	.LM5:
+ 126 006a 8E81      		ldd r24,Y+6
+ 127 006c 9F81      		ldd r25,Y+7
+ 128 006e 0E94 0000 		call getAllSensors
+  22:protocol.c    ****          *size = 6;
+ 130               	.LM6:
+ 131 0072 EC81      		ldd r30,Y+4
+ 132 0074 FD81      		ldd r31,Y+5
+ 133 0076 86E0      		ldi r24,lo8(6)
+ 134 0078 8083      		st Z,r24
+ 135 007a 00C0      		rjmp .L4
+ 136               	.L6:
+  23:protocol.c    ****          break;
+  24:protocol.c    ****       case GET_CERTAIN_SENSORS:
+  25:protocol.c    ****          getCertainSensor(((char*)commandData)[0], (int*) responseData);
+ 138               	.LM7:
+ 139 007c EA81      		ldd r30,Y+2
+ 140 007e FB81      		ldd r31,Y+3
+ 141 0080 8081      		ld r24,Z
+ 142 0082 2E81      		ldd r18,Y+6
+ 143 0084 3F81      		ldd r19,Y+7
+ 144 0086 B901      		movw r22,r18
+ 145 0088 0E94 0000 		call getCertainSensor
+ 146 008c 00C0      		rjmp .L4
+ 147               	.L7:
+  26:protocol.c    ****          break;
+  27:protocol.c    ****       case GET_SENSOR_GROUP:
+  28:protocol.c    ****          getSensorGroup(((char*)commandData)[0], (int*) responseData);
+ 149               	.LM8:
+ 150 008e EA81      		ldd r30,Y+2
+ 151 0090 FB81      		ldd r31,Y+3
+ 152 0092 8081      		ld r24,Z
+ 153 0094 2E81      		ldd r18,Y+6
+ 154 0096 3F81      		ldd r19,Y+7
+ 155 0098 B901      		movw r22,r18
+ 156 009a 0E94 0000 		call getSensorGroup
+ 157               	.L4:
+  29:protocol.c    ****          break;
+  30:protocol.c    ****    }
+  31:protocol.c    ****    //return success for now...
+  32:protocol.c    ****    return 1;
+ 159               	.LM9:
+ 160 009e 81E0      		ldi r24,lo8(1)
+ 161               	/* epilogue start */
+  33:protocol.c    **** }
+ 163               	.LM10:
+ 164 00a0 2996      		adiw r28,9
+ 165 00a2 0FB6      		in __tmp_reg__,__SREG__
+ 166 00a4 F894      		cli
+ 167 00a6 DEBF      		out __SP_H__,r29
+ 168 00a8 0FBE      		out __SREG__,__tmp_reg__
+ 169 00aa CDBF      		out __SP_L__,r28
+ 170 00ac CF91      		pop r28
+ 171 00ae DF91      		pop r29
+ 172 00b0 0895      		ret
+ 174               	.Lscope2:
+ 176               		.stabd	78,0,0
+ 181               	.global	processSpeedCommand
+ 183               	processSpeedCommand:
+ 184               		.stabd	46,0,0
+  34:protocol.c    **** 
+  35:protocol.c    **** char processSpeedCommand(char commandCode, void* commandData, void* responseData) {
+ 186               	.LM11:
+ 187               	.LFBB3:
+ 188 00b2 DF93      		push r29
+ 189 00b4 CF93      		push r28
+ 190 00b6 CDB7      		in r28,__SP_L__
+ 191 00b8 DEB7      		in r29,__SP_H__
+ 192 00ba 2797      		sbiw r28,7
+ 193 00bc 0FB6      		in __tmp_reg__,__SREG__
+ 194 00be F894      		cli
+ 195 00c0 DEBF      		out __SP_H__,r29
+ 196 00c2 0FBE      		out __SREG__,__tmp_reg__
+ 197 00c4 CDBF      		out __SP_L__,r28
+ 198               	/* prologue: function */
+ 199               	/* frame size = 7 */
+ 200 00c6 8983      		std Y+1,r24
+ 201 00c8 7B83      		std Y+3,r23
+ 202 00ca 6A83      		std Y+2,r22
+ 203 00cc 5D83      		std Y+5,r21
+ 204 00ce 4C83      		std Y+4,r20
+  36:protocol.c    ****    switch(commandCode) {
+ 206               	.LM12:
+ 207 00d0 8981      		ldd r24,Y+1
+ 208 00d2 282F      		mov r18,r24
+ 209 00d4 3327      		clr r19
+ 210 00d6 27FD      		sbrc r18,7
+ 211 00d8 3095      		com r19
+ 212 00da 3F83      		std Y+7,r19
+ 213 00dc 2E83      		std Y+6,r18
+ 214 00de 8E81      		ldd r24,Y+6
+ 215 00e0 9F81      		ldd r25,Y+7
+ 216 00e2 0097      		sbiw r24,0
+ 217 00e4 01F0      		breq .L11
+ 218 00e6 2E81      		ldd r18,Y+6
+ 219 00e8 3F81      		ldd r19,Y+7
+ 220 00ea 2130      		cpi r18,1
+ 221 00ec 3105      		cpc r19,__zero_reg__
+ 222 00ee 01F0      		breq .L12
+ 223 00f0 00C0      		rjmp .L10
+ 224               	.L11:
+  37:protocol.c    ****       case GET_SPEED:
+  38:protocol.c    ****          getSpeed((char*) responseData);
+ 226               	.LM13:
+ 227 00f2 8C81      		ldd r24,Y+4
+ 228 00f4 9D81      		ldd r25,Y+5
+ 229 00f6 0E94 0000 		call getSpeed
+ 230 00fa 00C0      		rjmp .L10
+ 231               	.L12:
+  39:protocol.c    ****          break;
+  40:protocol.c    ****       case SET_SPEED:
+  41:protocol.c    ****          setSpeed(((char*)commandData)[0]);
+ 233               	.LM14:
+ 234 00fc EA81      		ldd r30,Y+2
+ 235 00fe FB81      		ldd r31,Y+3
+ 236 0100 8081      		ld r24,Z
+ 237 0102 9927      		clr r25
+ 238 0104 87FD      		sbrc r24,7
+ 239 0106 9095      		com r25
+ 240 0108 0E94 0000 		call setSpeed
+ 241               	.L10:
+  42:protocol.c    ****          break;
+  43:protocol.c    ****    }
+  44:protocol.c    ****    //return success for now
+  45:protocol.c    ****    return 1;
+ 243               	.LM15:
+ 244 010c 81E0      		ldi r24,lo8(1)
+ 245               	/* epilogue start */
+  46:protocol.c    **** }
+ 247               	.LM16:
+ 248 010e 2796      		adiw r28,7
+ 249 0110 0FB6      		in __tmp_reg__,__SREG__
+ 250 0112 F894      		cli
+ 251 0114 DEBF      		out __SP_H__,r29
+ 252 0116 0FBE      		out __SREG__,__tmp_reg__
+ 253 0118 CDBF      		out __SP_L__,r28
+ 254 011a CF91      		pop r28
+ 255 011c DF91      		pop r29
+ 256 011e 0895      		ret
+ 258               	.Lscope3:
+ 260               		.stabd	78,0,0
+ 265               	.global	processSteeringCommand
+ 267               	processSteeringCommand:
+ 268               		.stabd	46,0,0
+  47:protocol.c    **** 
+  48:protocol.c    **** char processSteeringCommand(char commandCode, void* commandData, void* responseData) {
+ 270               	.LM17:
+ 271               	.LFBB4:
+ 272 0120 DF93      		push r29
+ 273 0122 CF93      		push r28
+ 274 0124 CDB7      		in r28,__SP_L__
+ 275 0126 DEB7      		in r29,__SP_H__
+ 276 0128 2797      		sbiw r28,7
+ 277 012a 0FB6      		in __tmp_reg__,__SREG__
+ 278 012c F894      		cli
+ 279 012e DEBF      		out __SP_H__,r29
+ 280 0130 0FBE      		out __SREG__,__tmp_reg__
+ 281 0132 CDBF      		out __SP_L__,r28
+ 282               	/* prologue: function */
+ 283               	/* frame size = 7 */
+ 284 0134 8983      		std Y+1,r24
+ 285 0136 7B83      		std Y+3,r23
+ 286 0138 6A83      		std Y+2,r22
+ 287 013a 5D83      		std Y+5,r21
+ 288 013c 4C83      		std Y+4,r20
+  49:protocol.c    ****    switch(commandCode) {
+ 290               	.LM18:
+ 291 013e 8981      		ldd r24,Y+1
+ 292 0140 282F      		mov r18,r24
+ 293 0142 3327      		clr r19
+ 294 0144 27FD      		sbrc r18,7
+ 295 0146 3095      		com r19
+ 296 0148 3F83      		std Y+7,r19
+ 297 014a 2E83      		std Y+6,r18
+ 298 014c 8E81      		ldd r24,Y+6
+ 299 014e 9F81      		ldd r25,Y+7
+ 300 0150 8230      		cpi r24,2
+ 301 0152 9105      		cpc r25,__zero_reg__
+ 302 0154 01F0      		breq .L18
+ 303 0156 2E81      		ldd r18,Y+6
+ 304 0158 3F81      		ldd r19,Y+7
+ 305 015a 2330      		cpi r18,3
+ 306 015c 3105      		cpc r19,__zero_reg__
+ 307 015e 04F4      		brge .L21
+ 308 0160 8E81      		ldd r24,Y+6
+ 309 0162 9F81      		ldd r25,Y+7
+ 310 0164 0097      		sbiw r24,0
+ 311 0166 01F0      		breq .L16
+ 312 0168 2E81      		ldd r18,Y+6
+ 313 016a 3F81      		ldd r19,Y+7
+ 314 016c 2130      		cpi r18,1
+ 315 016e 3105      		cpc r19,__zero_reg__
+ 316 0170 01F0      		breq .L17
+ 317 0172 00C0      		rjmp .L15
+ 318               	.L21:
+ 319 0174 8E81      		ldd r24,Y+6
+ 320 0176 9F81      		ldd r25,Y+7
+ 321 0178 8330      		cpi r24,3
+ 322 017a 9105      		cpc r25,__zero_reg__
+ 323 017c 01F0      		breq .L19
+ 324 017e 2E81      		ldd r18,Y+6
+ 325 0180 3F81      		ldd r19,Y+7
+ 326 0182 2430      		cpi r18,4
+ 327 0184 3105      		cpc r19,__zero_reg__
+ 328 0186 01F0      		breq .L20
+ 329 0188 00C0      		rjmp .L15
+ 330               	.L16:
+  50:protocol.c    ****       case SET_ANGLE:
+  51:protocol.c    ****          setAngle(*((char*)commandData));
+ 332               	.LM19:
+ 333 018a EA81      		ldd r30,Y+2
+ 334 018c FB81      		ldd r31,Y+3
+ 335 018e 8081      		ld r24,Z
+ 336 0190 9927      		clr r25
+ 337 0192 87FD      		sbrc r24,7
+ 338 0194 9095      		com r25
+ 339 0196 0E94 0000 		call setAngle
+ 340 019a 00C0      		rjmp .L15
+ 341               	.L17:
+  52:protocol.c    ****          break;
+  53:protocol.c    ****       case GET_ANGLE:
+  54:protocol.c    ****          getAngle((char*) responseData);
+ 343               	.LM20:
+ 344 019c 8C81      		ldd r24,Y+4
+ 345 019e 9D81      		ldd r25,Y+5
+ 346 01a0 0E94 0000 		call getAngle
+ 347 01a4 00C0      		rjmp .L15
+ 348               	.L18:
+  55:protocol.c    ****          break;
+  56:protocol.c    ****       case GET_DESIRED_ANGLE:
+  57:protocol.c    ****          getDesiredAngle((char*) responseData);
+ 350               	.LM21:
+ 351 01a6 8C81      		ldd r24,Y+4
+ 352 01a8 9D81      		ldd r25,Y+5
+ 353 01aa 0E94 0000 		call getDesiredAngle
+ 354 01ae 00C0      		rjmp .L15
+ 355               	.L19:
+  58:protocol.c    ****          break;
+  59:protocol.c    ****       case CHANGE_PID:
+  60:protocol.c    ****          changePID(((char*)commandData)[0], ((char*)commandData)[1], ((char*)commandData)[2]);
+ 357               	.LM22:
+ 358 01b0 EA81      		ldd r30,Y+2
+ 359 01b2 FB81      		ldd r31,Y+3
+ 360 01b4 8081      		ld r24,Z
+ 361 01b6 682F      		mov r22,r24
+ 362 01b8 7727      		clr r23
+ 363 01ba 67FD      		sbrc r22,7
+ 364 01bc 7095      		com r23
+ 365 01be 8A81      		ldd r24,Y+2
+ 366 01c0 9B81      		ldd r25,Y+3
+ 367 01c2 FC01      		movw r30,r24
+ 368 01c4 3196      		adiw r30,1
+ 369 01c6 8081      		ld r24,Z
+ 370 01c8 482F      		mov r20,r24
+ 371 01ca 5527      		clr r21
+ 372 01cc 47FD      		sbrc r20,7
+ 373 01ce 5095      		com r21
+ 374 01d0 8A81      		ldd r24,Y+2
+ 375 01d2 9B81      		ldd r25,Y+3
+ 376 01d4 FC01      		movw r30,r24
+ 377 01d6 3296      		adiw r30,2
+ 378 01d8 8081      		ld r24,Z
+ 379 01da 282F      		mov r18,r24
+ 380 01dc 3327      		clr r19
+ 381 01de 27FD      		sbrc r18,7
+ 382 01e0 3095      		com r19
+ 383 01e2 CB01      		movw r24,r22
+ 384 01e4 BA01      		movw r22,r20
+ 385 01e6 A901      		movw r20,r18
+ 386 01e8 0E94 0000 		call changePID
+ 387 01ec 00C0      		rjmp .L15
+ 388               	.L20:
+  61:protocol.c    ****          break;
+  62:protocol.c    ****       case SET_LIMITS:
+  63:protocol.c    ****          setLimits(((char*)commandData)[0], ((char*)commandData)[1]);
+ 390               	.LM23:
+ 391 01ee EA81      		ldd r30,Y+2
+ 392 01f0 FB81      		ldd r31,Y+3
+ 393 01f2 8081      		ld r24,Z
+ 394 01f4 482F      		mov r20,r24
+ 395 01f6 5527      		clr r21
+ 396 01f8 47FD      		sbrc r20,7
+ 397 01fa 5095      		com r21
+ 398 01fc 8A81      		ldd r24,Y+2
+ 399 01fe 9B81      		ldd r25,Y+3
+ 400 0200 FC01      		movw r30,r24
+ 401 0202 3196      		adiw r30,1
+ 402 0204 8081      		ld r24,Z
+ 403 0206 282F      		mov r18,r24
+ 404 0208 3327      		clr r19
+ 405 020a 27FD      		sbrc r18,7
+ 406 020c 3095      		com r19
+ 407 020e CA01      		movw r24,r20
+ 408 0210 B901      		movw r22,r18
+ 409 0212 0E94 0000 		call setLimits
+ 410               	.L15:
+  64:protocol.c    ****          break;
+  65:protocol.c    ****    }
+  66:protocol.c    ****    //return success for now
+  67:protocol.c    ****    return 1;
+ 412               	.LM24:
+ 413 0216 81E0      		ldi r24,lo8(1)
+ 414               	/* epilogue start */
+  68:protocol.c    **** }
+ 416               	.LM25:
+ 417 0218 2796      		adiw r28,7
+ 418 021a 0FB6      		in __tmp_reg__,__SREG__
+ 419 021c F894      		cli
+ 420 021e DEBF      		out __SP_H__,r29
+ 421 0220 0FBE      		out __SREG__,__tmp_reg__
+ 422 0222 CDBF      		out __SP_L__,r28
+ 423 0224 CF91      		pop r28
+ 424 0226 DF91      		pop r29
+ 425 0228 0895      		ret
+ 427               	.Lscope4:
+ 429               		.stabd	78,0,0
+ 434               	.global	processFNRCommand
+ 436               	processFNRCommand:
+ 437               		.stabd	46,0,0
+  69:protocol.c    **** 
+  70:protocol.c    **** char processFNRCommand(char commandCode, void* commandData, void* responseData) {
+ 439               	.LM26:
+ 440               	.LFBB5:
+ 441 022a DF93      		push r29
+ 442 022c CF93      		push r28
+ 443 022e CDB7      		in r28,__SP_L__
+ 444 0230 DEB7      		in r29,__SP_H__
+ 445 0232 2897      		sbiw r28,8
+ 446 0234 0FB6      		in __tmp_reg__,__SREG__
+ 447 0236 F894      		cli
+ 448 0238 DEBF      		out __SP_H__,r29
+ 449 023a 0FBE      		out __SREG__,__tmp_reg__
+ 450 023c CDBF      		out __SP_L__,r28
+ 451               	/* prologue: function */
+ 452               	/* frame size = 8 */
+ 453 023e 8983      		std Y+1,r24
+ 454 0240 7B83      		std Y+3,r23
+ 455 0242 6A83      		std Y+2,r22
+ 456 0244 5D83      		std Y+5,r21
+ 457 0246 4C83      		std Y+4,r20
+  71:protocol.c    ****    switch(commandCode) {
+ 459               	.LM27:
+ 460 0248 8981      		ldd r24,Y+1
+ 461 024a 282F      		mov r18,r24
+ 462 024c 3327      		clr r19
+ 463 024e 27FD      		sbrc r18,7
+ 464 0250 3095      		com r19
+ 465 0252 3F83      		std Y+7,r19
+ 466 0254 2E83      		std Y+6,r18
+ 467 0256 8E81      		ldd r24,Y+6
+ 468 0258 9F81      		ldd r25,Y+7
+ 469 025a 0097      		sbiw r24,0
+ 470 025c 01F0      		breq .L25
+ 471 025e 2E81      		ldd r18,Y+6
+ 472 0260 3F81      		ldd r19,Y+7
+ 473 0262 2130      		cpi r18,1
+ 474 0264 3105      		cpc r19,__zero_reg__
+ 475 0266 01F0      		breq .L26
+ 476 0268 00C0      		rjmp .L28
+ 477               	.L25:
+  72:protocol.c    ****       case SET_FNR:
+  73:protocol.c    ****          setFNR(*((char*)commandData));
+ 479               	.LM28:
+ 480 026a EA81      		ldd r30,Y+2
+ 481 026c FB81      		ldd r31,Y+3
+ 482 026e 8081      		ld r24,Z
+ 483 0270 9927      		clr r25
+ 484 0272 87FD      		sbrc r24,7
+ 485 0274 9095      		com r25
+ 486 0276 0E94 0000 		call setFNR
+ 487 027a 00C0      		rjmp .L28
+ 488               	.L26:
+  74:protocol.c    ****          break;
+  75:protocol.c    ****       case GET_FNR:
+  76:protocol.c    ****          getFNR((char*) responseData);
+ 490               	.LM29:
+ 491 027c 8C81      		ldd r24,Y+4
+ 492 027e 9D81      		ldd r25,Y+5
+ 493 0280 0E94 0000 		call getFNR
+ 494               	.L28:
+ 495               	/* epilogue start */
+  77:protocol.c    ****          break;
+  78:protocol.c    ****    }
+  79:protocol.c    **** }
+ 497               	.LM30:
+ 498 0284 2896      		adiw r28,8
+ 499 0286 0FB6      		in __tmp_reg__,__SREG__
+ 500 0288 F894      		cli
+ 501 028a DEBF      		out __SP_H__,r29
+ 502 028c 0FBE      		out __SREG__,__tmp_reg__
+ 503 028e CDBF      		out __SP_L__,r28
+ 504 0290 CF91      		pop r28
+ 505 0292 DF91      		pop r29
+ 506 0294 0895      		ret
+ 508               	.Lscope5:
+ 510               		.stabd	78,0,0
+ 515               	.global	processBrakeCommand
+ 517               	processBrakeCommand:
+ 518               		.stabd	46,0,0
+  80:protocol.c    **** 
+  81:protocol.c    **** char processBrakeCommand(char commandCode, void* commandData, void* responseData) {
+ 520               	.LM31:
+ 521               	.LFBB6:
+ 522 0296 DF93      		push r29
+ 523 0298 CF93      		push r28
+ 524 029a CDB7      		in r28,__SP_L__
+ 525 029c DEB7      		in r29,__SP_H__
+ 526 029e 2897      		sbiw r28,8
+ 527 02a0 0FB6      		in __tmp_reg__,__SREG__
+ 528 02a2 F894      		cli
+ 529 02a4 DEBF      		out __SP_H__,r29
+ 530 02a6 0FBE      		out __SREG__,__tmp_reg__
+ 531 02a8 CDBF      		out __SP_L__,r28
+ 532               	/* prologue: function */
+ 533               	/* frame size = 8 */
+ 534 02aa 8983      		std Y+1,r24
+ 535 02ac 7B83      		std Y+3,r23
+ 536 02ae 6A83      		std Y+2,r22
+ 537 02b0 5D83      		std Y+5,r21
+ 538 02b2 4C83      		std Y+4,r20
+  82:protocol.c    ****    switch(commandCode) {
+ 540               	.LM32:
+ 541 02b4 8981      		ldd r24,Y+1
+ 542 02b6 282F      		mov r18,r24
+ 543 02b8 3327      		clr r19
+ 544 02ba 27FD      		sbrc r18,7
+ 545 02bc 3095      		com r19
+ 546 02be 3F83      		std Y+7,r19
+ 547 02c0 2E83      		std Y+6,r18
+ 548 02c2 8E81      		ldd r24,Y+6
+ 549 02c4 9F81      		ldd r25,Y+7
+ 550 02c6 0097      		sbiw r24,0
+ 551 02c8 01F0      		breq .L31
+ 552 02ca 2E81      		ldd r18,Y+6
+ 553 02cc 3F81      		ldd r19,Y+7
+ 554 02ce 2130      		cpi r18,1
+ 555 02d0 3105      		cpc r19,__zero_reg__
+ 556 02d2 01F0      		breq .L32
+ 557 02d4 00C0      		rjmp .L34
+ 558               	.L31:
+  83:protocol.c    ****       case SET_BRAKE:
+  84:protocol.c    **** 	 setBrake(*((char*)commandData));
+ 560               	.LM33:
+ 561 02d6 EA81      		ldd r30,Y+2
+ 562 02d8 FB81      		ldd r31,Y+3
+ 563 02da 8081      		ld r24,Z
+ 564 02dc 9927      		clr r25
+ 565 02de 87FD      		sbrc r24,7
+ 566 02e0 9095      		com r25
+ 567 02e2 0E94 0000 		call setBrake
+ 568 02e6 00C0      		rjmp .L34
+ 569               	.L32:
+  85:protocol.c    **** 	 break;
+  86:protocol.c    ****       case GET_BRAKE:
+  87:protocol.c    **** 	 getBrake((char*) responseData);
+ 571               	.LM34:
+ 572 02e8 8C81      		ldd r24,Y+4
+ 573 02ea 9D81      		ldd r25,Y+5
+ 574 02ec 0E94 0000 		call getBrake
+ 575               	.L34:
+ 576               	/* epilogue start */
+  88:protocol.c    **** 	 break; 
+  89:protocol.c    ****    }
+  90:protocol.c    **** }
+ 578               	.LM35:
+ 579 02f0 2896      		adiw r28,8
+ 580 02f2 0FB6      		in __tmp_reg__,__SREG__
+ 581 02f4 F894      		cli
+ 582 02f6 DEBF      		out __SP_H__,r29
+ 583 02f8 0FBE      		out __SREG__,__tmp_reg__
+ 584 02fa CDBF      		out __SP_L__,r28
+ 585 02fc CF91      		pop r28
+ 586 02fe DF91      		pop r29
+ 587 0300 0895      		ret
+ 589               	.Lscope6:
+ 591               		.stabd	78,0,0
+ 596               	.global	processBatteryCommand
+ 598               	processBatteryCommand:
+ 599               		.stabd	46,0,0
+  91:protocol.c    **** 
+  92:protocol.c    **** char processBatteryCommand(char commandCode, void* commandData, void* responseData) {
+ 601               	.LM36:
+ 602               	.LFBB7:
+ 603 0302 DF93      		push r29
+ 604 0304 CF93      		push r28
+ 605 0306 CDB7      		in r28,__SP_L__
+ 606 0308 DEB7      		in r29,__SP_H__
+ 607 030a 2897      		sbiw r28,8
+ 608 030c 0FB6      		in __tmp_reg__,__SREG__
+ 609 030e F894      		cli
+ 610 0310 DEBF      		out __SP_H__,r29
+ 611 0312 0FBE      		out __SREG__,__tmp_reg__
+ 612 0314 CDBF      		out __SP_L__,r28
+ 613               	/* prologue: function */
+ 614               	/* frame size = 8 */
+ 615 0316 8983      		std Y+1,r24
+ 616 0318 7B83      		std Y+3,r23
+ 617 031a 6A83      		std Y+2,r22
+ 618 031c 5D83      		std Y+5,r21
+ 619 031e 4C83      		std Y+4,r20
+  93:protocol.c    ****    switch(commandCode) {
+ 621               	.LM37:
+ 622 0320 8981      		ldd r24,Y+1
+ 623 0322 282F      		mov r18,r24
+ 624 0324 3327      		clr r19
+ 625 0326 27FD      		sbrc r18,7
+ 626 0328 3095      		com r19
+ 627 032a 3F83      		std Y+7,r19
+ 628 032c 2E83      		std Y+6,r18
+ 629 032e 8E81      		ldd r24,Y+6
+ 630 0330 9F81      		ldd r25,Y+7
+ 631 0332 0097      		sbiw r24,0
+ 632 0334 01F0      		breq .L37
+ 633 0336 2E81      		ldd r18,Y+6
+ 634 0338 3F81      		ldd r19,Y+7
+ 635 033a 2130      		cpi r18,1
+ 636 033c 3105      		cpc r19,__zero_reg__
+ 637 033e 01F0      		breq .L38
+ 638 0340 00C0      		rjmp .L40
+ 639               	.L37:
+  94:protocol.c    ****       case GET_BATTERY_VOLTAGE:
+  95:protocol.c    ****          getBatteryVoltage((char*) responseData);
+ 641               	.LM38:
+ 642 0342 8C81      		ldd r24,Y+4
+ 643 0344 9D81      		ldd r25,Y+5
+ 644 0346 0E94 0000 		call getBatteryVoltage
+ 645 034a 00C0      		rjmp .L40
+ 646               	.L38:
+  96:protocol.c    ****          break;
+  97:protocol.c    ****       case GET_STEERING_VOLTAGE:
+  98:protocol.c    ****          getSteeringVoltage((char*) responseData);
+ 648               	.LM39:
+ 649 034c 8C81      		ldd r24,Y+4
+ 650 034e 9D81      		ldd r25,Y+5
+ 651 0350 0E94 0000 		call getSteeringVoltage
+ 652               	.L40:
+ 653               	/* epilogue start */
+  99:protocol.c    ****          break;
+ 100:protocol.c    ****    }
+ 101:protocol.c    **** }
+ 655               	.LM40:
+ 656 0354 2896      		adiw r28,8
+ 657 0356 0FB6      		in __tmp_reg__,__SREG__
+ 658 0358 F894      		cli
+ 659 035a DEBF      		out __SP_H__,r29
+ 660 035c 0FBE      		out __SREG__,__tmp_reg__
+ 661 035e CDBF      		out __SP_L__,r28
+ 662 0360 CF91      		pop r28
+ 663 0362 DF91      		pop r29
+ 664 0364 0895      		ret
+ 666               	.Lscope7:
+ 668               		.stabd	78,0,0
+ 673               	.global	processLightCommand
+ 675               	processLightCommand:
+ 676               		.stabd	46,0,0
+ 102:protocol.c    **** 
+ 103:protocol.c    **** char processLightCommand(char commandCode, void* commandData, void* responseDate) {
+ 678               	.LM41:
+ 679               	.LFBB8:
+ 680 0366 DF93      		push r29
+ 681 0368 CF93      		push r28
+ 682 036a 00D0      		rcall .
+ 683 036c 00D0      		rcall .
+ 684 036e CDB7      		in r28,__SP_L__
+ 685 0370 DEB7      		in r29,__SP_H__
+ 686               	/* prologue: function */
+ 687               	/* frame size = 6 */
+ 688 0372 8983      		std Y+1,r24
+ 689 0374 7B83      		std Y+3,r23
+ 690 0376 6A83      		std Y+2,r22
+ 691 0378 5D83      		std Y+5,r21
+ 692 037a 4C83      		std Y+4,r20
+ 104:protocol.c    ****    switch(commandCode) {
+ 694               	.LM42:
+ 695 037c 8981      		ldd r24,Y+1
+ 696 037e 9927      		clr r25
+ 697 0380 87FD      		sbrc r24,7
+ 698 0382 9095      		com r25
+ 699 0384 0097      		sbiw r24,0
+ 700 0386 01F4      		brne .L45
+ 701               	.L43:
+ 105:protocol.c    ****       case SET_LIGHT:
+ 106:protocol.c    **** 	 setLight(*((char*)commandData));
+ 703               	.LM43:
+ 704 0388 EA81      		ldd r30,Y+2
+ 705 038a FB81      		ldd r31,Y+3
+ 706 038c 8081      		ld r24,Z
+ 707 038e 9927      		clr r25
+ 708 0390 87FD      		sbrc r24,7
+ 709 0392 9095      		com r25
+ 710 0394 0E94 0000 		call setLight
+ 711               	.L45:
+ 712               	/* epilogue start */
+ 107:protocol.c    ****          break;
+ 108:protocol.c    ****    }
+ 109:protocol.c    **** }
+ 714               	.LM44:
+ 715 0398 2696      		adiw r28,6
+ 716 039a 0FB6      		in __tmp_reg__,__SREG__
+ 717 039c F894      		cli
+ 718 039e DEBF      		out __SP_H__,r29
+ 719 03a0 0FBE      		out __SREG__,__tmp_reg__
+ 720 03a2 CDBF      		out __SP_L__,r28
+ 721 03a4 CF91      		pop r28
+ 722 03a6 DF91      		pop r29
+ 723 03a8 0895      		ret
+ 725               	.Lscope8:
+ 727               		.stabd	78,0,0
+ 731               	.global	processCommand
+ 733               	processCommand:
+ 734               		.stabd	46,0,0
+ 110:protocol.c    **** 
+ 111:protocol.c    **** 
+ 112:protocol.c    **** 
+ 113:protocol.c    **** //Function that will take in a command (as char array) and process it into a
+ 114:protocol.c    **** //correct response to be stored into response
+ 115:protocol.c    **** char processCommand(Command *command, Response *response) {
+ 736               	.LM45:
+ 737               	.LFBB9:
+ 738 03aa DF93      		push r29
+ 739 03ac CF93      		push r28
+ 740 03ae 00D0      		rcall .
+ 741 03b0 0F92      		push __tmp_reg__
+ 742 03b2 0F92      		push __tmp_reg__
+ 743 03b4 CDB7      		in r28,__SP_L__
+ 744 03b6 DEB7      		in r29,__SP_H__
+ 745               	/* prologue: function */
+ 746               	/* frame size = 5 */
+ 747 03b8 9A83      		std Y+2,r25
+ 748 03ba 8983      		std Y+1,r24
+ 749 03bc 7C83      		std Y+4,r23
+ 750 03be 6B83      		std Y+3,r22
+ 116:protocol.c    ****    if(commandIntegCheck(command)) {
+ 752               	.LM46:
+ 753 03c0 8981      		ldd r24,Y+1
+ 754 03c2 9A81      		ldd r25,Y+2
+ 755 03c4 0E94 0000 		call commandIntegCheck
+ 756 03c8 8823      		tst r24
+ 757 03ca 01F0      		breq .L47
+ 117:protocol.c    ****       switch(command->groupID) {
+ 759               	.LM47:
+ 760 03cc E981      		ldd r30,Y+1
+ 761 03ce FA81      		ldd r31,Y+2
+ 762 03d0 8081      		ld r24,Z
+ 763 03d2 9927      		clr r25
+ 764 03d4 87FD      		sbrc r24,7
+ 765 03d6 9095      		com r25
+ 766 03d8 8130      		cpi r24,1
+ 767 03da 9105      		cpc r25,__zero_reg__
+ 768 03dc 01F4      		brne .L48
+ 769               	.L49:
+ 118:protocol.c    ****          case ULTRASONIC_GROUP:
+ 119:protocol.c    ****             processUltrasonicCommand(command->cmd, command->payload,&response->size, response->payl
+ 771               	.LM48:
+ 772 03de E981      		ldd r30,Y+1
+ 773 03e0 FA81      		ldd r31,Y+2
+ 774 03e2 E181      		ldd r30,Z+1
+ 775 03e4 8981      		ldd r24,Y+1
+ 776 03e6 9A81      		ldd r25,Y+2
+ 777 03e8 BC01      		movw r22,r24
+ 778 03ea 6D5F      		subi r22,lo8(-(3))
+ 779 03ec 7F4F      		sbci r23,hi8(-(3))
+ 780 03ee 8B81      		ldd r24,Y+3
+ 781 03f0 9C81      		ldd r25,Y+4
+ 782 03f2 AC01      		movw r20,r24
+ 783 03f4 4F5F      		subi r20,lo8(-(1))
+ 784 03f6 5F4F      		sbci r21,hi8(-(1))
+ 785 03f8 8B81      		ldd r24,Y+3
+ 786 03fa 9C81      		ldd r25,Y+4
+ 787 03fc 9C01      		movw r18,r24
+ 788 03fe 2E5F      		subi r18,lo8(-(2))
+ 789 0400 3F4F      		sbci r19,hi8(-(2))
+ 790 0402 8E2F      		mov r24,r30
+ 791 0404 0E94 0000 		call processUltrasonicCommand
+ 792               	.L48:
+ 120:protocol.c    ****             break;
+ 121:protocol.c    ****          case SPEED_GROUP:
+ 122:protocol.c    ****             /*do speed things*/
+ 123:protocol.c    ****             break;
+ 124:protocol.c    ****          case STEERING_GROUP:
+ 125:protocol.c    ****             /*do steering things*/
+ 126:protocol.c    ****             break;
+ 127:protocol.c    ****          case FNR_GROUP:
+ 128:protocol.c    ****             /*do FRN things*/
+ 129:protocol.c    ****             break;
+ 130:protocol.c    ****          case BRAKES_GROUP:
+ 131:protocol.c    ****             /*do brakes things*/
+ 132:protocol.c    ****             break;
+ 133:protocol.c    ****          case BATTERY_GROUP:
+ 134:protocol.c    ****             /*do battery things*/
+ 135:protocol.c    ****             break;
+ 136:protocol.c    ****          case LIGHTS_GROUP:
+ 137:protocol.c    ****             /*do light things*/
+ 138:protocol.c    ****             break;
+ 139:protocol.c    ****          case ERROR_GROUP:
+ 140:protocol.c    ****             /*do error things*/
+ 141:protocol.c    ****             break;
+ 142:protocol.c    ****       }
+ 143:protocol.c    ****       //return a dummy success for now
+ 144:protocol.c    ****       return 1;
+ 794               	.LM49:
+ 795 0408 81E0      		ldi r24,lo8(1)
+ 796 040a 8D83      		std Y+5,r24
+ 797 040c 00C0      		rjmp .L50
+ 798               	.L47:
+ 145:protocol.c    ****    } else {
+ 146:protocol.c    ****       return 0;
+ 800               	.LM50:
+ 801 040e 1D82      		std Y+5,__zero_reg__
+ 802               	.L50:
+ 803 0410 8D81      		ldd r24,Y+5
+ 804               	/* epilogue start */
+ 147:protocol.c    ****    }
+ 148:protocol.c    **** }
+ 806               	.LM51:
+ 807 0412 0F90      		pop __tmp_reg__
+ 808 0414 0F90      		pop __tmp_reg__
+ 809 0416 0F90      		pop __tmp_reg__
+ 810 0418 0F90      		pop __tmp_reg__
+ 811 041a 0F90      		pop __tmp_reg__
+ 812 041c CF91      		pop r28
+ 813 041e DF91      		pop r29
+ 814 0420 0895      		ret
+ 816               	.Lscope9:
+ 818               		.stabd	78,0,0
+ 820               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 protocol.c
+     /tmp/ccJz6tjd.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccJz6tjd.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccJz6tjd.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccJz6tjd.s:5      *ABS*:00000034 __CCP__
+     /tmp/ccJz6tjd.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/ccJz6tjd.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/ccJz6tjd.s:38     .text:00000000 commandIntegCheck
+     /tmp/ccJz6tjd.s:75     .text:0000001c processUltrasonicCommand
+     /tmp/ccJz6tjd.s:183    .text:000000b2 processSpeedCommand
+     /tmp/ccJz6tjd.s:267    .text:00000120 processSteeringCommand
+     /tmp/ccJz6tjd.s:436    .text:0000022a processFNRCommand
+     /tmp/ccJz6tjd.s:517    .text:00000296 processBrakeCommand
+     /tmp/ccJz6tjd.s:598    .text:00000302 processBatteryCommand
+     /tmp/ccJz6tjd.s:675    .text:00000366 processLightCommand
+     /tmp/ccJz6tjd.s:733    .text:000003aa processCommand
+
+UNDEFINED SYMBOLS
+getAllSensors
+getCertainSensor
+getSensorGroup
+getSpeed
+setSpeed
+setAngle
+getAngle
+getDesiredAngle
+changePID
+setLimits
+setFNR
+getFNR
+setBrake
+getBrake
+getBatteryVoltage
+getSteeringVoltage
+setLight

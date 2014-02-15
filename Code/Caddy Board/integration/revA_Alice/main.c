@@ -16,7 +16,7 @@
 #include <avr/interrupt.h>
 #include "task.h"
 #include "usart.h"
-#include "sonar.h"
+#include "Components/Sonar/Sonar.h"
 #include "queue.h"
 
 void vTaskFunction_1(void *pvParameters);
@@ -32,6 +32,10 @@ int sonarTime;
 void vApplicationTickHook()
 {
     count++;
+}
+
+void vApplicationStackOverflowHook(){
+	return;
 }
 /*-----------------------------------------------------------*/
 
@@ -61,15 +65,17 @@ int main( void )
 	xTaskCreate( (pdTASK_CODE) vTaskFunction_1, (signed char *) "T0", configMINIMAL_STACK_SIZE+1000,
                 (void *) val1, 1, NULL );
     
-   xTaskCreate( (pdTASK_CODE) vTaskSonar, (signed char *) "T0", configMINIMAL_STACK_SIZE,
+   xTaskCreate( (pdTASK_CODE) vTaskSonar, (signed char *) "T1", configMINIMAL_STACK_SIZE+1000,
                 (void *) val1, 1, NULL );
 
-   xTaskCreate( (pdTASK_CODE) vTaskUARTWrite, (signed char *) "T0", configMINIMAL_STACK_SIZE,
+   xTaskCreate( (pdTASK_CODE) vTaskUSARTWrite, (signed char *) "T2", configMINIMAL_STACK_SIZE+1000,
    				(void *) val1, 1, NULL);
 
-   xTaskCreate( (pdTASK_CODE) vTaskUARTRead, (signed char *) "T0", configMINIMAL_STACK_SIZE,
+   xTaskCreate( (pdTASK_CODE) vTaskUSARTRead, (signed char *) "T3", configMINIMAL_STACK_SIZE+1000,
    				(void *) val1, 1, NULL);
 
+//   xTaskCreate( (pdTASK_CODE) vTaskUSARTLog, (signed char *) "T4", configMINIMAL_STACK_SIZE+1000,
+//   				(void *) val1, 1, NULL);
     
     //- kick off the scheduler
 	vTaskStartScheduler();
@@ -123,9 +129,9 @@ void vTaskFunction_1(void *pvParameters)
 	//static const char* str = "Hello World\n";
 	for(;;){
 		//PORTB = 0;
-		//USART_AddToQueue('%');
-		//USART_TransmitString("Hello World!\n");
 
+		//USART_TransmitString("Hello World!\n");
+		//USART_LogChar("I");
 		//USART_TransmitString("H\n");
 		vTaskDelay(25);
 	}
