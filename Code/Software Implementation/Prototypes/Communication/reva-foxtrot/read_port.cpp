@@ -2,6 +2,9 @@
 #include <iostream>
 #include <unistd.h>
 #include <cstdlib>
+
+#define HEADER_RESPONSE_SIZE 3
+
 typedef  unsigned char  uchar;
 using namespace std;
 using namespace LibSerial ;
@@ -11,15 +14,10 @@ void SendHeader(uchar groupid , uchar cmd, uchar size  )
 {
     uchar checksum  = groupid+ cmd +size;
 
-
     serial_port.write( ( char *)&groupid, 1 ) ;
     serial_port.write( ( char *)&cmd, 1 ) ;
     serial_port.write( ( char *)&size, 1 ) ;
     serial_port.write( ( char *)&checksum, 1 ) ;
-
-
-
-
 }
 
 
@@ -91,9 +89,7 @@ main(  )
     // Wait for some data to be available at the serial port.
     //
 
-
-
-
+    std::cout << "Starting serial transmission" << std::endl;
         usleep(100) ;
         int size = 3;
         SendHeader(1,1,size);
@@ -129,6 +125,41 @@ main(  )
  //       std::cerr << std::hex << static_cast<int>(next_byte) << " ";
         usleep(100) ;
 
+        //prepare to recieve header validation (3 bytes)
+        char headerResponse[HEADER_RESPONSE_SIZE];
+        for(int i = 0; i < HEADER_RESPONSE_SIZE; i++) {
+           serial_port.get(headerResponse[i]);
+           //serial_port >> headerResponse[i];
+        }
+        //check for header checksum
+        checksum = headerResponse[0] + headerResponse[1];
+        if(checksum != headerResponse[2]) {
+           std::cerr << "ERROR: Expected " << checksum << " in header response but recieved "
+              << headerResponse[2] << std::endl;
+           serial_port << 0x00;
+           return EXIT_FAILURE;
+        } else {
+           std::cerr << "Correct checksum in header response" << std::endl;
+           std::cerr << "Size was " << (char) (headerResponse[1] | 0x30) << std::endl;
+           serial_port << 0xFF;
+        }
+        //recieve payload
+        char *payload = (char*) malloc(sizeof(char) * headerResponse[1]);
+        char payloadSum = 0;
+        for(char i = 0; i < headerResponse[1]; i++) {
+           std::cerr << "Recieving byte " << (char) (i | 0x30) << std::endl;
+           serial_port.get(payload[i]);
+           payloadSum += payload[i];
+        }
+        //checksum payload
+        char payloadSentSum;
+        serial_port.get(payloadSentSum);
+        if(payloadSentSum != payloadSum) {
+           std::cerr << "ERROR: Expected checksum of " << (char) (payloadSentSum| 0x30) <<
+              " and recieved " << (char) (payloadSum | 0x30) << std::endl;
+        } else {
+           std::cerr << "Correct checksum in the payload" << std::endl;
+        }
 
    std::cerr << std::endl ;
     return EXIT_SUCCESS ;
