@@ -172,7 +172,9 @@ void vTaskUSARTRead(void *pvParameters){
     char size;
     char groupID;
     char cmd;
-    char timeout;
+    unsigned int timeout;
+
+    PORTB = 0;
 
     Command command;
     Response response;
@@ -180,16 +182,26 @@ void vTaskUSARTRead(void *pvParameters){
         PORTB = 0;
         //Get Header
         bytesRecieved = 0;
+        timeout = 0;
         while(bytesRecieved < 4){
+            //if there is data to be read...
             if((UCSR1A & (1<<RXC1))){
                 rxData = UDR1;
-                PORTB = 0xFF;
             //if(xQueueReceive(USART_ReadQueue,&rxData,portMAX_DELAY) == pdTRUE){
                 buffer[bytesRecieved] = rxData;
                 //USART_AddToQueue(rxData);
                 bytesRecieved++;
+            } else {
+                timeout++;
+            }
+            if(timeout > 50000){
+                timeout = 0;
+                bytesRecieved = 0;
+
+
             }
         }
+        PORTB = 0;
         if(calcChecksum(buffer,3) != buffer[3]){
             sendNACK();
         } else {
@@ -200,13 +212,8 @@ void vTaskUSARTRead(void *pvParameters){
             command.crc = buffer[3];
             size = buffer[2];
             timeout = 0;
-            while(1){
-                if(size == 0){
-                    processCommand(&command,&response);
-                    sendResponse(&response);
-                    PORTB = 0;
-                    break;
-                } else {
+            /*if(size != 0){
+                while(1) {
                     while((bytesRecieved < size+1) && (timeout < 50)){  //1 for crc
                         if(UCSR1A & (1<<RXC1)){
                             rxData = UDR1;
@@ -230,12 +237,13 @@ void vTaskUSARTRead(void *pvParameters){
                         //PORTB = buffer[0];
                         sendACK();
                         memcpy(command.payload,buffer,size);
-                        processCommand(&command,&response);
-                        sendResponse(&response);
                         break;
                     }
                 }
-            }
+            }*/
+            processCommand(&command,&response);
+            sendResponse(&response);
+
         }
 
     }
@@ -258,14 +266,15 @@ void sendResponse(Response* response){
 
     for(i=0;i<response->size;i++){
         USART_AddToQueue(response->payload[i]);
+        //USART_AddToQueue()
     }
-    USART_AddToQueue(calcChecksum(response->payload,6));
+    USART_AddToQueue(calcChecksum(response->payload,12));
 
 
 }
 
 void sendACK(){
-    USART_AddToQueue(0xFF);
+    USART_AddToQueue(128);
 }
 
 void sendNACK(){

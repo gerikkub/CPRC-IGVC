@@ -462,7 +462,7 @@
   95:Components/Sonar/Sonar.c ****             
   96:Components/Sonar/Sonar.c **** } 
   97:Components/Sonar/Sonar.c **** 
-  98:Components/Sonar/Sonar.c **** char getAllSensors(int* responseData){
+  98:Components/Sonar/Sonar.c **** char getAllSensors(unsigned short* responseData){
  538               	.LM40:
  539               	.LFBB7:
  540 0222 DF93      		push r29
@@ -476,7 +476,7 @@
  548               	/* frame size = 5 */
  549 0230 9C83      		std Y+4,r25
  550 0232 8B83      		std Y+3,r24
-  99:Components/Sonar/Sonar.c ****    int i;
+  99:Components/Sonar/Sonar.c ****    unsigned short i;
  100:Components/Sonar/Sonar.c ****    for(i=0;i<6;i++){
  552               	.LM41:
  553 0234 1A82      		std Y+2,__zero_reg__
@@ -512,7 +512,7 @@
  582 0262 9A81      		ldd r25,Y+2
  583 0264 8630      		cpi r24,6
  584 0266 9105      		cpc r25,__zero_reg__
- 585 0268 04F0      		brlt .L22
+ 585 0268 00F0      		brlo .L22
  586               	/* epilogue start */
  103:Components/Sonar/Sonar.c ****    }
  104:Components/Sonar/Sonar.c **** }
@@ -754,25 +754,25 @@
  834               	.global __do_clear_bss
 DEFINED SYMBOLS
                             *ABS*:00000000 Sonar.c
-     /tmp/ccycQWKB.s:2      *ABS*:0000003f __SREG__
-     /tmp/ccycQWKB.s:3      *ABS*:0000003e __SP_H__
-     /tmp/ccycQWKB.s:4      *ABS*:0000003d __SP_L__
-     /tmp/ccycQWKB.s:5      *ABS*:00000034 __CCP__
-     /tmp/ccycQWKB.s:6      *ABS*:00000000 __tmp_reg__
-     /tmp/ccycQWKB.s:7      *ABS*:00000001 __zero_reg__
-     /tmp/ccycQWKB.s:104    .bss:00000000 lastSonarData
-     /tmp/ccycQWKB.s:112    .text:00000000 setSonarData
+     /tmp/ccVGJWTN.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccVGJWTN.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccVGJWTN.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccVGJWTN.s:5      *ABS*:00000034 __CCP__
+     /tmp/ccVGJWTN.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/ccVGJWTN.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/ccVGJWTN.s:104    .bss:00000000 lastSonarData
+     /tmp/ccVGJWTN.s:112    .text:00000000 setSonarData
                             *COM*:00000006 sonarData
-     /tmp/ccycQWKB.s:153    .text:0000002a getSonarData
-     /tmp/ccycQWKB.s:191    .text:00000050 getTimerCount
-     /tmp/ccycQWKB.s:220    .text:00000064 __vector_11
+     /tmp/ccVGJWTN.s:153    .text:0000002a getSonarData
+     /tmp/ccVGJWTN.s:191    .text:00000050 getTimerCount
+     /tmp/ccVGJWTN.s:220    .text:00000064 __vector_11
                             *COM*:00000001 currSonar
                             *COM*:00000002 sonarSemaphore
-     /tmp/ccycQWKB.s:359    .text:00000136 initializeSonarSensors
-     /tmp/ccycQWKB.s:427    .text:0000017a vTaskSonar
-     /tmp/ccycQWKB.s:535    .text:00000222 getAllSensors
-     /tmp/ccycQWKB.s:609    .text:0000027a getCertainSensor
-     /tmp/ccycQWKB.s:678    .text:000002d6 getSensorGroup
+     /tmp/ccVGJWTN.s:359    .text:00000136 initializeSonarSensors
+     /tmp/ccVGJWTN.s:427    .text:0000017a vTaskSonar
+     /tmp/ccVGJWTN.s:535    .text:00000222 getAllSensors
+     /tmp/ccVGJWTN.s:609    .text:0000027a getCertainSensor
+     /tmp/ccVGJWTN.s:678    .text:000002d6 getSensorGroup
                             *COM*:0000000c sonarDataMutex
 
 UNDEFINED SYMBOLS

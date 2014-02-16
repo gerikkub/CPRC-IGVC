@@ -19,7 +19,7 @@ char processUltrasonicCommand(char commandCode, void* commandData,char* size, vo
    switch(commandCode) {
       case GET_ALL_SENSORS:
          getAllSensors((int*) responseData);
-         *size = 6;
+         *size = 12;
          break;
       case GET_CERTAIN_SENSORS:
          getCertainSensor(((char*)commandData)[0], (int*) responseData);

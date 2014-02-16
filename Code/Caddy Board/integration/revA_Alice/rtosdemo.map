@@ -159,7 +159,7 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x40b8
+.text           0x00000000     0x400c
  *(.vectors)
  .vectors       0x00000000       0xe4 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/crtm2560.o
                 0x00000000                __vectors
@@ -341,7 +341,7 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
                 0x00002e12                vPortYield
                 0x00002ed4                vPortYieldFromTick
                 0x00003050                __vector_32
- .text          0x00003056      0x5d6 usart.o
+ .text          0x00003056      0x52a usart.o
                 0x00003056                USART_Init
                 0x00003138                USART_Write
                 0x00003166                USART_Write_Unprotected
@@ -354,89 +354,89 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
                 0x000032d0                USART_LogString
                 0x0000330a                vTaskUSARTLog
                 0x0000334e                vTaskUSARTRead
-                0x000034d4                sendResponse
-                0x0000357e                sendACK
-                0x00003592                sendNACK
-                0x000035a6                waitForChecksum
-                0x000035d2                calcChecksum
- .text          0x0000362c      0x422 protocol.o
-                0x0000362c                commandIntegCheck
-                0x00003648                processUltrasonicCommand
-                0x000036de                processSpeedCommand
-                0x0000374c                processSteeringCommand
-                0x00003856                processFNRCommand
-                0x000038c2                processBrakeCommand
-                0x0000392e                processBatteryCommand
-                0x00003992                processLightCommand
-                0x000039d6                processCommand
- .text          0x00003a4e       0x44 Components/Battery/Battery.o
-                0x00003a4e                getBatteryVoltage
-                0x00003a70                getSteeringVoltage
- .text          0x00003a92       0x38 Components/Brake/Brake.o
-                0x00003a92                setBrake
-                0x00003aa8                getBrake
- .text          0x00003aca        0x0 Components/Error/Error.o
- .text          0x00003aca       0x38 Components/FNR/FNR.o
-                0x00003aca                setFNR
-                0x00003ae0                getFNR
- .text          0x00003b02       0x16 Components/Lights/Lights.o
-                0x00003b02                setLight
- .text          0x00003b18      0x3c4 Components/Sonar/Sonar.o
-                0x00003b18                setSonarData
-                0x00003b42                getSonarData
-                0x00003b68                getTimerCount
-                0x00003b7c                __vector_11
-                0x00003c4e                initializeSonarSensors
-                0x00003c92                vTaskSonar
-                0x00003d3a                getAllSensors
-                0x00003d92                getCertainSensor
-                0x00003dee                getSensorGroup
- .text          0x00003edc       0x38 Components/Speed/Speed.o
-                0x00003edc                getSpeed
-                0x00003efe                setSpeed
- .text          0x00003f14       0x94 Components/Steering/Steering.o
-                0x00003f14                setAngle
-                0x00003f2a                getAngle
-                0x00003f4c                getDesiredAngle
-                0x00003f6e                changePID
-                0x00003f8c                setLimits
- .text          0x00003fa8        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodsi4.o)
- .text          0x00003fa8        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
- .text          0x00003fa8        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_clear_bss.o)
- .text          0x00003fa8        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
- .text          0x00003fa8        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
- .text          0x00003fa8        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
- .text          0x00003fa8        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
- .text          0x00003fa8        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
- .text          0x00003fa8        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodhi4.o)
-                0x00003fa8                . = ALIGN (0x2)
+                0x00003428                sendResponse
+                0x000034d2                sendACK
+                0x000034e6                sendNACK
+                0x000034fa                waitForChecksum
+                0x00003526                calcChecksum
+ .text          0x00003580      0x422 protocol.o
+                0x00003580                commandIntegCheck
+                0x0000359c                processUltrasonicCommand
+                0x00003632                processSpeedCommand
+                0x000036a0                processSteeringCommand
+                0x000037aa                processFNRCommand
+                0x00003816                processBrakeCommand
+                0x00003882                processBatteryCommand
+                0x000038e6                processLightCommand
+                0x0000392a                processCommand
+ .text          0x000039a2       0x44 Components/Battery/Battery.o
+                0x000039a2                getBatteryVoltage
+                0x000039c4                getSteeringVoltage
+ .text          0x000039e6       0x38 Components/Brake/Brake.o
+                0x000039e6                setBrake
+                0x000039fc                getBrake
+ .text          0x00003a1e        0x0 Components/Error/Error.o
+ .text          0x00003a1e       0x38 Components/FNR/FNR.o
+                0x00003a1e                setFNR
+                0x00003a34                getFNR
+ .text          0x00003a56       0x16 Components/Lights/Lights.o
+                0x00003a56                setLight
+ .text          0x00003a6c      0x3c4 Components/Sonar/Sonar.o
+                0x00003a6c                setSonarData
+                0x00003a96                getSonarData
+                0x00003abc                getTimerCount
+                0x00003ad0                __vector_11
+                0x00003ba2                initializeSonarSensors
+                0x00003be6                vTaskSonar
+                0x00003c8e                getAllSensors
+                0x00003ce6                getCertainSensor
+                0x00003d42                getSensorGroup
+ .text          0x00003e30       0x38 Components/Speed/Speed.o
+                0x00003e30                getSpeed
+                0x00003e52                setSpeed
+ .text          0x00003e68       0x94 Components/Steering/Steering.o
+                0x00003e68                setAngle
+                0x00003e7e                getAngle
+                0x00003ea0                getDesiredAngle
+                0x00003ec2                changePID
+                0x00003ee0                setLimits
+ .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodsi4.o)
+ .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
+ .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_clear_bss.o)
+ .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
+ .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
+ .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
+ .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
+ .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
+ .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodhi4.o)
+                0x00003efc                . = ALIGN (0x2)
  *(.text.*)
- .text.libgcc   0x00003fa8       0x44 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodsi4.o)
-                0x00003fa8                __udivmodsi4
- .text.libgcc   0x00003fec        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
- .text.libgcc   0x00003fec        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_clear_bss.o)
+ .text.libgcc   0x00003efc       0x44 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodsi4.o)
+                0x00003efc                __udivmodsi4
+ .text.libgcc   0x00003f40        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
+ .text.libgcc   0x00003f40        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_clear_bss.o)
  .text.avr-libc
-                0x00003fec       0x12 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
-                0x00003fec                memcpy
+                0x00003f40       0x12 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
+                0x00003f40                memcpy
  .text.avr-libc
-                0x00003ffe        0xe /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
-                0x00003ffe                memset
+                0x00003f52        0xe /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
+                0x00003f52                memset
  .text.avr-libc
-                0x0000400c       0x1e /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
-                0x0000400c                strncpy
+                0x00003f60       0x1e /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
+                0x00003f60                strncpy
  .text.avr-libc
-                0x0000402a       0x42 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
-                0x0000402a                itoa
+                0x00003f7e       0x42 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
+                0x00003f7e                itoa
  .text.avr-libc
-                0x0000406c       0x20 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
-                0x0000406c                strrev
- .text.libgcc   0x0000408c       0x28 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodhi4.o)
-                0x0000408c                __udivmodhi4
-                0x000040b4                . = ALIGN (0x2)
+                0x00003fc0       0x20 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
+                0x00003fc0                strrev
+ .text.libgcc   0x00003fe0       0x28 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodhi4.o)
+                0x00003fe0                __udivmodhi4
+                0x00004008                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000040b4        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
-                0x000040b4                exit
-                0x000040b4                _exit
+ .fini9         0x00004008        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
+                0x00004008                exit
+                0x00004008                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -455,11 +455,11 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000040b4        0x4 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
+ .fini0         0x00004008        0x4 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
  *(.fini0)
-                0x000040b8                _etext = .
+                0x0000400c                _etext = .
 
-.data           0x00800200       0x24 load address 0x000040b8
+.data           0x00800200       0x24 load address 0x0000400c
                 0x00800200                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800200        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/crtm2560.o
@@ -546,8 +546,8 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
                 0x00801acc                sonarDataMutex
                 0x00801ad8                currSonar
                 0x00801ad9                PROVIDE (__bss_end, .)
-                0x000040b8                __data_load_start = LOADADDR (.data)
-                0x000040dc                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x0000400c                __data_load_start = LOADADDR (.data)
+                0x00004030                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00801ad9        0x0
                 0x00801ad9                PROVIDE (__noinit_start, .)
@@ -572,7 +572,7 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
 .signature
  *(.signature*)
 
-.stab           0x00000000     0x89dc
+.stab           0x00000000     0x8964
  *(.stab)
  .stab          0x00000000      0x768 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/crtm2560.o
  .stab          0x00000768      0xa68 main.o
@@ -589,40 +589,40 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
                                 0x6d8 (size before relaxing)
  .stab          0x00005598      0x990 ../../FreeRTOS/Source/port.o
                                 0xcd8 (size before relaxing)
- .stab          0x00005f28      0xce4 usart.o
-                                0xf60 (size before relaxing)
- .stab          0x00006c0c      0x63c protocol.o
+ .stab          0x00005f28      0xc6c usart.o
+                                0xee8 (size before relaxing)
+ .stab          0x00006b94      0x63c protocol.o
                                 0x684 (size before relaxing)
- .stab          0x00007248      0x1bc Components/Battery/Battery.o
+ .stab          0x000071d0      0x1bc Components/Battery/Battery.o
                                 0x1c8 (size before relaxing)
- .stab          0x00007404      0x1b0 Components/Brake/Brake.o
+ .stab          0x0000738c      0x1b0 Components/Brake/Brake.o
                                 0x1bc (size before relaxing)
- .stab          0x000075b4       0xe4 Components/Error/Error.o
+ .stab          0x0000753c       0xe4 Components/Error/Error.o
                                  0xf0 (size before relaxing)
- .stab          0x00007698      0x1b0 Components/FNR/FNR.o
+ .stab          0x00007620      0x1b0 Components/FNR/FNR.o
                                 0x1bc (size before relaxing)
- .stab          0x00007848      0x144 Components/Lights/Lights.o
+ .stab          0x000077d0      0x144 Components/Lights/Lights.o
                                 0x150 (size before relaxing)
- .stab          0x0000798c      0x75c Components/Sonar/Sonar.o
+ .stab          0x00007914      0x75c Components/Sonar/Sonar.o
                                 0x9d8 (size before relaxing)
- .stab          0x000080e8      0x1b0 Components/Speed/Speed.o
+ .stab          0x00008070      0x1b0 Components/Speed/Speed.o
                                 0x1bc (size before relaxing)
- .stab          0x00008298      0x300 Components/Steering/Steering.o
+ .stab          0x00008220      0x300 Components/Steering/Steering.o
                                 0x30c (size before relaxing)
- .stab          0x00008598       0x84 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
+ .stab          0x00008520       0x84 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
                                  0x90 (size before relaxing)
- .stab          0x0000861c       0x6c /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
+ .stab          0x000085a4       0x6c /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
                                  0x78 (size before relaxing)
- .stab          0x00008688       0xcc /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
+ .stab          0x00008610       0xcc /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
                                  0xd8 (size before relaxing)
- .stab          0x00008754      0x1b0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
+ .stab          0x000086dc      0x1b0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
                                 0x1bc (size before relaxing)
- .stab          0x00008904       0xd8 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
+ .stab          0x0000888c       0xd8 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
                                  0xe4 (size before relaxing)
 
-.stabstr        0x00000000     0x3d57
+.stabstr        0x00000000     0x3d66
  *(.stabstr)
- .stabstr       0x00000000     0x3d57 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/crtm2560.o
+ .stabstr       0x00000000     0x3d66 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/crtm2560.o
 
 .stab.excl
  *(.stab.excl)
@@ -821,7 +821,6 @@ lastSonarData                                     Components/Sonar/Sonar.o
 main                                              main.o
                                                   /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/crtm2560.o
 memcpy                                            /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
-                                                  usart.o
                                                   ../../FreeRTOS/Source/queue.o
 memset                                            /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
                                                   ../../FreeRTOS/Source/tasks.o

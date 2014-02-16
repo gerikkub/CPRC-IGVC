@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <unistd.h>
+#include <cstring>
 #include <cstdlib>
 
 #define HEADER_RESPONSE_SIZE 3
@@ -22,7 +23,7 @@ void SendHeader(uchar groupid , uchar cmd, uchar size  )
 }
 
 
-main(  )
+int main()
 {
     //
     // Open the serial port.
@@ -90,6 +91,8 @@ main(  )
     // Wait for some data to be available at the serial port.
     //
 
+    serialCommandsStart:
+
     std::cout << "Starting serial transmission" << std::endl;
         usleep(100) ;
         int size = 0;
@@ -152,11 +155,15 @@ main(  )
         char payloadSum = 0;
         //read extra byte to see if ther is extra hiding data for testing
         //REMOVE LATER
-        for(char i = 0; i <= headerResponse[1]; i++) {
-           serial_port.get(payload[i]);
-           std::cerr << "Recieved byte 0x" << std::hex  << std::setw(2) << std::setfill('0')
-              << (unsigned int)payload[i] << std::endl;
-           payloadSum += payload[i];
+        memset(payload,0,headerResponse[1]);
+
+        for(char i = 0; i < headerResponse[1]; i++) {
+          do {
+            serial_port.get(payload[i]);
+          } while(payload[i] == -1);
+          std::cerr << "Recieved byte 0x" << std::hex  << std::setw(2) << std::setfill('0')
+            << (unsigned int)payload[i] << " " << (0x30 | i) << std::endl;
+          payloadSum += payload[i];
         }
         //checksum payload
         char payloadSentSum;
@@ -167,6 +174,7 @@ main(  )
         } else {
            std::cerr << "Correct checksum in the payload" << std::endl;
         }
+
 
    std::cerr << std::endl ;
     return EXIT_SUCCESS ;

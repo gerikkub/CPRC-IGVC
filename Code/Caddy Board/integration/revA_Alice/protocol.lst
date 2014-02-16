@@ -106,11 +106,11 @@
  126 006a 8E81      		ldd r24,Y+6
  127 006c 9F81      		ldd r25,Y+7
  128 006e 0E94 0000 		call getAllSensors
-  22:protocol.c    ****          *size = 6;
+  22:protocol.c    ****          *size = 12;
  130               	.LM6:
  131 0072 EC81      		ldd r30,Y+4
  132 0074 FD81      		ldd r31,Y+5
- 133 0076 86E0      		ldi r24,lo8(6)
+ 133 0076 8CE0      		ldi r24,lo8(12)
  134 0078 8083      		st Z,r24
  135 007a 00C0      		rjmp .L4
  136               	.L6:
@@ -830,21 +830,21 @@
  820               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 protocol.c
-     /tmp/ccJz6tjd.s:2      *ABS*:0000003f __SREG__
-     /tmp/ccJz6tjd.s:3      *ABS*:0000003e __SP_H__
-     /tmp/ccJz6tjd.s:4      *ABS*:0000003d __SP_L__
-     /tmp/ccJz6tjd.s:5      *ABS*:00000034 __CCP__
-     /tmp/ccJz6tjd.s:6      *ABS*:00000000 __tmp_reg__
-     /tmp/ccJz6tjd.s:7      *ABS*:00000001 __zero_reg__
-     /tmp/ccJz6tjd.s:38     .text:00000000 commandIntegCheck
-     /tmp/ccJz6tjd.s:75     .text:0000001c processUltrasonicCommand
-     /tmp/ccJz6tjd.s:183    .text:000000b2 processSpeedCommand
-     /tmp/ccJz6tjd.s:267    .text:00000120 processSteeringCommand
-     /tmp/ccJz6tjd.s:436    .text:0000022a processFNRCommand
-     /tmp/ccJz6tjd.s:517    .text:00000296 processBrakeCommand
-     /tmp/ccJz6tjd.s:598    .text:00000302 processBatteryCommand
-     /tmp/ccJz6tjd.s:675    .text:00000366 processLightCommand
-     /tmp/ccJz6tjd.s:733    .text:000003aa processCommand
+     /tmp/cctvcmSO.s:2      *ABS*:0000003f __SREG__
+     /tmp/cctvcmSO.s:3      *ABS*:0000003e __SP_H__
+     /tmp/cctvcmSO.s:4      *ABS*:0000003d __SP_L__
+     /tmp/cctvcmSO.s:5      *ABS*:00000034 __CCP__
+     /tmp/cctvcmSO.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/cctvcmSO.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/cctvcmSO.s:38     .text:00000000 commandIntegCheck
+     /tmp/cctvcmSO.s:75     .text:0000001c processUltrasonicCommand
+     /tmp/cctvcmSO.s:183    .text:000000b2 processSpeedCommand
+     /tmp/cctvcmSO.s:267    .text:00000120 processSteeringCommand
+     /tmp/cctvcmSO.s:436    .text:0000022a processFNRCommand
+     /tmp/cctvcmSO.s:517    .text:00000296 processBrakeCommand
+     /tmp/cctvcmSO.s:598    .text:00000302 processBatteryCommand
+     /tmp/cctvcmSO.s:675    .text:00000366 processLightCommand
+     /tmp/cctvcmSO.s:733    .text:000003aa processCommand
 
 UNDEFINED SYMBOLS
 getAllSensors

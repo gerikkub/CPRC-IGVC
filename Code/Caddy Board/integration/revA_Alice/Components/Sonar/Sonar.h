@@ -23,7 +23,7 @@
 	char getCertainSensor(char sensor, int* sensorResponse); 
 
 	//takes in 6 int array to store response, returns success
-	char getAllSensors(int* sensorResponse);
+	char getAllSensors(unsigned short* sensorResponse);
 
 	//stores cm values of a sensor group in sensorResponse
 	char getSensorGroup(char groupID, int *sensorResponse);

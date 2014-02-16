@@ -764,23 +764,23 @@
  827               	.global __do_clear_bss
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-     /tmp/cc1OoBDM.s:2      *ABS*:0000003f __SREG__
-     /tmp/cc1OoBDM.s:3      *ABS*:0000003e __SP_H__
-     /tmp/cc1OoBDM.s:4      *ABS*:0000003d __SP_L__
-     /tmp/cc1OoBDM.s:5      *ABS*:00000034 __CCP__
-     /tmp/cc1OoBDM.s:6      *ABS*:00000000 __tmp_reg__
-     /tmp/cc1OoBDM.s:7      *ABS*:00000001 __zero_reg__
-     /tmp/cc1OoBDM.s:130    .bss:00000000 count
-     /tmp/cc1OoBDM.s:136    .text:00000000 vApplicationTickHook
-     /tmp/cc1OoBDM.s:167    .text:00000020 vApplicationStackOverflowHook
-     /tmp/cc1OoBDM.s:201    .text:0000002e main
-     /tmp/cc1OoBDM.s:789    .text:0000034e vIO_init
-     /tmp/cc1OoBDM.s:751    .text:00000324 vTaskFunction_1
-     /tmp/cc1OoBDM.s:394    .data:0000000c C.2.2032
-     /tmp/cc1OoBDM.s:416    .text:00000150 printHex
-     /tmp/cc1OoBDM.s:562    .text:0000023c printNum
-     /tmp/cc1OoBDM.s:653    .text:000002b2 __vector_50
-     /tmp/cc1OoBDM.s:719    .text:0000030c getTimerCount2
+     /tmp/ccPtLNfM.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccPtLNfM.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccPtLNfM.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccPtLNfM.s:5      *ABS*:00000034 __CCP__
+     /tmp/ccPtLNfM.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/ccPtLNfM.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/ccPtLNfM.s:130    .bss:00000000 count
+     /tmp/ccPtLNfM.s:136    .text:00000000 vApplicationTickHook
+     /tmp/ccPtLNfM.s:167    .text:00000020 vApplicationStackOverflowHook
+     /tmp/ccPtLNfM.s:201    .text:0000002e main
+     /tmp/ccPtLNfM.s:789    .text:0000034e vIO_init
+     /tmp/ccPtLNfM.s:751    .text:00000324 vTaskFunction_1
+     /tmp/ccPtLNfM.s:394    .data:0000000c C.2.2032
+     /tmp/ccPtLNfM.s:416    .text:00000150 printHex
+     /tmp/ccPtLNfM.s:562    .text:0000023c printNum
+     /tmp/ccPtLNfM.s:653    .text:000002b2 __vector_50
+     /tmp/ccPtLNfM.s:719    .text:0000030c getTimerCount2
                             *COM*:00000002 sonarTime
 
 UNDEFINED SYMBOLS

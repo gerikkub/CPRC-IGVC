@@ -95,8 +95,8 @@ void vTaskSonar(void* parameter){
             
 } 
 
-char getAllSensors(int* responseData){
-   int i;
+char getAllSensors(unsigned short* responseData){
+   unsigned short i;
    for(i=0;i<6;i++){
       //responseData[i] = getSonarData(i);
       responseData[i] = i;
