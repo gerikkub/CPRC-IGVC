@@ -1,5 +1,6 @@
 #include <SerialStream.h>
 #include <iostream>
+#include <iomanip>
 #include <unistd.h>
 #include <cstdlib>
 
@@ -91,16 +92,16 @@ main(  )
 
     std::cout << "Starting serial transmission" << std::endl;
         usleep(100) ;
-        int size = 3;
+        int size = 0;
         SendHeader(1,1,size);
         char next_byte;
-         serial_port.get(next_byte);
-         if((uchar)next_byte == 255)
-             std::cout << "good shit\n";
-         else
-             std:cout << "bad shit\n";
+        serial_port.get(next_byte);
+        if((uchar)next_byte == 128)
+            std::cout << "good shit\n";
+        else
+            std:cout << "bad shit\n";
 
-        unsigned char array[10] = {0xff,2,3,6, 4,4,4};
+        /*unsigned char array[10] = {0xff,2,3,6, 4,4,4};
         uchar checksum = 0;
         for(int i = 0;  i < size; i++)
         {
@@ -118,6 +119,7 @@ main(  )
              std::cout << "good shit\n";
          else
              std::cout << "bad shit\n";
+         */
 
 
         //std::cout << "recieved bytes:" <<next_byte << "\n";
@@ -132,31 +134,36 @@ main(  )
            //serial_port >> headerResponse[i];
         }
         //check for header checksum
-        checksum = headerResponse[0] + headerResponse[1];
+        uchar checksum = headerResponse[0] + headerResponse[1];
         if(checksum != headerResponse[2]) {
-           std::cerr << "ERROR: Expected " << checksum << " in header response but recieved "
+           std::cerr << "ERROR: Expected " << checksum << " in header response but recieved"
               << headerResponse[2] << std::endl;
            serial_port << 0x00;
            return EXIT_FAILURE;
         } else {
            std::cerr << "Correct checksum in header response" << std::endl;
-           std::cerr << "Size was " << (char) (headerResponse[1] | 0x30) << std::endl;
-           serial_port << 0xFF;
+           std::cerr << "Size was 0x" << std::hex << std::setw(2) << std::setfill('0')
+              << (int)headerResponse[1] << std::endl;
+           serial_port << 128;
         }
+        usleep(10000) ;
         //recieve payload
         char *payload = (char*) malloc(sizeof(char) * headerResponse[1]);
         char payloadSum = 0;
-        for(char i = 0; i < headerResponse[1]; i++) {
-           std::cerr << "Recieving byte " << (char) (i | 0x30) << std::endl;
+        //read extra byte to see if ther is extra hiding data for testing
+        //REMOVE LATER
+        for(char i = 0; i <= headerResponse[1]; i++) {
            serial_port.get(payload[i]);
+           std::cerr << "Recieved byte 0x" << std::hex  << std::setw(2) << std::setfill('0')
+              << (unsigned int)payload[i] << std::endl;
            payloadSum += payload[i];
         }
         //checksum payload
         char payloadSentSum;
         serial_port.get(payloadSentSum);
         if(payloadSentSum != payloadSum) {
-           std::cerr << "ERROR: Expected checksum of " << (char) (payloadSentSum| 0x30) <<
-              " and recieved " << (char) (payloadSum | 0x30) << std::endl;
+           std::cerr << "ERROR: Expected checksum of " << std::hex << (int)payloadSentSum  <<
+              " and recieved " << std::hex << (int) payloadSum << std::endl;
         } else {
            std::cerr << "Correct checksum in the payload" << std::endl;
         }
