@@ -49,7 +49,7 @@ void USART_Init(uint16_t baudin, uint32_t clk_speedin) {
     //UBRR0L = 8;
 
     /* Enable receiver and transmitter */
-    UCSR1B = (1<<RXEN1)|(1<<TXEN1);
+    UCSR1B = (1<<RXEN1)|(1<<TXEN1)|(1<<RXCIE1);
     /* Set frame format: 8data, 1stop bit */
     UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);
 	// clear U2X0 for Synchronous operation
@@ -111,10 +111,11 @@ uint8_t USART_Read(void) {
 }
 
 
-ISR(USART0_RX_vect){
-    uint8_t data;
-    data = UDR1;
-    xQueueSendToBackFromISR(USART_ReadQueue,&data,NULL);
+ISR(USART1_RX_vect){
+    //uint8_t data;
+    //data = UDR1;
+    PORTB = 0xFF;
+    //xQueueSendToBackFromISR(USART_ReadQueue,&data,NULL);
 }
 
 void USART_AddToQueue(uint8_t data){
@@ -179,7 +180,7 @@ void vTaskUSARTRead(void *pvParameters){
     Command command;
     Response response;
     while(1){
-        PORTB = 0;
+        //PORTB = 0;
         //Get Header
         bytesRecieved = 0;
         timeout = 0;
@@ -191,17 +192,16 @@ void vTaskUSARTRead(void *pvParameters){
                 buffer[bytesRecieved] = rxData;
                 //USART_AddToQueue(rxData);
                 bytesRecieved++;
+                //timeout = 0;
             } else {
                 timeout++;
             }
             if(timeout > 50000){
                 timeout = 0;
                 bytesRecieved = 0;
-
-
             }
         }
-        PORTB = 0;
+        //PORTB = 0;
         if(calcChecksum(buffer,3) != buffer[3]){
             sendNACK();
         } else {
@@ -212,7 +212,7 @@ void vTaskUSARTRead(void *pvParameters){
             command.crc = buffer[3];
             size = buffer[2];
             timeout = 0;
-            /*if(size != 0){
+            if(size != 0){
                 while(1) {
                     while((bytesRecieved < size+1) && (timeout < 50)){  //1 for crc
                         if(UCSR1A & (1<<RXC1)){
@@ -240,7 +240,7 @@ void vTaskUSARTRead(void *pvParameters){
                         break;
                     }
                 }
-            }*/
+            }
             processCommand(&command,&response);
             sendResponse(&response);
 

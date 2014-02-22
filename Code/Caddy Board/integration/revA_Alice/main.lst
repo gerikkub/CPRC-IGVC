@@ -507,7 +507,7 @@
  586 025a 4AE0      		ldi r20,lo8(10)
  587 025c 50E0      		ldi r21,hi8(10)
  588 025e 0E94 0000 		call memset
- 101:main.c        ****     itoa(i,str,9);
+ 101:main.c        ****     itoa(i,str,10);
  590               	.LM32:
  591 0262 8D85      		ldd r24,Y+13
  592 0264 882F      		mov r24,r24
@@ -516,8 +516,8 @@
  595 026a 2D5F      		subi r18,lo8(-(3))
  596 026c 3F4F      		sbci r19,hi8(-(3))
  597 026e B901      		movw r22,r18
- 598 0270 49E0      		ldi r20,lo8(9)
- 599 0272 50E0      		ldi r21,hi8(9)
+ 598 0270 4AE0      		ldi r20,lo8(10)
+ 599 0272 50E0      		ldi r21,hi8(10)
  600 0274 0E94 0000 		call itoa
  102:main.c        ****     char * irr = str;
  602               	.LM33:
@@ -528,12 +528,12 @@
  607 0280 00C0      		rjmp .L11
  608               	.L12:
  103:main.c        ****     while(*irr){
- 104:main.c        ****         USART_Write((unsigned char )*irr);
+ 104:main.c        ****         USART_AddToQueue((unsigned char )*irr);
  610               	.LM34:
  611 0282 E981      		ldd r30,Y+1
  612 0284 FA81      		ldd r31,Y+2
  613 0286 8081      		ld r24,Z
- 614 0288 0E94 0000 		call USART_Write
+ 614 0288 0E94 0000 		call USART_AddToQueue
  105:main.c        ****         irr++;
  616               	.LM35:
  617 028c 8981      		ldd r24,Y+1
@@ -690,39 +690,35 @@
  773 033e 70E0      		ldi r23,hhi8(16000000)
  774 0340 0E94 0000 		call USART_Init
  775               	.L19:
- 129:main.c        **** 	//static const char* str = "Hello World\n";
- 130:main.c        **** 	for(;;){
- 131:main.c        **** 		//PORTB = 0;
- 132:main.c        **** 
- 133:main.c        **** 		//USART_TransmitString("Hello World!\n");
- 134:main.c        **** 		//USART_LogChar("I");
- 135:main.c        **** 		//USART_TransmitString("H\n");
- 136:main.c        **** 		vTaskDelay(25);
- 777               	.LM48:
- 778 0344 89E1      		ldi r24,lo8(25)
- 779 0346 90E0      		ldi r25,hi8(25)
- 780 0348 0E94 0000 		call vTaskDelay
- 781 034c 00C0      		rjmp .L19
- 783               	.Lscope8:
- 785               		.stabd	78,0,0
- 787               	.global	vIO_init
- 789               	vIO_init:
- 790               		.stabd	46,0,0
- 137:main.c        **** 	}
- 138:main.c        **** 	/*for(;;){
- 139:main.c        **** 		printNum(getTimerCount2());
- 140:main.c        **** 		USART_Write('\n');
- 141:main.c        **** 	}*/
- 142:main.c        **** 
- 143:main.c        ****     for (;;)  {
- 144:main.c        **** //        PORTB ^=  0xff;j
- 145:main.c        **** 		//PCMSK2 = 1;
- 146:main.c        **** 
- 147:main.c        ****       printNum(getSonarData(0));
- 148:main.c        **** 		USART_Write(' ');
- 149:main.c        **** 		printNum(getSonarData(1));
- 150:main.c        **** 		USART_Write('\n');
- 151:main.c        ****       vTaskDelay(25);
+ 776 0344 00C0      		rjmp .L19
+ 778               	.Lscope8:
+ 780               		.stabd	78,0,0
+ 782               	.global	vIO_init
+ 784               	vIO_init:
+ 785               		.stabd	46,0,0
+ 129:main.c        ****     for(;;);
+ 130:main.c        **** 	//static const char* str = "Hello World\n";
+ 131:main.c        **** 	//for(;;){
+ 132:main.c        **** 		//PORTB = 0;
+ 133:main.c        **** 
+ 134:main.c        **** 		//USART_TransmitString("Hello World!\n");
+ 135:main.c        **** 	//	USART_AddToQueue('I');
+ 136:main.c        **** 		//USART_TransmitString("H\n");
+ 137:main.c        **** 	//	vTaskDelay(25);
+ 138:main.c        **** 	//}
+ 139:main.c        **** 	/*for(;;){
+ 140:main.c        **** 		printNum(getTimerCount2());
+ 141:main.c        **** 		USART_Write('\n');
+ 142:main.c        **** 	}*/
+ 143:main.c        **** 
+ 144:main.c        ****     for (;;)  {
+ 145:main.c        **** //        PORTB ^=  0xff;j
+ 146:main.c        **** 		//PCMSK2 = 1;
+ 147:main.c        ****     	printNum(getSonarData(0));
+ 148:main.c        **** 		USART_AddToQueue(' ');
+ 149:main.c        **** 		//printNum(getSonarData(1));
+ 150:main.c        **** 		//USART_Write('\n');
+ 151:main.c        ****       	vTaskDelay(25);
  152:main.c        ****         /* Get and return received data from buffer */
  153:main.c        ****         // UDR0;
  154:main.c        ****     }
@@ -730,57 +726,57 @@
  156:main.c        **** 
  157:main.c        **** void vIO_init(void)
  158:main.c        **** {
- 792               	.LM49:
- 793               	.LFBB9:
- 794 034e DF93      		push r29
- 795 0350 CF93      		push r28
- 796 0352 CDB7      		in r28,__SP_L__
- 797 0354 DEB7      		in r29,__SP_H__
- 798               	/* prologue: function */
- 799               	/* frame size = 0 */
+ 787               	.LM48:
+ 788               	.LFBB9:
+ 789 0346 DF93      		push r29
+ 790 0348 CF93      		push r28
+ 791 034a CDB7      		in r28,__SP_L__
+ 792 034c DEB7      		in r29,__SP_H__
+ 793               	/* prologue: function */
+ 794               	/* frame size = 0 */
  159:main.c        ****     //- set PortB as output
  160:main.c        **** 	DDRB = 0xFF; 
- 801               	.LM50:
- 802 0356 E4E2      		ldi r30,lo8(36)
- 803 0358 F0E0      		ldi r31,hi8(36)
- 804 035a 8FEF      		ldi r24,lo8(-1)
- 805 035c 8083      		st Z,r24
+ 796               	.LM49:
+ 797 034e E4E2      		ldi r30,lo8(36)
+ 798 0350 F0E0      		ldi r31,hi8(36)
+ 799 0352 8FEF      		ldi r24,lo8(-1)
+ 800 0354 8083      		st Z,r24
  161:main.c        ****     PORTB = 0; 
- 807               	.LM51:
- 808 035e E5E2      		ldi r30,lo8(37)
- 809 0360 F0E0      		ldi r31,hi8(37)
- 810 0362 1082      		st Z,__zero_reg__
- 811               	/* epilogue start */
+ 802               	.LM50:
+ 803 0356 E5E2      		ldi r30,lo8(37)
+ 804 0358 F0E0      		ldi r31,hi8(37)
+ 805 035a 1082      		st Z,__zero_reg__
+ 806               	/* epilogue start */
  162:main.c        **** }
- 813               	.LM52:
- 814 0364 CF91      		pop r28
- 815 0366 DF91      		pop r29
- 816 0368 0895      		ret
- 818               	.Lscope9:
- 820               		.stabd	78,0,0
- 821               		.comm sonarTime,2,1
- 825               	.Letext0:
- 826               	.global __do_copy_data
- 827               	.global __do_clear_bss
+ 808               	.LM51:
+ 809 035c CF91      		pop r28
+ 810 035e DF91      		pop r29
+ 811 0360 0895      		ret
+ 813               	.Lscope9:
+ 815               		.stabd	78,0,0
+ 816               		.comm sonarTime,2,1
+ 820               	.Letext0:
+ 821               	.global __do_copy_data
+ 822               	.global __do_clear_bss
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-     /tmp/ccPtLNfM.s:2      *ABS*:0000003f __SREG__
-     /tmp/ccPtLNfM.s:3      *ABS*:0000003e __SP_H__
-     /tmp/ccPtLNfM.s:4      *ABS*:0000003d __SP_L__
-     /tmp/ccPtLNfM.s:5      *ABS*:00000034 __CCP__
-     /tmp/ccPtLNfM.s:6      *ABS*:00000000 __tmp_reg__
-     /tmp/ccPtLNfM.s:7      *ABS*:00000001 __zero_reg__
-     /tmp/ccPtLNfM.s:130    .bss:00000000 count
-     /tmp/ccPtLNfM.s:136    .text:00000000 vApplicationTickHook
-     /tmp/ccPtLNfM.s:167    .text:00000020 vApplicationStackOverflowHook
-     /tmp/ccPtLNfM.s:201    .text:0000002e main
-     /tmp/ccPtLNfM.s:789    .text:0000034e vIO_init
-     /tmp/ccPtLNfM.s:751    .text:00000324 vTaskFunction_1
-     /tmp/ccPtLNfM.s:394    .data:0000000c C.2.2032
-     /tmp/ccPtLNfM.s:416    .text:00000150 printHex
-     /tmp/ccPtLNfM.s:562    .text:0000023c printNum
-     /tmp/ccPtLNfM.s:653    .text:000002b2 __vector_50
-     /tmp/ccPtLNfM.s:719    .text:0000030c getTimerCount2
+     /tmp/ccgyaiDU.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccgyaiDU.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccgyaiDU.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccgyaiDU.s:5      *ABS*:00000034 __CCP__
+     /tmp/ccgyaiDU.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/ccgyaiDU.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/ccgyaiDU.s:130    .bss:00000000 count
+     /tmp/ccgyaiDU.s:136    .text:00000000 vApplicationTickHook
+     /tmp/ccgyaiDU.s:167    .text:00000020 vApplicationStackOverflowHook
+     /tmp/ccgyaiDU.s:201    .text:0000002e main
+     /tmp/ccgyaiDU.s:784    .text:00000346 vIO_init
+     /tmp/ccgyaiDU.s:751    .text:00000324 vTaskFunction_1
+     /tmp/ccgyaiDU.s:394    .data:0000000c C.2.2032
+     /tmp/ccgyaiDU.s:416    .text:00000150 printHex
+     /tmp/ccgyaiDU.s:562    .text:0000023c printNum
+     /tmp/ccgyaiDU.s:653    .text:000002b2 __vector_50
+     /tmp/ccgyaiDU.s:719    .text:0000030c getTimerCount2
                             *COM*:00000002 sonarTime
 
 UNDEFINED SYMBOLS
@@ -792,7 +788,7 @@ vTaskStartScheduler
 USART_Write
 memset
 itoa
+USART_AddToQueue
 USART_Init
-vTaskDelay
 __do_copy_data
 __do_clear_bss

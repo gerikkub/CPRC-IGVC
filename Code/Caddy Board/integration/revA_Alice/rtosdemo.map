@@ -159,7 +159,7 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x400c
+.text           0x00000000     0x40a6
  *(.vectors)
  .vectors       0x00000000       0xe4 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/crtm2560.o
                 0x00000000                __vectors
@@ -269,7 +269,7 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
                 0x00000126                __vector_18
                 0x00000126                __vector_20
                 0x00000126                __vector_42
- .text          0x0000012a      0x36a main.o
+ .text          0x0000012a      0x362 main.o
                 0x0000012a                vApplicationTickHook
                 0x0000014a                vApplicationStackOverflowHook
                 0x00000158                main
@@ -278,165 +278,165 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
                 0x000003dc                __vector_50
                 0x00000436                getTimerCount2
                 0x0000044e                vTaskFunction_1
-                0x00000478                vIO_init
- .text          0x00000494     0x125a ../../FreeRTOS/Source/tasks.o
-                0x00000494                xTaskGenericCreate
-                0x0000066e                vTaskDelayUntil
-                0x00000756                vTaskDelay
-                0x000007c0                vTaskSuspend
-                0x0000088c                xTaskIsTaskSuspended
-                0x000008ea                vTaskResume
-                0x000009b2                xTaskResumeFromISR
-                0x00000a7e                vTaskStartScheduler
-                0x00000aec                vTaskEndScheduler
-                0x00000b04                vTaskSuspendAll
-                0x00000b1c                xTaskResumeAll
-                0x00000c30                xTaskGetTickCount
-                0x00000c60                xTaskGetTickCountFromISR
-                0x00000c88                uxTaskGetNumberOfTasks
-                0x00000c9a                vTaskIncrementTick
-                0x00000e42                vTaskSwitchContext
-                0x00000f48                vTaskPlaceOnEventList
-                0x00000fd8                xTaskRemoveFromEventList
-                0x000010a8                vTaskSetTimeOutState
-                0x000010dc                xTaskCheckForTimeOut
-                0x000011aa                vTaskMissedYield
-                0x00001498                uxTaskGetStackHighWaterMark
-                0x00001500                xTaskGetCurrentTaskHandle
-                0x00001526                vTaskPriorityInherit
-                0x00001630                vTaskPriorityDisinherit
- .text          0x000016ee      0xa64 ../../FreeRTOS/Source/queue.o
-                0x000016ee                xQueueGenericReset
-                0x000017ea                xQueueGenericCreate
-                0x000018a4                xQueueCreateMutex
-                0x0000193e                xQueueGenericSend
-                0x00001a7a                xQueueGenericSendFromISR
-                0x00001b1c                xQueueGenericReceive
-                0x00001cd6                xQueueReceiveFromISR
-                0x00001d7c                uxQueueMessagesWaiting
-                0x00001daa                uxQueueMessagesWaitingFromISR
-                0x00001dce                vQueueDelete
-                0x000020b8                xQueueIsQueueEmptyFromISR
-                0x00002120                xQueueIsQueueFullFromISR
- .text          0x00002152      0x27e ../../FreeRTOS/Source/list.o
-                0x00002152                vListInitialise
-                0x000021a8                vListInitialiseItem
-                0x000021ca                vListInsertEnd
-                0x00002260                vListInsert
-                0x00002338                uxListRemove
- .text          0x000023d0      0x5b2 ../../FreeRTOS/Source/croutine.o
-                0x000023d0                xCoRoutineCreate
-                0x000024f8                vCoRoutineAddToDelayedList
-                0x000027aa                vCoRoutineSchedule
-                0x00002912                xCoRoutineRemoveFromEventList
- .text          0x00002982       0xda ../../FreeRTOS/Source/heap_1.o
-                0x00002982                pvPortMalloc
-                0x00002a0e                vPortFree
-                0x00002a28                vPortInitialiseBlocks
-                0x00002a3e                xPortGetFreeHeapSize
- .text          0x00002a5c      0x5fa ../../FreeRTOS/Source/port.o
-                0x00002a5c                pxPortInitialiseStack
-                0x00002d92                xPortStartScheduler
-                0x00002e04                vPortEndScheduler
-                0x00002e12                vPortYield
-                0x00002ed4                vPortYieldFromTick
-                0x00003050                __vector_32
- .text          0x00003056      0x52a usart.o
-                0x00003056                USART_Init
-                0x00003138                USART_Write
-                0x00003166                USART_Write_Unprotected
-                0x00003194                USART_Read
-                0x000031b2                ISR
-                0x000031f6                USART_AddToQueue
-                0x00003224                USART_TransmitString
-                0x0000325e                vTaskUSARTWrite
-                0x000032a2                USART_LogChar
-                0x000032d0                USART_LogString
-                0x0000330a                vTaskUSARTLog
-                0x0000334e                vTaskUSARTRead
-                0x00003428                sendResponse
-                0x000034d2                sendACK
-                0x000034e6                sendNACK
-                0x000034fa                waitForChecksum
-                0x00003526                calcChecksum
- .text          0x00003580      0x422 protocol.o
-                0x00003580                commandIntegCheck
-                0x0000359c                processUltrasonicCommand
-                0x00003632                processSpeedCommand
-                0x000036a0                processSteeringCommand
-                0x000037aa                processFNRCommand
-                0x00003816                processBrakeCommand
-                0x00003882                processBatteryCommand
-                0x000038e6                processLightCommand
-                0x0000392a                processCommand
- .text          0x000039a2       0x44 Components/Battery/Battery.o
-                0x000039a2                getBatteryVoltage
-                0x000039c4                getSteeringVoltage
- .text          0x000039e6       0x38 Components/Brake/Brake.o
-                0x000039e6                setBrake
-                0x000039fc                getBrake
- .text          0x00003a1e        0x0 Components/Error/Error.o
- .text          0x00003a1e       0x38 Components/FNR/FNR.o
-                0x00003a1e                setFNR
-                0x00003a34                getFNR
- .text          0x00003a56       0x16 Components/Lights/Lights.o
-                0x00003a56                setLight
- .text          0x00003a6c      0x3c4 Components/Sonar/Sonar.o
-                0x00003a6c                setSonarData
-                0x00003a96                getSonarData
-                0x00003abc                getTimerCount
-                0x00003ad0                __vector_11
-                0x00003ba2                initializeSonarSensors
-                0x00003be6                vTaskSonar
-                0x00003c8e                getAllSensors
-                0x00003ce6                getCertainSensor
-                0x00003d42                getSensorGroup
- .text          0x00003e30       0x38 Components/Speed/Speed.o
-                0x00003e30                getSpeed
-                0x00003e52                setSpeed
- .text          0x00003e68       0x94 Components/Steering/Steering.o
-                0x00003e68                setAngle
-                0x00003e7e                getAngle
-                0x00003ea0                getDesiredAngle
-                0x00003ec2                changePID
-                0x00003ee0                setLimits
- .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodsi4.o)
- .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
- .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_clear_bss.o)
- .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
- .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
- .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
- .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
- .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
- .text          0x00003efc        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodhi4.o)
-                0x00003efc                . = ALIGN (0x2)
+                0x00000470                vIO_init
+ .text          0x0000048c     0x125a ../../FreeRTOS/Source/tasks.o
+                0x0000048c                xTaskGenericCreate
+                0x00000666                vTaskDelayUntil
+                0x0000074e                vTaskDelay
+                0x000007b8                vTaskSuspend
+                0x00000884                xTaskIsTaskSuspended
+                0x000008e2                vTaskResume
+                0x000009aa                xTaskResumeFromISR
+                0x00000a76                vTaskStartScheduler
+                0x00000ae4                vTaskEndScheduler
+                0x00000afc                vTaskSuspendAll
+                0x00000b14                xTaskResumeAll
+                0x00000c28                xTaskGetTickCount
+                0x00000c58                xTaskGetTickCountFromISR
+                0x00000c80                uxTaskGetNumberOfTasks
+                0x00000c92                vTaskIncrementTick
+                0x00000e3a                vTaskSwitchContext
+                0x00000f40                vTaskPlaceOnEventList
+                0x00000fd0                xTaskRemoveFromEventList
+                0x000010a0                vTaskSetTimeOutState
+                0x000010d4                xTaskCheckForTimeOut
+                0x000011a2                vTaskMissedYield
+                0x00001490                uxTaskGetStackHighWaterMark
+                0x000014f8                xTaskGetCurrentTaskHandle
+                0x0000151e                vTaskPriorityInherit
+                0x00001628                vTaskPriorityDisinherit
+ .text          0x000016e6      0xa64 ../../FreeRTOS/Source/queue.o
+                0x000016e6                xQueueGenericReset
+                0x000017e2                xQueueGenericCreate
+                0x0000189c                xQueueCreateMutex
+                0x00001936                xQueueGenericSend
+                0x00001a72                xQueueGenericSendFromISR
+                0x00001b14                xQueueGenericReceive
+                0x00001cce                xQueueReceiveFromISR
+                0x00001d74                uxQueueMessagesWaiting
+                0x00001da2                uxQueueMessagesWaitingFromISR
+                0x00001dc6                vQueueDelete
+                0x000020b0                xQueueIsQueueEmptyFromISR
+                0x00002118                xQueueIsQueueFullFromISR
+ .text          0x0000214a      0x27e ../../FreeRTOS/Source/list.o
+                0x0000214a                vListInitialise
+                0x000021a0                vListInitialiseItem
+                0x000021c2                vListInsertEnd
+                0x00002258                vListInsert
+                0x00002330                uxListRemove
+ .text          0x000023c8      0x5b2 ../../FreeRTOS/Source/croutine.o
+                0x000023c8                xCoRoutineCreate
+                0x000024f0                vCoRoutineAddToDelayedList
+                0x000027a2                vCoRoutineSchedule
+                0x0000290a                xCoRoutineRemoveFromEventList
+ .text          0x0000297a       0xda ../../FreeRTOS/Source/heap_1.o
+                0x0000297a                pvPortMalloc
+                0x00002a06                vPortFree
+                0x00002a20                vPortInitialiseBlocks
+                0x00002a36                xPortGetFreeHeapSize
+ .text          0x00002a54      0x5fa ../../FreeRTOS/Source/port.o
+                0x00002a54                pxPortInitialiseStack
+                0x00002d8a                xPortStartScheduler
+                0x00002dfc                vPortEndScheduler
+                0x00002e0a                vPortYield
+                0x00002ecc                vPortYieldFromTick
+                0x00003048                __vector_32
+ .text          0x0000304e      0x5c2 usart.o
+                0x0000304e                USART_Init
+                0x00003130                USART_Write
+                0x0000315e                USART_Write_Unprotected
+                0x0000318c                USART_Read
+                0x000031aa                ISR
+                0x000031d0                USART_AddToQueue
+                0x000031fe                USART_TransmitString
+                0x00003238                vTaskUSARTWrite
+                0x0000327c                USART_LogChar
+                0x000032aa                USART_LogString
+                0x000032e4                vTaskUSARTLog
+                0x00003328                vTaskUSARTRead
+                0x000034b8                sendResponse
+                0x00003562                sendACK
+                0x00003576                sendNACK
+                0x0000358a                waitForChecksum
+                0x000035b6                calcChecksum
+ .text          0x00003610      0x422 protocol.o
+                0x00003610                commandIntegCheck
+                0x0000362c                processUltrasonicCommand
+                0x000036c2                processSpeedCommand
+                0x00003730                processSteeringCommand
+                0x0000383a                processFNRCommand
+                0x000038a6                processBrakeCommand
+                0x00003912                processBatteryCommand
+                0x00003976                processLightCommand
+                0x000039ba                processCommand
+ .text          0x00003a32       0x44 Components/Battery/Battery.o
+                0x00003a32                getBatteryVoltage
+                0x00003a54                getSteeringVoltage
+ .text          0x00003a76       0x38 Components/Brake/Brake.o
+                0x00003a76                setBrake
+                0x00003a8c                getBrake
+ .text          0x00003aae        0x0 Components/Error/Error.o
+ .text          0x00003aae       0x38 Components/FNR/FNR.o
+                0x00003aae                setFNR
+                0x00003ac4                getFNR
+ .text          0x00003ae6       0x16 Components/Lights/Lights.o
+                0x00003ae6                setLight
+ .text          0x00003afc      0x3ce Components/Sonar/Sonar.o
+                0x00003afc                setSonarData
+                0x00003b26                getSonarData
+                0x00003b44                getTimerCount
+                0x00003b58                __vector_11
+                0x00003c2a                initializeSonarSensors
+                0x00003c6e                vTaskSonar
+                0x00003d16                getAllSensors
+                0x00003d80                getCertainSensor
+                0x00003ddc                getSensorGroup
+ .text          0x00003eca       0x38 Components/Speed/Speed.o
+                0x00003eca                getSpeed
+                0x00003eec                setSpeed
+ .text          0x00003f02       0x94 Components/Steering/Steering.o
+                0x00003f02                setAngle
+                0x00003f18                getAngle
+                0x00003f3a                getDesiredAngle
+                0x00003f5c                changePID
+                0x00003f7a                setLimits
+ .text          0x00003f96        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodsi4.o)
+ .text          0x00003f96        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
+ .text          0x00003f96        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_clear_bss.o)
+ .text          0x00003f96        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
+ .text          0x00003f96        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
+ .text          0x00003f96        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
+ .text          0x00003f96        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
+ .text          0x00003f96        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
+ .text          0x00003f96        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodhi4.o)
+                0x00003f96                . = ALIGN (0x2)
  *(.text.*)
- .text.libgcc   0x00003efc       0x44 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodsi4.o)
-                0x00003efc                __udivmodsi4
- .text.libgcc   0x00003f40        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
- .text.libgcc   0x00003f40        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_clear_bss.o)
+ .text.libgcc   0x00003f96       0x44 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodsi4.o)
+                0x00003f96                __udivmodsi4
+ .text.libgcc   0x00003fda        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
+ .text.libgcc   0x00003fda        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_clear_bss.o)
  .text.avr-libc
-                0x00003f40       0x12 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
-                0x00003f40                memcpy
+                0x00003fda       0x12 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
+                0x00003fda                memcpy
  .text.avr-libc
-                0x00003f52        0xe /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
-                0x00003f52                memset
+                0x00003fec        0xe /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
+                0x00003fec                memset
  .text.avr-libc
-                0x00003f60       0x1e /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
-                0x00003f60                strncpy
+                0x00003ffa       0x1e /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
+                0x00003ffa                strncpy
  .text.avr-libc
-                0x00003f7e       0x42 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
-                0x00003f7e                itoa
+                0x00004018       0x42 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
+                0x00004018                itoa
  .text.avr-libc
-                0x00003fc0       0x20 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
-                0x00003fc0                strrev
- .text.libgcc   0x00003fe0       0x28 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodhi4.o)
-                0x00003fe0                __udivmodhi4
-                0x00004008                . = ALIGN (0x2)
+                0x0000405a       0x20 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
+                0x0000405a                strrev
+ .text.libgcc   0x0000407a       0x28 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_udivmodhi4.o)
+                0x0000407a                __udivmodhi4
+                0x000040a2                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00004008        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
-                0x00004008                exit
-                0x00004008                _exit
+ .fini9         0x000040a2        0x0 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
+                0x000040a2                exit
+                0x000040a2                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -455,11 +455,11 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00004008        0x4 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
+ .fini0         0x000040a2        0x4 /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a(_exit.o)
  *(.fini0)
-                0x0000400c                _etext = .
+                0x000040a6                _etext = .
 
-.data           0x00800200       0x24 load address 0x0000400c
+.data           0x00800200       0x24 load address 0x000040a6
                 0x00800200                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800200        0x0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/crtm2560.o
@@ -546,8 +546,8 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
                 0x00801acc                sonarDataMutex
                 0x00801ad8                currSonar
                 0x00801ad9                PROVIDE (__bss_end, .)
-                0x0000400c                __data_load_start = LOADADDR (.data)
-                0x00004030                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x000040a6                __data_load_start = LOADADDR (.data)
+                0x000040ca                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00801ad9        0x0
                 0x00801ad9                PROVIDE (__noinit_start, .)
@@ -572,52 +572,52 @@ LOAD /usr/lib/gcc/avr/4.3.5/avr6/libgcc.a
 .signature
  *(.signature*)
 
-.stab           0x00000000     0x8964
+.stab           0x00000000     0x89ac
  *(.stab)
  .stab          0x00000000      0x768 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/crtm2560.o
- .stab          0x00000768      0xa68 main.o
-                                0xa74 (size before relaxing)
- .stab          0x000011d0     0x1d64 ../../FreeRTOS/Source/tasks.o
+ .stab          0x00000768      0xa5c main.o
+                                0xa68 (size before relaxing)
+ .stab          0x000011c4     0x1d64 ../../FreeRTOS/Source/tasks.o
                                0x20e8 (size before relaxing)
- .stab          0x00002f34     0x1428 ../../FreeRTOS/Source/queue.o
+ .stab          0x00002f28     0x1428 ../../FreeRTOS/Source/queue.o
                                0x168c (size before relaxing)
- .stab          0x0000435c      0x540 ../../FreeRTOS/Source/list.o
+ .stab          0x00004350      0x540 ../../FreeRTOS/Source/list.o
                                 0x81c (size before relaxing)
- .stab          0x0000489c      0x978 ../../FreeRTOS/Source/croutine.o
+ .stab          0x00004890      0x978 ../../FreeRTOS/Source/croutine.o
                                 0xc60 (size before relaxing)
- .stab          0x00005214      0x384 ../../FreeRTOS/Source/heap_1.o
+ .stab          0x00005208      0x384 ../../FreeRTOS/Source/heap_1.o
                                 0x6d8 (size before relaxing)
- .stab          0x00005598      0x990 ../../FreeRTOS/Source/port.o
+ .stab          0x0000558c      0x990 ../../FreeRTOS/Source/port.o
                                 0xcd8 (size before relaxing)
- .stab          0x00005f28      0xc6c usart.o
-                                0xee8 (size before relaxing)
- .stab          0x00006b94      0x63c protocol.o
+ .stab          0x00005f1c      0xcc0 usart.o
+                                0xf3c (size before relaxing)
+ .stab          0x00006bdc      0x63c protocol.o
                                 0x684 (size before relaxing)
- .stab          0x000071d0      0x1bc Components/Battery/Battery.o
+ .stab          0x00007218      0x1bc Components/Battery/Battery.o
                                 0x1c8 (size before relaxing)
- .stab          0x0000738c      0x1b0 Components/Brake/Brake.o
+ .stab          0x000073d4      0x1b0 Components/Brake/Brake.o
                                 0x1bc (size before relaxing)
- .stab          0x0000753c       0xe4 Components/Error/Error.o
+ .stab          0x00007584       0xe4 Components/Error/Error.o
                                  0xf0 (size before relaxing)
- .stab          0x00007620      0x1b0 Components/FNR/FNR.o
+ .stab          0x00007668      0x1b0 Components/FNR/FNR.o
                                 0x1bc (size before relaxing)
- .stab          0x000077d0      0x144 Components/Lights/Lights.o
+ .stab          0x00007818      0x144 Components/Lights/Lights.o
                                 0x150 (size before relaxing)
- .stab          0x00007914      0x75c Components/Sonar/Sonar.o
+ .stab          0x0000795c      0x75c Components/Sonar/Sonar.o
                                 0x9d8 (size before relaxing)
- .stab          0x00008070      0x1b0 Components/Speed/Speed.o
+ .stab          0x000080b8      0x1b0 Components/Speed/Speed.o
                                 0x1bc (size before relaxing)
- .stab          0x00008220      0x300 Components/Steering/Steering.o
+ .stab          0x00008268      0x300 Components/Steering/Steering.o
                                 0x30c (size before relaxing)
- .stab          0x00008520       0x84 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
+ .stab          0x00008568       0x84 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
                                  0x90 (size before relaxing)
- .stab          0x000085a4       0x6c /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
+ .stab          0x000085ec       0x6c /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
                                  0x78 (size before relaxing)
- .stab          0x00008610       0xcc /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
+ .stab          0x00008658       0xcc /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strncpy.o)
                                  0xd8 (size before relaxing)
- .stab          0x000086dc      0x1b0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
+ .stab          0x00008724      0x1b0 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(itoa.o)
                                 0x1bc (size before relaxing)
- .stab          0x0000888c       0xd8 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
+ .stab          0x000088d4       0xd8 /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(strrev.o)
                                  0xe4 (size before relaxing)
 
 .stabstr        0x00000000     0x3d66
@@ -686,6 +686,7 @@ Cross Reference Table
 Symbol                                            File
 ISR                                               usart.o
 USART_AddToQueue                                  usart.o
+                                                  main.o
 USART_Init                                        usart.o
                                                   main.o
 USART_LogChar                                     usart.o
@@ -821,6 +822,7 @@ lastSonarData                                     Components/Sonar/Sonar.o
 main                                              main.o
                                                   /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/crtm2560.o
 memcpy                                            /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memcpy.o)
+                                                  usart.o
                                                   ../../FreeRTOS/Source/queue.o
 memset                                            /usr/lib/gcc/avr/4.3.5/../../../avr/lib/avr6/libc.a(memset.o)
                                                   ../../FreeRTOS/Source/tasks.o
@@ -908,7 +910,6 @@ vPortYieldFromTick                                ../../FreeRTOS/Source/port.o
 vQueueDelete                                      ../../FreeRTOS/Source/queue.o
 vTaskDelay                                        ../../FreeRTOS/Source/tasks.o
                                                   usart.o
-                                                  main.o
 vTaskDelayUntil                                   ../../FreeRTOS/Source/tasks.o
 vTaskEndScheduler                                 ../../FreeRTOS/Source/tasks.o
 vTaskFunction_1                                   main.o
@@ -959,7 +960,6 @@ xQueueGenericSend                                 ../../FreeRTOS/Source/queue.o
                                                   usart.o
 xQueueGenericSendFromISR                          ../../FreeRTOS/Source/queue.o
                                                   Components/Sonar/Sonar.o
-                                                  usart.o
 xQueueIsQueueEmptyFromISR                         ../../FreeRTOS/Source/queue.o
 xQueueIsQueueFullFromISR                          ../../FreeRTOS/Source/queue.o
 xQueueReceiveFromISR                              ../../FreeRTOS/Source/queue.o

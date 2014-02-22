@@ -24,7 +24,8 @@ void setSonarData(int i,unsigned char data){
 
 unsigned char getSonarData(int i){
    //xSemaphoreTake(sonarDataMutex[i],portMAX_DELAY);
-   return sonarData[i];
+   //return sonarData[i];
+   return i + 2;
    //xSemaphoreGive(sonarDataMutex[i]);
 }
 
@@ -43,9 +44,11 @@ ISR(PCINT2_vect) {
    char i=0;   
 
    if(PINK&(1<<currSonar)){
+      //USART_AddToQueue('U');
       beginCount = getTimerCount();
       PORTE = 0xFF;
    } else {
+      //USART_AddToQueue('D');
       currCount = getTimerCount();
       if(currCount > beginCount){
          lastSonarData = currCount - beginCount;
@@ -98,8 +101,8 @@ void vTaskSonar(void* parameter){
 char getAllSensors(unsigned short* responseData){
    unsigned short i;
    for(i=0;i<6;i++){
-      //responseData[i] = getSonarData(i);
-      responseData[i] = i;
+      responseData[i] = getSonarData(i);
+      //responseData[i] = i;
    }
 }
 

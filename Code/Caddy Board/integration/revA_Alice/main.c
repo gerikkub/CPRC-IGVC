@@ -98,10 +98,10 @@ void printNum(unsigned char i){
     
     char str[10];
     memset(str,0,10);
-    itoa(i,str,9);
+    itoa(i,str,10);
     char * irr = str;
     while(*irr){
-        USART_Write((unsigned char )*irr);
+        USART_AddToQueue((unsigned char )*irr);
         irr++;
     }
     
@@ -126,15 +126,16 @@ unsigned int getTimerCount2(){
 void vTaskFunction_1(void *pvParameters)
 {	
     USART_Init(9600, 16000000);
+    for(;;);
 	//static const char* str = "Hello World\n";
-	for(;;){
+	//for(;;){
 		//PORTB = 0;
 
 		//USART_TransmitString("Hello World!\n");
-		//USART_LogChar("I");
+	//	USART_AddToQueue('I');
 		//USART_TransmitString("H\n");
-		vTaskDelay(25);
-	}
+	//	vTaskDelay(25);
+	//}
 	/*for(;;){
 		printNum(getTimerCount2());
 		USART_Write('\n');
@@ -143,12 +144,11 @@ void vTaskFunction_1(void *pvParameters)
     for (;;)  {
 //        PORTB ^=  0xff;j
 		//PCMSK2 = 1;
-
-      printNum(getSonarData(0));
-		USART_Write(' ');
-		printNum(getSonarData(1));
-		USART_Write('\n');
-      vTaskDelay(25);
+    	printNum(getSonarData(0));
+		USART_AddToQueue(' ');
+		//printNum(getSonarData(1));
+		//USART_Write('\n');
+      	vTaskDelay(25);
         /* Get and return received data from buffer */
         // UDR0;
     }

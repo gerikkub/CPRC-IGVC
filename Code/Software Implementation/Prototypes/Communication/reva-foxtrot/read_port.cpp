@@ -12,6 +12,8 @@ using namespace std;
 using namespace LibSerial ;
 SerialStream serial_port ;
 
+int sendCommand();
+
 void SendHeader(uchar groupid , uchar cmd, uchar size  )
 {
     uchar checksum  = groupid+ cmd +size;
@@ -91,18 +93,38 @@ int main()
     // Wait for some data to be available at the serial port.
     //
 
+    int runs = 0;
+    int errors = 0;
+
+    for(;;){
+      if(sendCommand() == EXIT_FAILURE){
+        errors++;
+      }
+      runs++;
+
+      std::cout << ((float)(runs-errors)/runs)*100 << "%\n";
+
+      usleep(1000000);
+
+    }
+
+
+}
+int sendCommand(){
+
     serialCommandsStart:
 
-    std::cout << "Starting serial transmission" << std::endl;
+    std::cerr << "Starting serial transmission" << std::endl;
         usleep(100) ;
         int size = 0;
         SendHeader(1,1,size);
         char next_byte;
         serial_port.get(next_byte);
-        if((uchar)next_byte == 128)
-            std::cout << "good shit\n";
-        else
-            std:cout << "bad shit\n";
+        if((uchar)next_byte == 128) {
+            std::cerr << "good shit\n";
+        } else {
+            std::cerr << "bad shit\n";
+        }
 
         /*unsigned char array[10] = {0xff,2,3,6, 4,4,4};
         uchar checksum = 0;
@@ -142,6 +164,7 @@ int main()
            std::cerr << "ERROR: Expected " << checksum << " in header response but recieved"
               << headerResponse[2] << std::endl;
            serial_port << 0x00;
+           //std:cout << "e";
            return EXIT_FAILURE;
         } else {
            std::cerr << "Correct checksum in header response" << std::endl;
@@ -171,11 +194,13 @@ int main()
         if(payloadSentSum != payloadSum) {
            std::cerr << "ERROR: Expected checksum of " << std::hex << (int)payloadSentSum  <<
               " and recieved " << std::hex << (int) payloadSum << std::endl;
+           return EXIT_FAILURE;
         } else {
            std::cerr << "Correct checksum in the payload" << std::endl;
         }
 
 
    std::cerr << std::endl ;
-    return EXIT_SUCCESS ;
+   return EXIT_SUCCESS ;
 }
+
