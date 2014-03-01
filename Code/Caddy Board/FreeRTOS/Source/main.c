@@ -13,11 +13,10 @@
 #include <stdio.h>
 #include <math.h>
 #include "FreeRTOS.h"
-#include <avr/io.h>
 #include <avr/interrupt.h>
 #include "task.h"
 #include "usart.h"
-#include "Components/Sonar/Sonar.h"
+#include "sonar.h"
 #include "queue.h"
 
 void vTaskFunction_1(void *pvParameters);
@@ -33,10 +32,6 @@ int sonarTime;
 void vApplicationTickHook()
 {
     count++;
-}
-
-void vApplicationStackOverflowHook(){
-	return;
 }
 /*-----------------------------------------------------------*/
 
@@ -66,17 +61,15 @@ int main( void )
 	xTaskCreate( (pdTASK_CODE) vTaskFunction_1, (signed char *) "T0", configMINIMAL_STACK_SIZE+1000,
                 (void *) val1, 1, NULL );
     
-   xTaskCreate( (pdTASK_CODE) vTaskSonar, (signed char *) "T1", configMINIMAL_STACK_SIZE+1000,
+   xTaskCreate( (pdTASK_CODE) vTaskSonar, (signed char *) "T0", configMINIMAL_STACK_SIZE,
                 (void *) val1, 1, NULL );
 
-   xTaskCreate( (pdTASK_CODE) vTaskUSARTWrite, (signed char *) "T2", configMINIMAL_STACK_SIZE+1000,
+   xTaskCreate( (pdTASK_CODE) vTaskUARTWrite, (signed char *) "T0", configMINIMAL_STACK_SIZE,
    				(void *) val1, 1, NULL);
 
-   xTaskCreate( (pdTASK_CODE) vTaskUSARTRead, (signed char *) "T3", configMINIMAL_STACK_SIZE+1000,
+   xTaskCreate( (pdTASK_CODE) vTaskUARTRead, (signed char *) "T0", configMINIMAL_STACK_SIZE,
    				(void *) val1, 1, NULL);
 
-//   xTaskCreate( (pdTASK_CODE) vTaskUSARTLog, (signed char *) "T4", configMINIMAL_STACK_SIZE+1000,
-//   				(void *) val1, 1, NULL);
     
     //- kick off the scheduler
 	vTaskStartScheduler();
@@ -99,10 +92,10 @@ void printNum(unsigned char i){
     
     char str[10];
     memset(str,0,10);
-    itoa(i,str,10);
+    itoa(i,str,9);
     char * irr = str;
     while(*irr){
-        USART_AddToQueue((unsigned char )*irr);
+        USART_Write((unsigned char )*irr);
         irr++;
     }
     
@@ -127,16 +120,15 @@ unsigned int getTimerCount2(){
 void vTaskFunction_1(void *pvParameters)
 {	
     USART_Init(9600, 16000000);
-    for(;;);
 	//static const char* str = "Hello World\n";
-	//for(;;){
+	for(;;){
 		//PORTB = 0;
-
+		//USART_AddToQueue('%');
 		//USART_TransmitString("Hello World!\n");
-	//	USART_AddToQueue('I');
+
 		//USART_TransmitString("H\n");
-	//	vTaskDelay(25);
-	//}
+		vTaskDelay(25);
+	}
 	/*for(;;){
 		printNum(getTimerCount2());
 		USART_Write('\n');
@@ -145,11 +137,12 @@ void vTaskFunction_1(void *pvParameters)
     for (;;)  {
 //        PORTB ^=  0xff;j
 		//PCMSK2 = 1;
-    	printNum(getSonarData(0));
-		USART_AddToQueue(' ');
-		//printNum(getSonarData(1));
-		//USART_Write('\n');
-      	vTaskDelay(25);
+
+      printNum(getSonarData(0));
+		USART_Write(' ');
+		printNum(getSonarData(1));
+		USART_Write('\n');
+      vTaskDelay(25);
         /* Get and return received data from buffer */
         // UDR0;
     }
@@ -159,7 +152,7 @@ void vIO_init(void)
 {
     //- set PortB as output
 	DDRB = 0xFF; 
-    PORTB = 0; 
+    PORTB = 0xFF; 
 }
 
 
