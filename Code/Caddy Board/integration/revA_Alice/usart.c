@@ -169,7 +169,7 @@ void vTaskUSARTLog(void *pvParameters){
 
 uint8_t USART_GetChar(){
     uint8_t data;
-    if(xQueueReceive(USART_ReadQueue,&data,10) == pdTRUE){
+    if(xQueueReceive(USART_ReadQueue,&data,1) == pdTRUE){
         //USART_AddToQueue('~');
         return data;
     } else {
@@ -208,6 +208,7 @@ void vTaskUSARTRead(void *pvParameters){
                 //timeout = 0;
             } else {
                 timeout++;
+                PORTB = 0xFF;
             }
             if(timeout > 50000){
                 timeout = 0;
@@ -272,14 +273,15 @@ void sendResponse(Response* response){
         checksumBuffer[0] = response->commandBack;
         checksumBuffer[1] = response->size;
         USART_AddToQueue(calcChecksum(checksumBuffer,2));
-        PORTB = 0xFF;
         if(waitForChecksum() == 0){
             break;
         }
     }
 
+
     for(i=0;i<response->size;i++){
         USART_AddToQueue(response->payload[i]);
+        //USART_AddToQueue(0x30 | (i + 2));
         //USART_AddToQueue()
     }
     USART_AddToQueue(calcChecksum(response->payload,12));
@@ -297,16 +299,18 @@ void sendNACK(){
 
 char waitForChecksum(){
     while(1){
-        if(UCSR1A & (1<<RXC1)){
-            if(UDR1 = 0xFF) {
+        //if(UCSR1A & (1<<RXC1)){
+            if(USART_GetChar() == 0xFF){
+            //if(UDR1 = 0xFF) {
+
                 return 0;
             } else {
                 return -1;
             }
 
-        } else {
-            vTaskDelay(1);
-        }
+        //} else {
+        //    vTaskDelay(1);
+        //}
 
     }
 }
