@@ -41,7 +41,7 @@ int main()
     //
     // Set the baud rate of the serial port.
     //
-    serial_port.SetBaudRate( SerialStreamBuf::BAUD_9600 ) ;
+    serial_port.SetBaudRate( SerialStreamBuf::BAUD_115200 ) ;
     if ( ! serial_port.good() )
     {
         std::cerr << "Error: Could not set the baud rate." << std::endl ;
@@ -104,7 +104,7 @@ int main()
 
       std::cout << ((float)(runs-errors)/runs)*100 << "%\n";
 
-      usleep(1000000);
+      usleep(300000);
 
     }
 
@@ -124,6 +124,7 @@ int sendCommand(){
             std::cerr << "good shit\n";
         } else {
             std::cerr << "bad shit\n";
+            return EXIT_FAILURE;
         }
 
         /*unsigned char array[10] = {0xff,2,3,6, 4,4,4};
@@ -180,10 +181,13 @@ int sendCommand(){
         //REMOVE LATER
         memset(payload,0,headerResponse[1]);
 
+        std::cerr << "Starting to Revcieve\n";
+
         for(char i = 0; i < headerResponse[1]; i++) {
           do {
             serial_port.get(payload[i]);
-          } while(payload[i] == -1);
+       
+   } while(payload[i] == -1);
           std::cerr << "Recieved byte 0x" << std::hex  << std::setw(2) << std::setfill('0')
             << (unsigned int)payload[i] << " " << (0x30 | i) << std::endl;
           payloadSum += payload[i];
