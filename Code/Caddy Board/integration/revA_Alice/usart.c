@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 
 #include "usart.h"
@@ -57,6 +58,7 @@ void USART_Init(uint16_t baudin, uint32_t clk_speedin) {
 
     //UCSR0B |= (1<<UDRIE0);
 
+    //PORTB = 0xFF;
 
     //UART0 Logging
 
@@ -112,10 +114,10 @@ uint8_t USART_Read(void) {
 
 
 ISR(USART1_RX_vect){
-    //uint8_t data;
-    //data = UDR1;
-    PORTB = 0xFF;
-    //xQueueSendToBackFromISR(USART_ReadQueue,&data,NULL);
+    uint8_t data;
+    data = UDR1;
+    //USART_AddToQueue(data);
+    xQueueSendToBackFromISR(USART_ReadQueue,&data,NULL);
 }
 
 void USART_AddToQueue(uint8_t data){
@@ -156,13 +158,23 @@ void USART_LogString(char* str){
 void vTaskUSARTLog(void *pvParameters){
     uint8_t data;
     while(1){
-    xQueueReceive(USART_WriteQueueLog,&data,portMAX_DELAY);
+        xQueueReceive(USART_WriteQueueLog,&data,portMAX_DELAY);
 
         while(!(UCSR0A & (1<<UDRE0)));
         UDR0 = data;
 
     }
 
+}
+
+uint8_t USART_GetChar(){
+    uint8_t data;
+    if(xQueueReceive(USART_ReadQueue,&data,1) == pdTRUE){
+        //USART_AddToQueue('~');
+        return data;
+    } else {
+        return 255;
+    }
 }
 
 void vTaskUSARTRead(void *pvParameters){
@@ -186,8 +198,9 @@ void vTaskUSARTRead(void *pvParameters){
         timeout = 0;
         while(bytesRecieved < 4){
             //if there is data to be read...
-            if((UCSR1A & (1<<RXC1))){
-                rxData = UDR1;
+            //if((UCSR1A & (1<<RXC1))){
+            //    rxData = UDR1;
+            if((rxData = USART_GetChar()) != 255){
             //if(xQueueReceive(USART_ReadQueue,&rxData,portMAX_DELAY) == pdTRUE){
                 buffer[bytesRecieved] = rxData;
                 //USART_AddToQueue(rxData);
@@ -195,6 +208,7 @@ void vTaskUSARTRead(void *pvParameters){
                 //timeout = 0;
             } else {
                 timeout++;
+                PORTB = 0xFF;
             }
             if(timeout > 50000){
                 timeout = 0;
@@ -264,8 +278,10 @@ void sendResponse(Response* response){
         }
     }
 
+
     for(i=0;i<response->size;i++){
         USART_AddToQueue(response->payload[i]);
+        //USART_AddToQueue(0x30 | (i + 2));
         //USART_AddToQueue()
     }
     USART_AddToQueue(calcChecksum(response->payload,12));
@@ -283,16 +299,18 @@ void sendNACK(){
 
 char waitForChecksum(){
     while(1){
-        if(UCSR1A & (1<<RXC1)){
-            if(UDR1 = 0xFF) {
+        //if(UCSR1A & (1<<RXC1)){
+            if(USART_GetChar() == 0xFF){
+            //if(UDR1 = 0xFF) {
+
                 return 0;
             } else {
                 return -1;
             }
 
-        } else {
-            vTaskDelay(1);
-        }
+        //} else {
+        //    vTaskDelay(1);
+        //}
 
     }
 }

@@ -1,15 +1,18 @@
    1               		.file	"usart.c"
-   2               	__SREG__ = 0x3f
-   3               	__SP_H__ = 0x3e
-   4               	__SP_L__ = 0x3d
-   5               	__CCP__  = 0x34
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
    6               	__tmp_reg__ = 0
    7               	__zero_reg__ = 1
   10               		.text
   11               	.Ltext0:
- 107               	.global	USART_Init
- 109               	USART_Init:
- 110               		.stabd	46,0,0
+ 138               		.comm	USART_WriteQueue,2,1
+ 139               		.comm	USART_ReadQueue,2,1
+ 140               		.comm	USART_WriteQueueLog,2,1
+ 144               	.global	USART_Init
+ 146               	USART_Init:
+ 147               		.stabd	46,0,0
    1:usart.c       **** /***************************
    2:usart.c       **** *
    3:usart.c       **** * Filename: usart.cpp
@@ -30,1330 +33,1526 @@
   18:usart.c       **** #include <stdlib.h>
   19:usart.c       **** #include <stdint.h>
   20:usart.c       **** #include <avr/io.h>
-  21:usart.c       **** 
+  21:usart.c       **** #include <avr/interrupt.h>
   22:usart.c       **** 
-  23:usart.c       **** #include "usart.h"
-  24:usart.c       **** 
-  25:usart.c       **** xQueueHandle USART_WriteQueue;
-  26:usart.c       **** xQueueHandle USART_ReadQueue;
-  27:usart.c       **** xQueueHandle USART_WriteQueueLog;
-  28:usart.c       **** 
+  23:usart.c       **** 
+  24:usart.c       **** #include "usart.h"
+  25:usart.c       **** 
+  26:usart.c       **** xQueueHandle USART_WriteQueue;
+  27:usart.c       **** xQueueHandle USART_ReadQueue;
+  28:usart.c       **** xQueueHandle USART_WriteQueueLog;
   29:usart.c       **** 
   30:usart.c       **** 
-  31:usart.c       **** /************************************
-  32:usart.c       **** * Procedure: usart_init
-  33:usart.c       **** *  
-  34:usart.c       **** * Description: Initializes the USART module with 
-  35:usart.c       **** *  the specified baud rate and clk speed.
-  36:usart.c       **** *
-  37:usart.c       **** * Param buadin: The desired Baud rate.
-  38:usart.c       **** * Param clk_seedin: The clk speed of the ATmega328p
-  39:usart.c       **** ************************************/
-  40:usart.c       **** void USART_Init(uint16_t baudin, uint32_t clk_speedin) {
- 112               	.LM0:
- 113               	.LFBB1:
- 114 0000 EF92      		push r14
- 115 0002 FF92      		push r15
- 116 0004 0F93      		push r16
- 117 0006 1F93      		push r17
- 118 0008 DF93      		push r29
- 119 000a CF93      		push r28
- 120 000c CDB7      		in r28,__SP_L__
- 121 000e DEB7      		in r29,__SP_H__
- 122 0010 2A97      		sbiw r28,10
- 123 0012 0FB6      		in __tmp_reg__,__SREG__
- 124 0014 F894      		cli
- 125 0016 DEBF      		out __SP_H__,r29
- 126 0018 0FBE      		out __SREG__,__tmp_reg__
- 127 001a CDBF      		out __SP_L__,r28
- 128               	/* prologue: function */
- 129               	/* frame size = 10 */
- 130 001c 9E83      		std Y+6,r25
- 131 001e 8D83      		std Y+5,r24
- 132 0020 4F83      		std Y+7,r20
- 133 0022 5887      		std Y+8,r21
- 134 0024 6987      		std Y+9,r22
- 135 0026 7A87      		std Y+10,r23
-  41:usart.c       ****     USART_WriteQueue = xQueueCreate(64,sizeof(uint8_t));
- 137               	.LM1:
- 138 0028 80E4      		ldi r24,lo8(64)
- 139 002a 61E0      		ldi r22,lo8(1)
- 140 002c 40E0      		ldi r20,lo8(0)
- 141 002e 0E94 0000 		call xQueueGenericCreate
- 142 0032 9093 0000 		sts (USART_WriteQueue)+1,r25
- 143 0036 8093 0000 		sts USART_WriteQueue,r24
-  42:usart.c       ****     USART_ReadQueue = xQueueCreate(8,sizeof(uint8_t));
- 145               	.LM2:
- 146 003a 88E0      		ldi r24,lo8(8)
- 147 003c 61E0      		ldi r22,lo8(1)
- 148 003e 40E0      		ldi r20,lo8(0)
- 149 0040 0E94 0000 		call xQueueGenericCreate
- 150 0044 9093 0000 		sts (USART_ReadQueue)+1,r25
- 151 0048 8093 0000 		sts USART_ReadQueue,r24
-  43:usart.c       **** 
-  44:usart.c       ****     uint32_t ubrr = clk_speedin/(16UL)/baudin-1;
- 153               	.LM3:
- 154 004c 8F81      		ldd r24,Y+7
- 155 004e 9885      		ldd r25,Y+8
- 156 0050 A985      		ldd r26,Y+9
- 157 0052 BA85      		ldd r27,Y+10
- 158 0054 7C01      		movw r14,r24
- 159 0056 8D01      		movw r16,r26
- 160 0058 6894      		set
- 161 005a 13F8      		bld __zero_reg__,4-1
- 162 005c 1695      	1:	lsr r17
- 163 005e 0795      		ror r16
- 164 0060 F794      		ror r15
- 165 0062 E794      		ror r14
- 166 0064 1694      		lsr __zero_reg__
- 167 0066 01F4      		brne 1b
- 168 0068 8D81      		ldd r24,Y+5
- 169 006a 9E81      		ldd r25,Y+6
- 170 006c 9C01      		movw r18,r24
- 171 006e 40E0      		ldi r20,lo8(0)
- 172 0070 50E0      		ldi r21,hi8(0)
- 173 0072 C801      		movw r24,r16
- 174 0074 B701      		movw r22,r14
- 175 0076 0E94 0000 		call __udivmodsi4
- 176 007a DA01      		movw r26,r20
- 177 007c C901      		movw r24,r18
- 178 007e 0197      		sbiw r24,1
- 179 0080 A109      		sbc r26,__zero_reg__
- 180 0082 B109      		sbc r27,__zero_reg__
- 181 0084 8983      		std Y+1,r24
- 182 0086 9A83      		std Y+2,r25
- 183 0088 AB83      		std Y+3,r26
- 184 008a BC83      		std Y+4,r27
-  45:usart.c       ****     UBRR1H = (unsigned char)(ubrr>>8) ;// & 0x7F;
- 186               	.LM4:
- 187 008c EDEC      		ldi r30,lo8(205)
- 188 008e F0E0      		ldi r31,hi8(205)
- 189 0090 8981      		ldd r24,Y+1
- 190 0092 9A81      		ldd r25,Y+2
- 191 0094 AB81      		ldd r26,Y+3
- 192 0096 BC81      		ldd r27,Y+4
- 193 0098 892F      		mov r24,r25
- 194 009a 9A2F      		mov r25,r26
- 195 009c AB2F      		mov r26,r27
- 196 009e BB27      		clr r27
- 197 00a0 8083      		st Z,r24
-  46:usart.c       ****     UBRR1L = (unsigned char)ubrr;
- 199               	.LM5:
- 200 00a2 ECEC      		ldi r30,lo8(204)
- 201 00a4 F0E0      		ldi r31,hi8(204)
- 202 00a6 8981      		ldd r24,Y+1
- 203 00a8 8083      		st Z,r24
-  47:usart.c       ****     
-  48:usart.c       ****     //UBRR0H = 0; //115200
-  49:usart.c       ****     //UBRR0L = 8;
-  50:usart.c       **** 
-  51:usart.c       ****     /* Enable receiver and transmitter */
-  52:usart.c       ****     UCSR1B = (1<<RXEN1)|(1<<TXEN1)|(1<<RXCIE1);
- 205               	.LM6:
- 206 00aa E9EC      		ldi r30,lo8(201)
- 207 00ac F0E0      		ldi r31,hi8(201)
- 208 00ae 88E9      		ldi r24,lo8(-104)
- 209 00b0 8083      		st Z,r24
-  53:usart.c       ****     /* Set frame format: 8data, 1stop bit */
-  54:usart.c       ****     UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);
- 211               	.LM7:
- 212 00b2 EAEC      		ldi r30,lo8(202)
- 213 00b4 F0E0      		ldi r31,hi8(202)
- 214 00b6 86E0      		ldi r24,lo8(6)
- 215 00b8 8083      		st Z,r24
-  55:usart.c       **** 	// clear U2X0 for Synchronous operation
-  56:usart.c       ****     UCSR1A &= ~(1<<U2X1);
- 217               	.LM8:
- 218 00ba A8EC      		ldi r26,lo8(200)
- 219 00bc B0E0      		ldi r27,hi8(200)
- 220 00be E8EC      		ldi r30,lo8(200)
- 221 00c0 F0E0      		ldi r31,hi8(200)
- 222 00c2 8081      		ld r24,Z
- 223 00c4 8D7F      		andi r24,lo8(-3)
- 224 00c6 8C93      		st X,r24
- 225               	/* epilogue start */
-  57:usart.c       **** 
-  58:usart.c       ****     //UCSR0B |= (1<<UDRIE0);
-  59:usart.c       **** 
+  31:usart.c       **** 
+  32:usart.c       **** /************************************
+  33:usart.c       **** * Procedure: usart_init
+  34:usart.c       **** *  
+  35:usart.c       **** * Description: Initializes the USART module with 
+  36:usart.c       **** *  the specified baud rate and clk speed.
+  37:usart.c       **** *
+  38:usart.c       **** * Param buadin: The desired Baud rate.
+  39:usart.c       **** * Param clk_seedin: The clk speed of the ATmega328p
+  40:usart.c       **** ************************************/
+  41:usart.c       **** void USART_Init(uint16_t baudin, uint32_t clk_speedin) {
+ 149               	.LM0:
+ 150               	.LFBB1:
+ 151 0000 CF93      		push r28
+ 152 0002 DF93      		push r29
+ 153 0004 CDB7      		in r28,__SP_L__
+ 154 0006 DEB7      		in r29,__SP_H__
+ 155 0008 2E97      		sbiw r28,14
+ 156 000a 0FB6      		in __tmp_reg__,__SREG__
+ 157 000c F894      		cli
+ 158 000e DEBF      		out __SP_H__,r29
+ 159 0010 0FBE      		out __SREG__,__tmp_reg__
+ 160 0012 CDBF      		out __SP_L__,r28
+ 161               	/* prologue: function */
+ 162               	/* frame size = 14 */
+ 163               	/* stack size = 16 */
+ 164               	.L__stack_usage = 16
+ 165 0014 9E83      		std Y+6,r25
+ 166 0016 8D83      		std Y+5,r24
+ 167 0018 4F83      		std Y+7,r20
+ 168 001a 5887      		std Y+8,r21
+ 169 001c 6987      		std Y+9,r22
+ 170 001e 7A87      		std Y+10,r23
+  42:usart.c       ****     USART_WriteQueue = xQueueCreate(64,sizeof(uint8_t));
+ 172               	.LM1:
+ 173 0020 40E0      		ldi r20,0
+ 174 0022 61E0      		ldi r22,lo8(1)
+ 175 0024 80E4      		ldi r24,lo8(64)
+ 176 0026 0E94 0000 		call xQueueGenericCreate
+ 177 002a 9093 0000 		sts USART_WriteQueue+1,r25
+ 178 002e 8093 0000 		sts USART_WriteQueue,r24
+  43:usart.c       ****     USART_ReadQueue = xQueueCreate(8,sizeof(uint8_t));
+ 180               	.LM2:
+ 181 0032 40E0      		ldi r20,0
+ 182 0034 61E0      		ldi r22,lo8(1)
+ 183 0036 88E0      		ldi r24,lo8(8)
+ 184 0038 0E94 0000 		call xQueueGenericCreate
+ 185 003c 9093 0000 		sts USART_ReadQueue+1,r25
+ 186 0040 8093 0000 		sts USART_ReadQueue,r24
+  44:usart.c       **** 
+  45:usart.c       ****     uint32_t ubrr = clk_speedin/(16UL)/baudin-1;
+ 188               	.LM3:
+ 189 0044 8F81      		ldd r24,Y+7
+ 190 0046 9885      		ldd r25,Y+8
+ 191 0048 A985      		ldd r26,Y+9
+ 192 004a BA85      		ldd r27,Y+10
+ 193 004c 6894      		set
+ 194 004e 13F8      		bld __zero_reg__,4-1
+ 195               		1:
+ 196 0050 B695      		lsr r27
+ 197 0052 A795      		ror r26
+ 198 0054 9795      		ror r25
+ 199 0056 8795      		ror r24
+ 200 0058 1694      		lsr __zero_reg__
+ 201 005a 01F4      		brne 1b
+ 202 005c 2D81      		ldd r18,Y+5
+ 203 005e 3E81      		ldd r19,Y+6
+ 204 0060 9901      		movw r18,r18
+ 205 0062 40E0      		ldi r20,0
+ 206 0064 50E0      		ldi r21,0
+ 207 0066 BC01      		movw r22,r24
+ 208 0068 CD01      		movw r24,r26
+ 209 006a 0E94 0000 		call __udivmodsi4
+ 210 006e DA01      		movw r26,r20
+ 211 0070 C901      		movw r24,r18
+ 212 0072 0197      		sbiw r24,1
+ 213 0074 A109      		sbc r26,__zero_reg__
+ 214 0076 B109      		sbc r27,__zero_reg__
+ 215 0078 8983      		std Y+1,r24
+ 216 007a 9A83      		std Y+2,r25
+ 217 007c AB83      		std Y+3,r26
+ 218 007e BC83      		std Y+4,r27
+  46:usart.c       ****     UBRR1H = (unsigned char)(ubrr>>8) ;// & 0x7F;
+ 220               	.LM4:
+ 221 0080 2DEC      		ldi r18,lo8(-51)
+ 222 0082 30E0      		ldi r19,0
+ 223 0084 8981      		ldd r24,Y+1
+ 224 0086 9A81      		ldd r25,Y+2
+ 225 0088 AB81      		ldd r26,Y+3
+ 226 008a BC81      		ldd r27,Y+4
+ 227 008c 892F      		mov r24,r25
+ 228 008e 9A2F      		mov r25,r26
+ 229 0090 AB2F      		mov r26,r27
+ 230 0092 BB27      		clr r27
+ 231 0094 F901      		movw r30,r18
+ 232 0096 8083      		st Z,r24
+  47:usart.c       ****     UBRR1L = (unsigned char)ubrr;
+ 234               	.LM5:
+ 235 0098 8CEC      		ldi r24,lo8(-52)
+ 236 009a 90E0      		ldi r25,0
+ 237 009c 2981      		ldd r18,Y+1
+ 238 009e FC01      		movw r30,r24
+ 239 00a0 2083      		st Z,r18
+  48:usart.c       ****     
+  49:usart.c       ****     //UBRR0H = 0; //115200
+  50:usart.c       ****     //UBRR0L = 8;
+  51:usart.c       **** 
+  52:usart.c       ****     /* Enable receiver and transmitter */
+  53:usart.c       ****     UCSR1B = (1<<RXEN1)|(1<<TXEN1)|(1<<RXCIE1);
+ 241               	.LM6:
+ 242 00a2 89EC      		ldi r24,lo8(-55)
+ 243 00a4 90E0      		ldi r25,0
+ 244 00a6 28E9      		ldi r18,lo8(-104)
+ 245 00a8 FC01      		movw r30,r24
+ 246 00aa 2083      		st Z,r18
+  54:usart.c       ****     /* Set frame format: 8data, 1stop bit */
+  55:usart.c       ****     UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);
+ 248               	.LM7:
+ 249 00ac 8AEC      		ldi r24,lo8(-54)
+ 250 00ae 90E0      		ldi r25,0
+ 251 00b0 26E0      		ldi r18,lo8(6)
+ 252 00b2 FC01      		movw r30,r24
+ 253 00b4 2083      		st Z,r18
+  56:usart.c       **** 	// clear U2X0 for Synchronous operation
+  57:usart.c       ****     UCSR1A &= ~(1<<U2X1);
+ 255               	.LM8:
+ 256 00b6 88EC      		ldi r24,lo8(-56)
+ 257 00b8 90E0      		ldi r25,0
+ 258 00ba 28EC      		ldi r18,lo8(-56)
+ 259 00bc 30E0      		ldi r19,0
+ 260 00be F901      		movw r30,r18
+ 261 00c0 2081      		ld r18,Z
+ 262 00c2 2D7F      		andi r18,lo8(-3)
+ 263 00c4 FC01      		movw r30,r24
+ 264 00c6 2083      		st Z,r18
+ 265               	/* epilogue start */
+  58:usart.c       **** 
+  59:usart.c       ****     //UCSR0B |= (1<<UDRIE0);
   60:usart.c       **** 
-  61:usart.c       ****     //UART0 Logging
+  61:usart.c       ****     //PORTB = 0xFF;
   62:usart.c       **** 
-  63:usart.c       ****     /*USART_WriteQueueLog = xQueueCreate(32,sizeof(uint8_t));
+  63:usart.c       ****     //UART0 Logging
   64:usart.c       **** 
-  65:usart.c       ****     ubrr = clk_speedin/(16UL)/baudin-1;
-  66:usart.c       ****     UBRR0H = (unsigned char)(ubrr>>8) ;// & 0x7F;
-  67:usart.c       ****     UBRR0L = (unsigned char)ubrr;
-  68:usart.c       ****     
-  69:usart.c       ****     //UBRR0H = 0; //115200
-  70:usart.c       ****     //UBRR0L = 8;
-  71:usart.c       **** 
-  72:usart.c       ****     /* Enable receiver and transmitter */
-  73:usart.c       ****     //UCSR0B = (1<<RXEN0)|(1<<TXEN0);
-  74:usart.c       ****     /* Set frame format: 8data, 1stop bit */
-  75:usart.c       ****     //UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
-  76:usart.c       ****     // clear U2X0 for Synchronous operation
-  77:usart.c       ****     //UCSR0A &= ~(1<<U2X0);*/
-  78:usart.c       **** 
-  79:usart.c       **** }
- 227               	.LM9:
- 228 00c8 2A96      		adiw r28,10
- 229 00ca 0FB6      		in __tmp_reg__,__SREG__
- 230 00cc F894      		cli
- 231 00ce DEBF      		out __SP_H__,r29
- 232 00d0 0FBE      		out __SREG__,__tmp_reg__
- 233 00d2 CDBF      		out __SP_L__,r28
- 234 00d4 CF91      		pop r28
- 235 00d6 DF91      		pop r29
- 236 00d8 1F91      		pop r17
- 237 00da 0F91      		pop r16
- 238 00dc FF90      		pop r15
- 239 00de EF90      		pop r14
- 240 00e0 0895      		ret
- 245               	.Lscope1:
- 247               		.stabd	78,0,0
- 250               	.global	USART_Write
- 252               	USART_Write:
- 253               		.stabd	46,0,0
+  65:usart.c       ****     /*USART_WriteQueueLog = xQueueCreate(32,sizeof(uint8_t));
+  66:usart.c       **** 
+  67:usart.c       ****     ubrr = clk_speedin/(16UL)/baudin-1;
+  68:usart.c       ****     UBRR0H = (unsigned char)(ubrr>>8) ;// & 0x7F;
+  69:usart.c       ****     UBRR0L = (unsigned char)ubrr;
+  70:usart.c       ****     
+  71:usart.c       ****     //UBRR0H = 0; //115200
+  72:usart.c       ****     //UBRR0L = 8;
+  73:usart.c       **** 
+  74:usart.c       ****     /* Enable receiver and transmitter */
+  75:usart.c       ****     //UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+  76:usart.c       ****     /* Set frame format: 8data, 1stop bit */
+  77:usart.c       ****     //UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+  78:usart.c       ****     // clear U2X0 for Synchronous operation
+  79:usart.c       ****     //UCSR0A &= ~(1<<U2X0);*/
   80:usart.c       **** 
-  81:usart.c       **** /*the send function will put 8bits on the trans line. */
-  82:usart.c       **** void USART_Write(uint8_t data) {
- 255               	.LM10:
- 256               	.LFBB2:
- 257 00e2 DF93      		push r29
- 258 00e4 CF93      		push r28
- 259 00e6 0F92      		push __tmp_reg__
- 260 00e8 CDB7      		in r28,__SP_L__
- 261 00ea DEB7      		in r29,__SP_H__
- 262               	/* prologue: function */
- 263               	/* frame size = 1 */
- 264 00ec 8983      		std Y+1,r24
- 265               	.L4:
-  83:usart.c       **** 		/* Wait for empty transmit buffer */
-  84:usart.c       **** 		while ( !( UCSR0A & (1<<UDRE0)) )
- 267               	.LM11:
- 268 00ee E0EC      		ldi r30,lo8(192)
- 269 00f0 F0E0      		ldi r31,hi8(192)
- 270 00f2 8081      		ld r24,Z
- 271 00f4 882F      		mov r24,r24
- 272 00f6 90E0      		ldi r25,lo8(0)
- 273 00f8 8072      		andi r24,lo8(32)
- 274 00fa 9070      		andi r25,hi8(32)
- 275 00fc 0097      		sbiw r24,0
- 276 00fe 01F0      		breq .L4
-  85:usart.c       **** 		;
-  86:usart.c       **** 		/* Put data into buffer, sends the data */
-  87:usart.c       **** 		UDR0 = data;
- 278               	.LM12:
- 279 0100 E6EC      		ldi r30,lo8(198)
- 280 0102 F0E0      		ldi r31,hi8(198)
- 281 0104 8981      		ldd r24,Y+1
- 282 0106 8083      		st Z,r24
- 283               	/* epilogue start */
-  88:usart.c       **** }
- 285               	.LM13:
- 286 0108 0F90      		pop __tmp_reg__
- 287 010a CF91      		pop r28
- 288 010c DF91      		pop r29
- 289 010e 0895      		ret
- 291               	.Lscope2:
- 293               		.stabd	78,0,0
- 296               	.global	USART_Write_Unprotected
- 298               	USART_Write_Unprotected:
- 299               		.stabd	46,0,0
-  89:usart.c       **** 
-  90:usart.c       **** /*the send function will put 8bits on the trans line. */
-  91:usart.c       **** void USART_Write_Unprotected(uint8_t data) {
- 301               	.LM14:
- 302               	.LFBB3:
- 303 0110 DF93      		push r29
- 304 0112 CF93      		push r28
- 305 0114 0F92      		push __tmp_reg__
- 306 0116 CDB7      		in r28,__SP_L__
- 307 0118 DEB7      		in r29,__SP_H__
- 308               	/* prologue: function */
- 309               	/* frame size = 1 */
- 310 011a 8983      		std Y+1,r24
- 311               	.L7:
-  92:usart.c       **** 	/* Wait for empty transmit buffer */
-  93:usart.c       **** 	while ( !( UCSR0A & (1<<UDRE0)) )
- 313               	.LM15:
- 314 011c E0EC      		ldi r30,lo8(192)
- 315 011e F0E0      		ldi r31,hi8(192)
- 316 0120 8081      		ld r24,Z
- 317 0122 882F      		mov r24,r24
- 318 0124 90E0      		ldi r25,lo8(0)
- 319 0126 8072      		andi r24,lo8(32)
- 320 0128 9070      		andi r25,hi8(32)
- 321 012a 0097      		sbiw r24,0
- 322 012c 01F0      		breq .L7
-  94:usart.c       **** 	;
-  95:usart.c       **** 	/* Put data into buffer, sends the data */
-  96:usart.c       **** 	UDR0 = data;
- 324               	.LM16:
- 325 012e E6EC      		ldi r30,lo8(198)
- 326 0130 F0E0      		ldi r31,hi8(198)
- 327 0132 8981      		ldd r24,Y+1
- 328 0134 8083      		st Z,r24
- 329               	/* epilogue start */
-  97:usart.c       **** }
- 331               	.LM17:
- 332 0136 0F90      		pop __tmp_reg__
- 333 0138 CF91      		pop r28
- 334 013a DF91      		pop r29
- 335 013c 0895      		ret
- 337               	.Lscope3:
- 339               		.stabd	78,0,0
- 341               	.global	USART_Read
- 343               	USART_Read:
- 344               		.stabd	46,0,0
-  98:usart.c       **** 
-  99:usart.c       **** /* the receive data function. Note that this a blocking call
- 100:usart.c       **** Therefore you may not get control back after this is called 
- 101:usart.c       **** until a much later time. It may be helpful to use the 
- 102:usart.c       **** istheredata() function to check before calling this function
- 103:usart.c       ****         @return 8bit data packet from sender
- 104:usart.c       **** */
- 105:usart.c       **** uint8_t USART_Read(void) {
- 346               	.LM18:
- 347               	.LFBB4:
- 348 013e DF93      		push r29
- 349 0140 CF93      		push r28
- 350 0142 CDB7      		in r28,__SP_L__
- 351 0144 DEB7      		in r29,__SP_H__
- 352               	/* prologue: function */
- 353               	/* frame size = 0 */
- 354               	.L10:
- 106:usart.c       ****     /* Wait for data to be received */
- 107:usart.c       ****     while ( !(UCSR0A & (1<<RXC0)) )
- 356               	.LM19:
- 357 0146 E0EC      		ldi r30,lo8(192)
- 358 0148 F0E0      		ldi r31,hi8(192)
- 359 014a 8081      		ld r24,Z
- 360 014c 8823      		tst r24
- 361 014e 04F4      		brge .L10
- 108:usart.c       ****         ;
- 109:usart.c       ****     /* Get and return received data from buffer */
- 110:usart.c       ****     return UDR0;
- 363               	.LM20:
- 364 0150 E6EC      		ldi r30,lo8(198)
- 365 0152 F0E0      		ldi r31,hi8(198)
- 366 0154 8081      		ld r24,Z
- 367               	/* epilogue start */
- 111:usart.c       **** }
- 369               	.LM21:
- 370 0156 CF91      		pop r28
- 371 0158 DF91      		pop r29
- 372 015a 0895      		ret
- 374               	.Lscope4:
- 376               		.stabd	78,0,0
- 379               	.global	ISR
- 381               	ISR:
- 382               		.stabd	46,0,0
- 112:usart.c       **** 
- 113:usart.c       **** 
- 114:usart.c       **** ISR(USART1_RX_vect){
- 384               	.LM22:
- 385               	.LFBB5:
- 386 015c DF93      		push r29
- 387 015e CF93      		push r28
- 388 0160 00D0      		rcall .
- 389 0162 0F92      		push __tmp_reg__
- 390 0164 CDB7      		in r28,__SP_L__
- 391 0166 DEB7      		in r29,__SP_H__
- 392               	/* prologue: function */
- 393               	/* frame size = 4 */
- 394 0168 9A83      		std Y+2,r25
- 395 016a 8983      		std Y+1,r24
- 115:usart.c       ****     //uint8_t data;
- 116:usart.c       ****     //data = UDR1;
- 117:usart.c       ****     PORTB = 0xFF;
- 397               	.LM23:
- 398 016c E5E2      		ldi r30,lo8(37)
- 399 016e F0E0      		ldi r31,hi8(37)
- 400 0170 8FEF      		ldi r24,lo8(-1)
- 401 0172 8083      		st Z,r24
- 402               	/* epilogue start */
- 118:usart.c       ****     //xQueueSendToBackFromISR(USART_ReadQueue,&data,NULL);
- 119:usart.c       **** }
- 404               	.LM24:
- 405 0174 0F90      		pop __tmp_reg__
- 406 0176 0F90      		pop __tmp_reg__
- 407 0178 0F90      		pop __tmp_reg__
- 408 017a 0F90      		pop __tmp_reg__
- 409 017c CF91      		pop r28
- 410 017e DF91      		pop r29
- 411 0180 0895      		ret
- 413               	.Lscope5:
- 415               		.stabd	78,0,0
- 418               	.global	USART_AddToQueue
- 420               	USART_AddToQueue:
- 421               		.stabd	46,0,0
- 120:usart.c       **** 
- 121:usart.c       **** void USART_AddToQueue(uint8_t data){
- 423               	.LM25:
- 424               	.LFBB6:
- 425 0182 DF93      		push r29
- 426 0184 CF93      		push r28
- 427 0186 0F92      		push __tmp_reg__
- 428 0188 CDB7      		in r28,__SP_L__
- 429 018a DEB7      		in r29,__SP_H__
- 430               	/* prologue: function */
- 431               	/* frame size = 1 */
- 432 018c 8983      		std Y+1,r24
- 122:usart.c       ****     
- 123:usart.c       ****     xQueueSendToBack(USART_WriteQueue,&data,portMAX_DELAY);
- 434               	.LM26:
- 435 018e 8091 0000 		lds r24,USART_WriteQueue
- 436 0192 9091 0000 		lds r25,(USART_WriteQueue)+1
- 437 0196 9E01      		movw r18,r28
- 438 0198 2F5F      		subi r18,lo8(-(1))
- 439 019a 3F4F      		sbci r19,hi8(-(1))
- 440 019c B901      		movw r22,r18
- 441 019e 4FEF      		ldi r20,lo8(-1)
- 442 01a0 5FEF      		ldi r21,hi8(-1)
- 443 01a2 20E0      		ldi r18,lo8(0)
- 444 01a4 0E94 0000 		call xQueueGenericSend
- 445               	/* epilogue start */
- 124:usart.c       **** 
- 125:usart.c       **** }
- 447               	.LM27:
- 448 01a8 0F90      		pop __tmp_reg__
- 449 01aa CF91      		pop r28
- 450 01ac DF91      		pop r29
- 451 01ae 0895      		ret
- 453               	.Lscope6:
- 455               		.stabd	78,0,0
- 458               	.global	USART_TransmitString
- 460               	USART_TransmitString:
- 461               		.stabd	46,0,0
+  81:usart.c       **** }
+ 267               	.LM9:
+ 268 00c8 2E96      		adiw r28,14
+ 269 00ca 0FB6      		in __tmp_reg__,__SREG__
+ 270 00cc F894      		cli
+ 271 00ce DEBF      		out __SP_H__,r29
+ 272 00d0 0FBE      		out __SREG__,__tmp_reg__
+ 273 00d2 CDBF      		out __SP_L__,r28
+ 274 00d4 DF91      		pop r29
+ 275 00d6 CF91      		pop r28
+ 276 00d8 0895      		ret
+ 281               	.Lscope1:
+ 283               		.stabd	78,0,0
+ 286               	.global	USART_Write
+ 288               	USART_Write:
+ 289               		.stabd	46,0,0
+  82:usart.c       **** 
+  83:usart.c       **** /*the send function will put 8bits on the trans line. */
+  84:usart.c       **** void USART_Write(uint8_t data) {
+ 291               	.LM10:
+ 292               	.LFBB2:
+ 293 00da CF93      		push r28
+ 294 00dc DF93      		push r29
+ 295 00de 1F92      		push __zero_reg__
+ 296 00e0 CDB7      		in r28,__SP_L__
+ 297 00e2 DEB7      		in r29,__SP_H__
+ 298               	/* prologue: function */
+ 299               	/* frame size = 1 */
+ 300               	/* stack size = 3 */
+ 301               	.L__stack_usage = 3
+ 302 00e4 8983      		std Y+1,r24
+  85:usart.c       **** 		/* Wait for empty transmit buffer */
+  86:usart.c       **** 		while ( !( UCSR0A & (1<<UDRE0)) )
+ 304               	.LM11:
+ 305 00e6 0000      		nop
+ 306               	.L3:
+ 308               	.LM12:
+ 309 00e8 80EC      		ldi r24,lo8(-64)
+ 310 00ea 90E0      		ldi r25,0
+ 311 00ec FC01      		movw r30,r24
+ 312 00ee 8081      		ld r24,Z
+ 313 00f0 882F      		mov r24,r24
+ 314 00f2 90E0      		ldi r25,0
+ 315 00f4 8072      		andi r24,32
+ 316 00f6 9927      		clr r25
+ 317 00f8 0097      		sbiw r24,0
+ 318 00fa 01F0      		breq .L3
+  87:usart.c       **** 		;
+  88:usart.c       **** 		/* Put data into buffer, sends the data */
+  89:usart.c       **** 		UDR0 = data;
+ 320               	.LM13:
+ 321 00fc 86EC      		ldi r24,lo8(-58)
+ 322 00fe 90E0      		ldi r25,0
+ 323 0100 2981      		ldd r18,Y+1
+ 324 0102 FC01      		movw r30,r24
+ 325 0104 2083      		st Z,r18
+ 326               	/* epilogue start */
+  90:usart.c       **** }
+ 328               	.LM14:
+ 329 0106 0F90      		pop __tmp_reg__
+ 330 0108 DF91      		pop r29
+ 331 010a CF91      		pop r28
+ 332 010c 0895      		ret
+ 334               	.Lscope2:
+ 336               		.stabd	78,0,0
+ 339               	.global	USART_Write_Unprotected
+ 341               	USART_Write_Unprotected:
+ 342               		.stabd	46,0,0
+  91:usart.c       **** 
+  92:usart.c       **** /*the send function will put 8bits on the trans line. */
+  93:usart.c       **** void USART_Write_Unprotected(uint8_t data) {
+ 344               	.LM15:
+ 345               	.LFBB3:
+ 346 010e CF93      		push r28
+ 347 0110 DF93      		push r29
+ 348 0112 1F92      		push __zero_reg__
+ 349 0114 CDB7      		in r28,__SP_L__
+ 350 0116 DEB7      		in r29,__SP_H__
+ 351               	/* prologue: function */
+ 352               	/* frame size = 1 */
+ 353               	/* stack size = 3 */
+ 354               	.L__stack_usage = 3
+ 355 0118 8983      		std Y+1,r24
+  94:usart.c       **** 	/* Wait for empty transmit buffer */
+  95:usart.c       **** 	while ( !( UCSR0A & (1<<UDRE0)) )
+ 357               	.LM16:
+ 358 011a 0000      		nop
+ 359               	.L5:
+ 361               	.LM17:
+ 362 011c 80EC      		ldi r24,lo8(-64)
+ 363 011e 90E0      		ldi r25,0
+ 364 0120 FC01      		movw r30,r24
+ 365 0122 8081      		ld r24,Z
+ 366 0124 882F      		mov r24,r24
+ 367 0126 90E0      		ldi r25,0
+ 368 0128 8072      		andi r24,32
+ 369 012a 9927      		clr r25
+ 370 012c 0097      		sbiw r24,0
+ 371 012e 01F0      		breq .L5
+  96:usart.c       **** 	;
+  97:usart.c       **** 	/* Put data into buffer, sends the data */
+  98:usart.c       **** 	UDR0 = data;
+ 373               	.LM18:
+ 374 0130 86EC      		ldi r24,lo8(-58)
+ 375 0132 90E0      		ldi r25,0
+ 376 0134 2981      		ldd r18,Y+1
+ 377 0136 FC01      		movw r30,r24
+ 378 0138 2083      		st Z,r18
+ 379               	/* epilogue start */
+  99:usart.c       **** }
+ 381               	.LM19:
+ 382 013a 0F90      		pop __tmp_reg__
+ 383 013c DF91      		pop r29
+ 384 013e CF91      		pop r28
+ 385 0140 0895      		ret
+ 387               	.Lscope3:
+ 389               		.stabd	78,0,0
+ 391               	.global	USART_Read
+ 393               	USART_Read:
+ 394               		.stabd	46,0,0
+ 100:usart.c       **** 
+ 101:usart.c       **** /* the receive data function. Note that this a blocking call
+ 102:usart.c       **** Therefore you may not get control back after this is called 
+ 103:usart.c       **** until a much later time. It may be helpful to use the 
+ 104:usart.c       **** istheredata() function to check before calling this function
+ 105:usart.c       ****         @return 8bit data packet from sender
+ 106:usart.c       **** */
+ 107:usart.c       **** uint8_t USART_Read(void) {
+ 396               	.LM20:
+ 397               	.LFBB4:
+ 398 0142 CF93      		push r28
+ 399 0144 DF93      		push r29
+ 400 0146 CDB7      		in r28,__SP_L__
+ 401 0148 DEB7      		in r29,__SP_H__
+ 402               	/* prologue: function */
+ 403               	/* frame size = 0 */
+ 404               	/* stack size = 2 */
+ 405               	.L__stack_usage = 2
+ 108:usart.c       ****     /* Wait for data to be received */
+ 109:usart.c       ****     while ( !(UCSR0A & (1<<RXC0)) )
+ 407               	.LM21:
+ 408 014a 0000      		nop
+ 409               	.L7:
+ 411               	.LM22:
+ 412 014c 80EC      		ldi r24,lo8(-64)
+ 413 014e 90E0      		ldi r25,0
+ 414 0150 FC01      		movw r30,r24
+ 415 0152 8081      		ld r24,Z
+ 416 0154 8823      		tst r24
+ 417 0156 04F4      		brge .L7
+ 110:usart.c       ****         ;
+ 111:usart.c       ****     /* Get and return received data from buffer */
+ 112:usart.c       ****     return UDR0;
+ 419               	.LM23:
+ 420 0158 86EC      		ldi r24,lo8(-58)
+ 421 015a 90E0      		ldi r25,0
+ 422 015c FC01      		movw r30,r24
+ 423 015e 8081      		ld r24,Z
+ 424               	/* epilogue start */
+ 113:usart.c       **** }
+ 426               	.LM24:
+ 427 0160 DF91      		pop r29
+ 428 0162 CF91      		pop r28
+ 429 0164 0895      		ret
+ 431               	.Lscope4:
+ 433               		.stabd	78,0,0
+ 435               	.global	__vector_36
+ 437               	__vector_36:
+ 438               		.stabd	46,0,0
+ 114:usart.c       **** 
+ 115:usart.c       **** 
+ 116:usart.c       **** ISR(USART1_RX_vect){
+ 440               	.LM25:
+ 441               	.LFBB5:
+ 442 0166 1F92      		push r1
+ 443 0168 0F92      		push r0
+ 444 016a 0090 5F00 		lds r0,95
+ 445 016e 0F92      		push r0
+ 446 0170 1124      		clr __zero_reg__
+ 447 0172 0090 5B00 		lds r0,91
+ 448 0176 0F92      		push r0
+ 449 0178 2F93      		push r18
+ 450 017a 3F93      		push r19
+ 451 017c 4F93      		push r20
+ 452 017e 5F93      		push r21
+ 453 0180 6F93      		push r22
+ 454 0182 7F93      		push r23
+ 455 0184 8F93      		push r24
+ 456 0186 9F93      		push r25
+ 457 0188 AF93      		push r26
+ 458 018a BF93      		push r27
+ 459 018c EF93      		push r30
+ 460 018e FF93      		push r31
+ 461 0190 CF93      		push r28
+ 462 0192 DF93      		push r29
+ 463 0194 1F92      		push __zero_reg__
+ 464 0196 CDB7      		in r28,__SP_L__
+ 465 0198 DEB7      		in r29,__SP_H__
+ 466               	/* prologue: Signal */
+ 467               	/* frame size = 1 */
+ 468               	/* stack size = 19 */
+ 469               	.L__stack_usage = 19
+ 117:usart.c       ****     uint8_t data;
+ 118:usart.c       ****     data = UDR1;
+ 471               	.LM26:
+ 472 019a 8EEC      		ldi r24,lo8(-50)
+ 473 019c 90E0      		ldi r25,0
+ 474 019e FC01      		movw r30,r24
+ 475 01a0 8081      		ld r24,Z
+ 476 01a2 8983      		std Y+1,r24
+ 119:usart.c       ****     //USART_AddToQueue(data);
+ 120:usart.c       ****     xQueueSendToBackFromISR(USART_ReadQueue,&data,NULL);
+ 478               	.LM27:
+ 479 01a4 8091 0000 		lds r24,USART_ReadQueue
+ 480 01a8 9091 0000 		lds r25,USART_ReadQueue+1
+ 481 01ac 20E0      		ldi r18,0
+ 482 01ae 40E0      		ldi r20,0
+ 483 01b0 50E0      		ldi r21,0
+ 484 01b2 BE01      		movw r22,r28
+ 485 01b4 6F5F      		subi r22,-1
+ 486 01b6 7F4F      		sbci r23,-1
+ 487 01b8 0E94 0000 		call xQueueGenericSendFromISR
+ 488               	/* epilogue start */
+ 121:usart.c       **** }
+ 490               	.LM28:
+ 491 01bc 0F90      		pop __tmp_reg__
+ 492 01be DF91      		pop r29
+ 493 01c0 CF91      		pop r28
+ 494 01c2 FF91      		pop r31
+ 495 01c4 EF91      		pop r30
+ 496 01c6 BF91      		pop r27
+ 497 01c8 AF91      		pop r26
+ 498 01ca 9F91      		pop r25
+ 499 01cc 8F91      		pop r24
+ 500 01ce 7F91      		pop r23
+ 501 01d0 6F91      		pop r22
+ 502 01d2 5F91      		pop r21
+ 503 01d4 4F91      		pop r20
+ 504 01d6 3F91      		pop r19
+ 505 01d8 2F91      		pop r18
+ 506 01da 0F90      		pop r0
+ 507 01dc 0092 5B00 		sts 91,r0
+ 508 01e0 0F90      		pop r0
+ 509 01e2 0092 5F00 		sts 95,r0
+ 510 01e6 0F90      		pop r0
+ 511 01e8 1F90      		pop r1
+ 512 01ea 1895      		reti
+ 517               	.Lscope5:
+ 519               		.stabd	78,0,0
+ 522               	.global	USART_AddToQueue
+ 524               	USART_AddToQueue:
+ 525               		.stabd	46,0,0
+ 122:usart.c       **** 
+ 123:usart.c       **** void USART_AddToQueue(uint8_t data){
+ 527               	.LM29:
+ 528               	.LFBB6:
+ 529 01ec CF93      		push r28
+ 530 01ee DF93      		push r29
+ 531 01f0 1F92      		push __zero_reg__
+ 532 01f2 CDB7      		in r28,__SP_L__
+ 533 01f4 DEB7      		in r29,__SP_H__
+ 534               	/* prologue: function */
+ 535               	/* frame size = 1 */
+ 536               	/* stack size = 3 */
+ 537               	.L__stack_usage = 3
+ 538 01f6 8983      		std Y+1,r24
+ 124:usart.c       ****     
+ 125:usart.c       ****     xQueueSendToBack(USART_WriteQueue,&data,portMAX_DELAY);
+ 540               	.LM30:
+ 541 01f8 8091 0000 		lds r24,USART_WriteQueue
+ 542 01fc 9091 0000 		lds r25,USART_WriteQueue+1
+ 543 0200 20E0      		ldi r18,0
+ 544 0202 4FEF      		ldi r20,lo8(-1)
+ 545 0204 5FEF      		ldi r21,lo8(-1)
+ 546 0206 BE01      		movw r22,r28
+ 547 0208 6F5F      		subi r22,-1
+ 548 020a 7F4F      		sbci r23,-1
+ 549 020c 0E94 0000 		call xQueueGenericSend
+ 550               	/* epilogue start */
  126:usart.c       **** 
- 127:usart.c       **** void USART_TransmitString(char* str){
- 463               	.LM28:
- 464               	.LFBB7:
- 465 01b0 DF93      		push r29
- 466 01b2 CF93      		push r28
- 467 01b4 0F92      		push __tmp_reg__
- 468 01b6 0F92      		push __tmp_reg__
- 469 01b8 CDB7      		in r28,__SP_L__
- 470 01ba DEB7      		in r29,__SP_H__
- 471               	/* prologue: function */
- 472               	/* frame size = 2 */
- 473 01bc 9A83      		std Y+2,r25
- 474 01be 8983      		std Y+1,r24
- 475 01c0 00C0      		rjmp .L17
- 476               	.L18:
- 128:usart.c       ****     while(*str) {
- 129:usart.c       ****         USART_AddToQueue(*str);
- 478               	.LM29:
- 479 01c2 E981      		ldd r30,Y+1
- 480 01c4 FA81      		ldd r31,Y+2
- 481 01c6 8081      		ld r24,Z
- 482 01c8 0E94 0000 		call USART_AddToQueue
- 130:usart.c       ****         str++;
- 484               	.LM30:
- 485 01cc 8981      		ldd r24,Y+1
- 486 01ce 9A81      		ldd r25,Y+2
- 487 01d0 0196      		adiw r24,1
- 488 01d2 9A83      		std Y+2,r25
- 489 01d4 8983      		std Y+1,r24
- 490               	.L17:
- 128:usart.c       ****     while(*str) {
- 492               	.LM31:
- 493 01d6 E981      		ldd r30,Y+1
- 494 01d8 FA81      		ldd r31,Y+2
- 495 01da 8081      		ld r24,Z
- 496 01dc 8823      		tst r24
- 497 01de 01F4      		brne .L18
- 498               	/* epilogue start */
- 131:usart.c       ****     }
- 132:usart.c       **** }
- 500               	.LM32:
- 501 01e0 0F90      		pop __tmp_reg__
- 502 01e2 0F90      		pop __tmp_reg__
- 503 01e4 CF91      		pop r28
- 504 01e6 DF91      		pop r29
- 505 01e8 0895      		ret
- 507               	.Lscope7:
- 509               		.stabd	78,0,0
- 512               	.global	vTaskUSARTWrite
- 514               	vTaskUSARTWrite:
- 515               		.stabd	46,0,0
- 133:usart.c       **** 
- 134:usart.c       **** void vTaskUSARTWrite(void *pvParameters){
- 517               	.LM33:
- 518               	.LFBB8:
- 519 01ea DF93      		push r29
- 520 01ec CF93      		push r28
- 521 01ee 00D0      		rcall .
- 522 01f0 CDB7      		in r28,__SP_L__
- 523 01f2 DEB7      		in r29,__SP_H__
- 524               	/* prologue: function */
- 525               	/* frame size = 3 */
- 526 01f4 9B83      		std Y+3,r25
- 527 01f6 8A83      		std Y+2,r24
- 528               	.L22:
- 135:usart.c       ****     uint8_t data;
- 136:usart.c       ****     while(1){
- 137:usart.c       ****     xQueueReceive(USART_WriteQueue,&data,portMAX_DELAY);
- 530               	.LM34:
- 531 01f8 8091 0000 		lds r24,USART_WriteQueue
- 532 01fc 9091 0000 		lds r25,(USART_WriteQueue)+1
- 533 0200 9E01      		movw r18,r28
- 534 0202 2F5F      		subi r18,lo8(-(1))
- 535 0204 3F4F      		sbci r19,hi8(-(1))
- 536 0206 B901      		movw r22,r18
- 537 0208 4FEF      		ldi r20,lo8(-1)
- 538 020a 5FEF      		ldi r21,hi8(-1)
- 539 020c 20E0      		ldi r18,lo8(0)
- 540 020e 0E94 0000 		call xQueueGenericReceive
- 541               	.L21:
- 138:usart.c       **** 
- 139:usart.c       ****         while(!(UCSR1A & (1<<UDRE1)));
- 543               	.LM35:
- 544 0212 E8EC      		ldi r30,lo8(200)
- 545 0214 F0E0      		ldi r31,hi8(200)
- 546 0216 8081      		ld r24,Z
- 547 0218 882F      		mov r24,r24
- 548 021a 90E0      		ldi r25,lo8(0)
- 549 021c 8072      		andi r24,lo8(32)
- 550 021e 9070      		andi r25,hi8(32)
- 551 0220 0097      		sbiw r24,0
- 552 0222 01F0      		breq .L21
- 140:usart.c       ****         UDR1 = data;
- 554               	.LM36:
- 555 0224 EEEC      		ldi r30,lo8(206)
- 556 0226 F0E0      		ldi r31,hi8(206)
- 557 0228 8981      		ldd r24,Y+1
- 558 022a 8083      		st Z,r24
- 559 022c 00C0      		rjmp .L22
- 564               	.Lscope8:
- 566               		.stabd	78,0,0
- 569               	.global	USART_LogChar
- 571               	USART_LogChar:
- 572               		.stabd	46,0,0
- 141:usart.c       **** 
- 142:usart.c       ****     }
- 143:usart.c       **** }
- 144:usart.c       **** 
- 145:usart.c       **** void USART_LogChar(uint8_t data){
- 574               	.LM37:
- 575               	.LFBB9:
- 576 022e DF93      		push r29
- 577 0230 CF93      		push r28
- 578 0232 0F92      		push __tmp_reg__
- 579 0234 CDB7      		in r28,__SP_L__
- 580 0236 DEB7      		in r29,__SP_H__
- 581               	/* prologue: function */
- 582               	/* frame size = 1 */
- 583 0238 8983      		std Y+1,r24
- 146:usart.c       ****     xQueueSendToBack(USART_WriteQueueLog,&data,portMAX_DELAY);
- 585               	.LM38:
- 586 023a 8091 0000 		lds r24,USART_WriteQueueLog
- 587 023e 9091 0000 		lds r25,(USART_WriteQueueLog)+1
- 588 0242 9E01      		movw r18,r28
- 589 0244 2F5F      		subi r18,lo8(-(1))
- 590 0246 3F4F      		sbci r19,hi8(-(1))
- 591 0248 B901      		movw r22,r18
- 592 024a 4FEF      		ldi r20,lo8(-1)
- 593 024c 5FEF      		ldi r21,hi8(-1)
- 594 024e 20E0      		ldi r18,lo8(0)
- 595 0250 0E94 0000 		call xQueueGenericSend
- 596               	/* epilogue start */
- 147:usart.c       **** }
- 598               	.LM39:
- 599 0254 0F90      		pop __tmp_reg__
- 600 0256 CF91      		pop r28
- 601 0258 DF91      		pop r29
- 602 025a 0895      		ret
- 604               	.Lscope9:
- 606               		.stabd	78,0,0
- 609               	.global	USART_LogString
- 611               	USART_LogString:
- 612               		.stabd	46,0,0
- 148:usart.c       **** 
- 149:usart.c       **** void USART_LogString(char* str){
- 614               	.LM40:
- 615               	.LFBB10:
- 616 025c DF93      		push r29
- 617 025e CF93      		push r28
- 618 0260 0F92      		push __tmp_reg__
- 619 0262 0F92      		push __tmp_reg__
- 620 0264 CDB7      		in r28,__SP_L__
- 621 0266 DEB7      		in r29,__SP_H__
- 622               	/* prologue: function */
- 623               	/* frame size = 2 */
- 624 0268 9A83      		std Y+2,r25
- 625 026a 8983      		std Y+1,r24
- 626 026c 00C0      		rjmp .L27
- 627               	.L28:
- 150:usart.c       ****     while(*str){
- 151:usart.c       ****         USART_LogChar(*str);
- 629               	.LM41:
- 630 026e E981      		ldd r30,Y+1
- 631 0270 FA81      		ldd r31,Y+2
- 632 0272 8081      		ld r24,Z
- 633 0274 0E94 0000 		call USART_LogChar
- 152:usart.c       ****         str++;
- 635               	.LM42:
- 636 0278 8981      		ldd r24,Y+1
- 637 027a 9A81      		ldd r25,Y+2
- 638 027c 0196      		adiw r24,1
- 639 027e 9A83      		std Y+2,r25
- 640 0280 8983      		std Y+1,r24
- 641               	.L27:
- 150:usart.c       ****     while(*str){
- 643               	.LM43:
- 644 0282 E981      		ldd r30,Y+1
- 645 0284 FA81      		ldd r31,Y+2
- 646 0286 8081      		ld r24,Z
- 647 0288 8823      		tst r24
- 648 028a 01F4      		brne .L28
- 649               	/* epilogue start */
- 153:usart.c       ****     }
- 154:usart.c       **** }
- 651               	.LM44:
- 652 028c 0F90      		pop __tmp_reg__
- 653 028e 0F90      		pop __tmp_reg__
- 654 0290 CF91      		pop r28
- 655 0292 DF91      		pop r29
- 656 0294 0895      		ret
- 658               	.Lscope10:
- 660               		.stabd	78,0,0
- 663               	.global	vTaskUSARTLog
- 665               	vTaskUSARTLog:
- 666               		.stabd	46,0,0
- 155:usart.c       **** 
- 156:usart.c       **** void vTaskUSARTLog(void *pvParameters){
- 668               	.LM45:
- 669               	.LFBB11:
- 670 0296 DF93      		push r29
- 671 0298 CF93      		push r28
- 672 029a 00D0      		rcall .
- 673 029c CDB7      		in r28,__SP_L__
- 674 029e DEB7      		in r29,__SP_H__
- 675               	/* prologue: function */
- 676               	/* frame size = 3 */
- 677 02a0 9B83      		std Y+3,r25
- 678 02a2 8A83      		std Y+2,r24
- 679               	.L32:
- 157:usart.c       ****     uint8_t data;
- 158:usart.c       ****     while(1){
- 159:usart.c       ****     xQueueReceive(USART_WriteQueueLog,&data,portMAX_DELAY);
- 681               	.LM46:
- 682 02a4 8091 0000 		lds r24,USART_WriteQueueLog
- 683 02a8 9091 0000 		lds r25,(USART_WriteQueueLog)+1
- 684 02ac 9E01      		movw r18,r28
- 685 02ae 2F5F      		subi r18,lo8(-(1))
- 686 02b0 3F4F      		sbci r19,hi8(-(1))
- 687 02b2 B901      		movw r22,r18
- 688 02b4 4FEF      		ldi r20,lo8(-1)
- 689 02b6 5FEF      		ldi r21,hi8(-1)
- 690 02b8 20E0      		ldi r18,lo8(0)
- 691 02ba 0E94 0000 		call xQueueGenericReceive
- 692               	.L31:
- 160:usart.c       **** 
- 161:usart.c       ****         while(!(UCSR0A & (1<<UDRE0)));
- 694               	.LM47:
- 695 02be E0EC      		ldi r30,lo8(192)
- 696 02c0 F0E0      		ldi r31,hi8(192)
- 697 02c2 8081      		ld r24,Z
- 698 02c4 882F      		mov r24,r24
- 699 02c6 90E0      		ldi r25,lo8(0)
- 700 02c8 8072      		andi r24,lo8(32)
- 701 02ca 9070      		andi r25,hi8(32)
- 702 02cc 0097      		sbiw r24,0
- 703 02ce 01F0      		breq .L31
- 162:usart.c       ****         UDR0 = data;
- 705               	.LM48:
- 706 02d0 E6EC      		ldi r30,lo8(198)
- 707 02d2 F0E0      		ldi r31,hi8(198)
- 708 02d4 8981      		ldd r24,Y+1
- 709 02d6 8083      		st Z,r24
- 710 02d8 00C0      		rjmp .L32
- 715               	.Lscope11:
- 717               		.stabd	78,0,0
- 720               	.global	vTaskUSARTRead
- 722               	vTaskUSARTRead:
- 723               		.stabd	46,0,0
- 163:usart.c       **** 
- 164:usart.c       ****     }
+ 127:usart.c       **** }
+ 552               	.LM31:
+ 553 0210 0F90      		pop __tmp_reg__
+ 554 0212 DF91      		pop r29
+ 555 0214 CF91      		pop r28
+ 556 0216 0895      		ret
+ 558               	.Lscope6:
+ 560               		.stabd	78,0,0
+ 563               	.global	USART_TransmitString
+ 565               	USART_TransmitString:
+ 566               		.stabd	46,0,0
+ 128:usart.c       **** 
+ 129:usart.c       **** void USART_TransmitString(char* str){
+ 568               	.LM32:
+ 569               	.LFBB7:
+ 570 0218 CF93      		push r28
+ 571 021a DF93      		push r29
+ 572 021c 1F92      		push __zero_reg__
+ 573 021e 1F92      		push __zero_reg__
+ 574 0220 CDB7      		in r28,__SP_L__
+ 575 0222 DEB7      		in r29,__SP_H__
+ 576               	/* prologue: function */
+ 577               	/* frame size = 2 */
+ 578               	/* stack size = 4 */
+ 579               	.L__stack_usage = 4
+ 580 0224 9A83      		std Y+2,r25
+ 581 0226 8983      		std Y+1,r24
+ 130:usart.c       ****     while(*str) {
+ 583               	.LM33:
+ 584 0228 00C0      		rjmp .L12
+ 585               	.L13:
+ 131:usart.c       ****         USART_AddToQueue(*str);
+ 587               	.LM34:
+ 588 022a 8981      		ldd r24,Y+1
+ 589 022c 9A81      		ldd r25,Y+2
+ 590 022e FC01      		movw r30,r24
+ 591 0230 8081      		ld r24,Z
+ 592 0232 0E94 0000 		call USART_AddToQueue
+ 132:usart.c       ****         str++;
+ 594               	.LM35:
+ 595 0236 8981      		ldd r24,Y+1
+ 596 0238 9A81      		ldd r25,Y+2
+ 597 023a 0196      		adiw r24,1
+ 598 023c 9A83      		std Y+2,r25
+ 599 023e 8983      		std Y+1,r24
+ 600               	.L12:
+ 130:usart.c       ****     while(*str) {
+ 602               	.LM36:
+ 603 0240 8981      		ldd r24,Y+1
+ 604 0242 9A81      		ldd r25,Y+2
+ 605 0244 FC01      		movw r30,r24
+ 606 0246 8081      		ld r24,Z
+ 607 0248 8823      		tst r24
+ 608 024a 01F4      		brne .L13
+ 609               	/* epilogue start */
+ 133:usart.c       ****     }
+ 134:usart.c       **** }
+ 611               	.LM37:
+ 612 024c 0F90      		pop __tmp_reg__
+ 613 024e 0F90      		pop __tmp_reg__
+ 614 0250 DF91      		pop r29
+ 615 0252 CF91      		pop r28
+ 616 0254 0895      		ret
+ 618               	.Lscope7:
+ 620               		.stabd	78,0,0
+ 623               	.global	vTaskUSARTWrite
+ 625               	vTaskUSARTWrite:
+ 626               		.stabd	46,0,0
+ 135:usart.c       **** 
+ 136:usart.c       **** void vTaskUSARTWrite(void *pvParameters){
+ 628               	.LM38:
+ 629               	.LFBB8:
+ 630 0256 CF93      		push r28
+ 631 0258 DF93      		push r29
+ 632 025a 00D0      		rcall .
+ 633 025c CDB7      		in r28,__SP_L__
+ 634 025e DEB7      		in r29,__SP_H__
+ 635               	/* prologue: function */
+ 636               	/* frame size = 3 */
+ 637               	/* stack size = 5 */
+ 638               	.L__stack_usage = 5
+ 639 0260 9B83      		std Y+3,r25
+ 640 0262 8A83      		std Y+2,r24
+ 641               	.L16:
+ 137:usart.c       ****     uint8_t data;
+ 138:usart.c       ****     while(1){
+ 139:usart.c       ****     xQueueReceive(USART_WriteQueue,&data,portMAX_DELAY);
+ 643               	.LM39:
+ 644 0264 8091 0000 		lds r24,USART_WriteQueue
+ 645 0268 9091 0000 		lds r25,USART_WriteQueue+1
+ 646 026c 20E0      		ldi r18,0
+ 647 026e 4FEF      		ldi r20,lo8(-1)
+ 648 0270 5FEF      		ldi r21,lo8(-1)
+ 649 0272 BE01      		movw r22,r28
+ 650 0274 6F5F      		subi r22,-1
+ 651 0276 7F4F      		sbci r23,-1
+ 652 0278 0E94 0000 		call xQueueGenericReceive
+ 140:usart.c       **** 
+ 141:usart.c       ****         while(!(UCSR1A & (1<<UDRE1)));
+ 654               	.LM40:
+ 655 027c 0000      		nop
+ 656               	.L15:
+ 658               	.LM41:
+ 659 027e 88EC      		ldi r24,lo8(-56)
+ 660 0280 90E0      		ldi r25,0
+ 661 0282 FC01      		movw r30,r24
+ 662 0284 8081      		ld r24,Z
+ 663 0286 882F      		mov r24,r24
+ 664 0288 90E0      		ldi r25,0
+ 665 028a 8072      		andi r24,32
+ 666 028c 9927      		clr r25
+ 667 028e 0097      		sbiw r24,0
+ 668 0290 01F0      		breq .L15
+ 142:usart.c       ****         UDR1 = data;
+ 670               	.LM42:
+ 671 0292 8EEC      		ldi r24,lo8(-50)
+ 672 0294 90E0      		ldi r25,0
+ 673 0296 2981      		ldd r18,Y+1
+ 674 0298 FC01      		movw r30,r24
+ 675 029a 2083      		st Z,r18
+ 143:usart.c       **** 
+ 144:usart.c       ****     }
+ 677               	.LM43:
+ 678 029c 00C0      		rjmp .L16
+ 683               	.Lscope8:
+ 685               		.stabd	78,0,0
+ 688               	.global	USART_LogChar
+ 690               	USART_LogChar:
+ 691               		.stabd	46,0,0
+ 145:usart.c       **** }
+ 146:usart.c       **** 
+ 147:usart.c       **** void USART_LogChar(uint8_t data){
+ 693               	.LM44:
+ 694               	.LFBB9:
+ 695 029e CF93      		push r28
+ 696 02a0 DF93      		push r29
+ 697 02a2 1F92      		push __zero_reg__
+ 698 02a4 CDB7      		in r28,__SP_L__
+ 699 02a6 DEB7      		in r29,__SP_H__
+ 700               	/* prologue: function */
+ 701               	/* frame size = 1 */
+ 702               	/* stack size = 3 */
+ 703               	.L__stack_usage = 3
+ 704 02a8 8983      		std Y+1,r24
+ 148:usart.c       ****     xQueueSendToBack(USART_WriteQueueLog,&data,portMAX_DELAY);
+ 706               	.LM45:
+ 707 02aa 8091 0000 		lds r24,USART_WriteQueueLog
+ 708 02ae 9091 0000 		lds r25,USART_WriteQueueLog+1
+ 709 02b2 20E0      		ldi r18,0
+ 710 02b4 4FEF      		ldi r20,lo8(-1)
+ 711 02b6 5FEF      		ldi r21,lo8(-1)
+ 712 02b8 BE01      		movw r22,r28
+ 713 02ba 6F5F      		subi r22,-1
+ 714 02bc 7F4F      		sbci r23,-1
+ 715 02be 0E94 0000 		call xQueueGenericSend
+ 716               	/* epilogue start */
+ 149:usart.c       **** }
+ 718               	.LM46:
+ 719 02c2 0F90      		pop __tmp_reg__
+ 720 02c4 DF91      		pop r29
+ 721 02c6 CF91      		pop r28
+ 722 02c8 0895      		ret
+ 724               	.Lscope9:
+ 726               		.stabd	78,0,0
+ 729               	.global	USART_LogString
+ 731               	USART_LogString:
+ 732               		.stabd	46,0,0
+ 150:usart.c       **** 
+ 151:usart.c       **** void USART_LogString(char* str){
+ 734               	.LM47:
+ 735               	.LFBB10:
+ 736 02ca CF93      		push r28
+ 737 02cc DF93      		push r29
+ 738 02ce 1F92      		push __zero_reg__
+ 739 02d0 1F92      		push __zero_reg__
+ 740 02d2 CDB7      		in r28,__SP_L__
+ 741 02d4 DEB7      		in r29,__SP_H__
+ 742               	/* prologue: function */
+ 743               	/* frame size = 2 */
+ 744               	/* stack size = 4 */
+ 745               	.L__stack_usage = 4
+ 746 02d6 9A83      		std Y+2,r25
+ 747 02d8 8983      		std Y+1,r24
+ 152:usart.c       ****     while(*str){
+ 749               	.LM48:
+ 750 02da 00C0      		rjmp .L19
+ 751               	.L20:
+ 153:usart.c       ****         USART_LogChar(*str);
+ 753               	.LM49:
+ 754 02dc 8981      		ldd r24,Y+1
+ 755 02de 9A81      		ldd r25,Y+2
+ 756 02e0 FC01      		movw r30,r24
+ 757 02e2 8081      		ld r24,Z
+ 758 02e4 0E94 0000 		call USART_LogChar
+ 154:usart.c       ****         str++;
+ 760               	.LM50:
+ 761 02e8 8981      		ldd r24,Y+1
+ 762 02ea 9A81      		ldd r25,Y+2
+ 763 02ec 0196      		adiw r24,1
+ 764 02ee 9A83      		std Y+2,r25
+ 765 02f0 8983      		std Y+1,r24
+ 766               	.L19:
+ 152:usart.c       ****     while(*str){
+ 768               	.LM51:
+ 769 02f2 8981      		ldd r24,Y+1
+ 770 02f4 9A81      		ldd r25,Y+2
+ 771 02f6 FC01      		movw r30,r24
+ 772 02f8 8081      		ld r24,Z
+ 773 02fa 8823      		tst r24
+ 774 02fc 01F4      		brne .L20
+ 775               	/* epilogue start */
+ 155:usart.c       ****     }
+ 156:usart.c       **** }
+ 777               	.LM52:
+ 778 02fe 0F90      		pop __tmp_reg__
+ 779 0300 0F90      		pop __tmp_reg__
+ 780 0302 DF91      		pop r29
+ 781 0304 CF91      		pop r28
+ 782 0306 0895      		ret
+ 784               	.Lscope10:
+ 786               		.stabd	78,0,0
+ 789               	.global	vTaskUSARTLog
+ 791               	vTaskUSARTLog:
+ 792               		.stabd	46,0,0
+ 157:usart.c       **** 
+ 158:usart.c       **** void vTaskUSARTLog(void *pvParameters){
+ 794               	.LM53:
+ 795               	.LFBB11:
+ 796 0308 CF93      		push r28
+ 797 030a DF93      		push r29
+ 798 030c 00D0      		rcall .
+ 799 030e CDB7      		in r28,__SP_L__
+ 800 0310 DEB7      		in r29,__SP_H__
+ 801               	/* prologue: function */
+ 802               	/* frame size = 3 */
+ 803               	/* stack size = 5 */
+ 804               	.L__stack_usage = 5
+ 805 0312 9B83      		std Y+3,r25
+ 806 0314 8A83      		std Y+2,r24
+ 807               	.L23:
+ 159:usart.c       ****     uint8_t data;
+ 160:usart.c       ****     while(1){
+ 161:usart.c       ****         xQueueReceive(USART_WriteQueueLog,&data,portMAX_DELAY);
+ 809               	.LM54:
+ 810 0316 8091 0000 		lds r24,USART_WriteQueueLog
+ 811 031a 9091 0000 		lds r25,USART_WriteQueueLog+1
+ 812 031e 20E0      		ldi r18,0
+ 813 0320 4FEF      		ldi r20,lo8(-1)
+ 814 0322 5FEF      		ldi r21,lo8(-1)
+ 815 0324 BE01      		movw r22,r28
+ 816 0326 6F5F      		subi r22,-1
+ 817 0328 7F4F      		sbci r23,-1
+ 818 032a 0E94 0000 		call xQueueGenericReceive
+ 162:usart.c       **** 
+ 163:usart.c       ****         while(!(UCSR0A & (1<<UDRE0)));
+ 820               	.LM55:
+ 821 032e 0000      		nop
+ 822               	.L22:
+ 824               	.LM56:
+ 825 0330 80EC      		ldi r24,lo8(-64)
+ 826 0332 90E0      		ldi r25,0
+ 827 0334 FC01      		movw r30,r24
+ 828 0336 8081      		ld r24,Z
+ 829 0338 882F      		mov r24,r24
+ 830 033a 90E0      		ldi r25,0
+ 831 033c 8072      		andi r24,32
+ 832 033e 9927      		clr r25
+ 833 0340 0097      		sbiw r24,0
+ 834 0342 01F0      		breq .L22
+ 164:usart.c       ****         UDR0 = data;
+ 836               	.LM57:
+ 837 0344 86EC      		ldi r24,lo8(-58)
+ 838 0346 90E0      		ldi r25,0
+ 839 0348 2981      		ldd r18,Y+1
+ 840 034a FC01      		movw r30,r24
+ 841 034c 2083      		st Z,r18
  165:usart.c       **** 
- 166:usart.c       **** }
+ 166:usart.c       ****     }
+ 843               	.LM58:
+ 844 034e 00C0      		rjmp .L23
+ 849               	.Lscope11:
+ 851               		.stabd	78,0,0
+ 853               	.global	USART_GetChar
+ 855               	USART_GetChar:
+ 856               		.stabd	46,0,0
  167:usart.c       **** 
- 168:usart.c       **** void vTaskUSARTRead(void *pvParameters){
- 725               	.LM49:
- 726               	.LFBB12:
- 727 02da DF93      		push r29
- 728 02dc CF93      		push r28
- 729 02de CDB7      		in r28,__SP_L__
- 730 02e0 DEB7      		in r29,__SP_H__
- 731 02e2 C655      		subi r28,lo8(-(-86))
- 732 02e4 D040      		sbci r29,hi8(-(-86))
- 733 02e6 0FB6      		in __tmp_reg__,__SREG__
- 734 02e8 F894      		cli
- 735 02ea DEBF      		out __SP_H__,r29
- 736 02ec 0FBE      		out __SREG__,__tmp_reg__
- 737 02ee CDBF      		out __SP_L__,r28
- 738               	/* prologue: function */
- 739               	/* frame size = 86 */
- 740 02f0 FE01      		movw r30,r28
- 741 02f2 EB5A      		subi r30,lo8(-(85))
- 742 02f4 FF4F      		sbci r31,hi8(-(85))
- 743 02f6 9183      		std Z+1,r25
- 744 02f8 8083      		st Z,r24
+ 168:usart.c       **** }
  169:usart.c       **** 
- 170:usart.c       ****     char bytesRecieved;
- 171:usart.c       ****     uint8_t rxData;
- 172:usart.c       ****     uint8_t buffer[8];
- 173:usart.c       ****     char size;
- 174:usart.c       ****     char groupID;
- 175:usart.c       ****     char cmd;
- 176:usart.c       ****     unsigned int timeout;
- 177:usart.c       **** 
- 178:usart.c       ****     PORTB = 0;
- 746               	.LM50:
- 747 02fa E5E2      		ldi r30,lo8(37)
- 748 02fc F0E0      		ldi r31,hi8(37)
- 749 02fe 1082      		st Z,__zero_reg__
- 750               	.L48:
+ 170:usart.c       **** uint8_t USART_GetChar(){
+ 858               	.LM59:
+ 859               	.LFBB12:
+ 860 0350 CF93      		push r28
+ 861 0352 DF93      		push r29
+ 862 0354 1F92      		push __zero_reg__
+ 863 0356 CDB7      		in r28,__SP_L__
+ 864 0358 DEB7      		in r29,__SP_H__
+ 865               	/* prologue: function */
+ 866               	/* frame size = 1 */
+ 867               	/* stack size = 3 */
+ 868               	.L__stack_usage = 3
+ 171:usart.c       ****     uint8_t data;
+ 172:usart.c       ****     if(xQueueReceive(USART_ReadQueue,&data,1) == pdTRUE){
+ 870               	.LM60:
+ 871 035a 8091 0000 		lds r24,USART_ReadQueue
+ 872 035e 9091 0000 		lds r25,USART_ReadQueue+1
+ 873 0362 20E0      		ldi r18,0
+ 874 0364 41E0      		ldi r20,lo8(1)
+ 875 0366 50E0      		ldi r21,0
+ 876 0368 BE01      		movw r22,r28
+ 877 036a 6F5F      		subi r22,-1
+ 878 036c 7F4F      		sbci r23,-1
+ 879 036e 0E94 0000 		call xQueueGenericReceive
+ 880 0372 8130      		cpi r24,lo8(1)
+ 881 0374 01F4      		brne .L25
+ 173:usart.c       ****         //USART_AddToQueue('~');
+ 174:usart.c       ****         return data;
+ 883               	.LM61:
+ 884 0376 8981      		ldd r24,Y+1
+ 885 0378 00C0      		rjmp .L27
+ 886               	.L25:
+ 175:usart.c       ****     } else {
+ 176:usart.c       ****         return 255;
+ 888               	.LM62:
+ 889 037a 8FEF      		ldi r24,lo8(-1)
+ 890               	.L27:
+ 891               	/* epilogue start */
+ 177:usart.c       ****     }
+ 178:usart.c       **** }
+ 893               	.LM63:
+ 894 037c 0F90      		pop __tmp_reg__
+ 895 037e DF91      		pop r29
+ 896 0380 CF91      		pop r28
+ 897 0382 0895      		ret
+ 902               	.Lscope12:
+ 904               		.stabd	78,0,0
+ 907               	.global	vTaskUSARTRead
+ 909               	vTaskUSARTRead:
+ 910               		.stabd	46,0,0
  179:usart.c       **** 
- 180:usart.c       ****     Command command;
- 181:usart.c       ****     Response response;
- 182:usart.c       ****     while(1){
- 183:usart.c       ****         //PORTB = 0;
- 184:usart.c       ****         //Get Header
- 185:usart.c       ****         bytesRecieved = 0;
- 752               	.LM51:
- 753 0300 1F82      		std Y+7,__zero_reg__
- 186:usart.c       ****         timeout = 0;
- 755               	.LM52:
- 756 0302 1A82      		std Y+2,__zero_reg__
- 757 0304 1982      		std Y+1,__zero_reg__
- 758 0306 00C0      		rjmp .L35
- 759               	.L38:
- 187:usart.c       ****         while(bytesRecieved < 4){
- 188:usart.c       ****             //if there is data to be read...
- 189:usart.c       ****             if((UCSR1A & (1<<RXC1))){
- 761               	.LM53:
- 762 0308 E8EC      		ldi r30,lo8(200)
- 763 030a F0E0      		ldi r31,hi8(200)
- 764 030c 8081      		ld r24,Z
- 765 030e 8823      		tst r24
- 766 0310 04F4      		brge .L36
- 190:usart.c       ****                 rxData = UDR1;
- 768               	.LM54:
- 769 0312 EEEC      		ldi r30,lo8(206)
- 770 0314 F0E0      		ldi r31,hi8(206)
- 771 0316 8081      		ld r24,Z
- 772 0318 8E83      		std Y+6,r24
- 191:usart.c       ****             //if(xQueueReceive(USART_ReadQueue,&rxData,portMAX_DELAY) == pdTRUE){
- 192:usart.c       ****                 buffer[bytesRecieved] = rxData;
- 774               	.LM55:
- 775 031a 8F81      		ldd r24,Y+7
- 776 031c 282F      		mov r18,r24
- 777 031e 3327      		clr r19
- 778 0320 27FD      		sbrc r18,7
- 779 0322 3095      		com r19
- 780 0324 CE01      		movw r24,r28
- 781 0326 0896      		adiw r24,8
- 782 0328 FC01      		movw r30,r24
- 783 032a E20F      		add r30,r18
- 784 032c F31F      		adc r31,r19
- 785 032e 8E81      		ldd r24,Y+6
- 786 0330 8083      		st Z,r24
- 193:usart.c       ****                 //USART_AddToQueue(rxData);
- 194:usart.c       ****                 bytesRecieved++;
- 788               	.LM56:
- 789 0332 8F81      		ldd r24,Y+7
- 790 0334 8F5F      		subi r24,lo8(-(1))
- 791 0336 8F83      		std Y+7,r24
- 792 0338 00C0      		rjmp .L37
- 793               	.L36:
- 195:usart.c       ****                 //timeout = 0;
- 196:usart.c       ****             } else {
- 197:usart.c       ****                 timeout++;
- 795               	.LM57:
- 796 033a 8981      		ldd r24,Y+1
- 797 033c 9A81      		ldd r25,Y+2
- 798 033e 0196      		adiw r24,1
- 799 0340 9A83      		std Y+2,r25
- 800 0342 8983      		std Y+1,r24
- 801               	.L37:
- 198:usart.c       ****             }
- 199:usart.c       ****             if(timeout > 50000){
- 803               	.LM58:
- 804 0344 8981      		ldd r24,Y+1
- 805 0346 9A81      		ldd r25,Y+2
- 806 0348 23EC      		ldi r18,hi8(-15535)
- 807 034a 8135      		cpi r24,lo8(-15535)
- 808 034c 9207      		cpc r25,r18
- 809 034e 00F0      		brlo .L35
- 200:usart.c       ****                 timeout = 0;
- 811               	.LM59:
- 812 0350 1A82      		std Y+2,__zero_reg__
- 813 0352 1982      		std Y+1,__zero_reg__
- 201:usart.c       ****                 bytesRecieved = 0;
- 815               	.LM60:
- 816 0354 1F82      		std Y+7,__zero_reg__
- 817               	.L35:
- 187:usart.c       ****         while(bytesRecieved < 4){
- 819               	.LM61:
- 820 0356 8F81      		ldd r24,Y+7
- 821 0358 8430      		cpi r24,lo8(4)
- 822 035a 04F0      		brlt .L38
- 202:usart.c       ****             }
- 203:usart.c       ****         }
- 204:usart.c       ****         //PORTB = 0;
- 205:usart.c       ****         if(calcChecksum(buffer,3) != buffer[3]){
- 824               	.LM62:
- 825 035c CE01      		movw r24,r28
- 826 035e 0896      		adiw r24,8
- 827 0360 63E0      		ldi r22,lo8(3)
- 828 0362 0E94 0000 		call calcChecksum
- 829 0366 982F      		mov r25,r24
- 830 0368 8B85      		ldd r24,Y+11
- 831 036a 9817      		cp r25,r24
- 832 036c 01F0      		breq .L39
- 206:usart.c       ****             sendNACK();
- 834               	.LM63:
- 835 036e 0E94 0000 		call sendNACK
- 836 0372 00C0      		rjmp .L48
- 837               	.L39:
- 207:usart.c       ****         } else {
- 208:usart.c       ****             sendACK();
- 839               	.LM64:
- 840 0374 0E94 0000 		call sendACK
- 209:usart.c       ****             bytesRecieved = 0;
- 842               	.LM65:
- 843 0378 1F82      		std Y+7,__zero_reg__
- 210:usart.c       ****             command.groupID = buffer[0];
- 845               	.LM66:
- 846 037a 8885      		ldd r24,Y+8
- 847 037c 888B      		std Y+16,r24
- 211:usart.c       ****             command.cmd = buffer[1];
- 849               	.LM67:
- 850 037e 8985      		ldd r24,Y+9
- 851 0380 898B      		std Y+17,r24
- 212:usart.c       ****             command.crc = buffer[3];
- 853               	.LM68:
- 854 0382 8B85      		ldd r24,Y+11
- 855 0384 8A8B      		std Y+18,r24
- 213:usart.c       ****             size = buffer[2];
- 857               	.LM69:
- 858 0386 8A85      		ldd r24,Y+10
- 859 0388 8D83      		std Y+5,r24
- 214:usart.c       ****             timeout = 0;
- 861               	.LM70:
- 862 038a 1A82      		std Y+2,__zero_reg__
- 863 038c 1982      		std Y+1,__zero_reg__
- 215:usart.c       ****             if(size != 0){
- 865               	.LM71:
- 866 038e 8D81      		ldd r24,Y+5
- 867 0390 8823      		tst r24
- 868 0392 01F4      		brne .+2
- 869 0394 00C0      		rjmp .L41
- 870 0396 00C0      		rjmp .L42
- 871               	.L45:
- 216:usart.c       ****                 while(1) {
- 217:usart.c       ****                     while((bytesRecieved < size+1) && (timeout < 50)){  //1 for crc
- 218:usart.c       ****                         if(UCSR1A & (1<<RXC1)){
- 873               	.LM72:
- 874 0398 E8EC      		ldi r30,lo8(200)
- 875 039a F0E0      		ldi r31,hi8(200)
- 876 039c 8081      		ld r24,Z
- 877 039e 8823      		tst r24
- 878 03a0 04F4      		brge .L43
- 219:usart.c       ****                             rxData = UDR1;
- 880               	.LM73:
- 881 03a2 EEEC      		ldi r30,lo8(206)
- 882 03a4 F0E0      		ldi r31,hi8(206)
- 883 03a6 8081      		ld r24,Z
- 884 03a8 8E83      		std Y+6,r24
- 220:usart.c       **** 
- 221:usart.c       ****                             //PORTB = 0xFF;
- 222:usart.c       ****                         //if(xQueueReceive(USART_ReadQueue,&rxData,portMAX_DELAY) == pdTRUE){
- 223:usart.c       ****                             buffer[bytesRecieved] = rxData;
- 886               	.LM74:
- 887 03aa 8F81      		ldd r24,Y+7
- 888 03ac 282F      		mov r18,r24
- 889 03ae 3327      		clr r19
- 890 03b0 27FD      		sbrc r18,7
- 891 03b2 3095      		com r19
- 892 03b4 CE01      		movw r24,r28
- 893 03b6 0896      		adiw r24,8
- 894 03b8 FC01      		movw r30,r24
- 895 03ba E20F      		add r30,r18
- 896 03bc F31F      		adc r31,r19
- 897 03be 8E81      		ldd r24,Y+6
- 898 03c0 8083      		st Z,r24
- 224:usart.c       ****                             bytesRecieved++;
- 900               	.LM75:
- 901 03c2 8F81      		ldd r24,Y+7
- 902 03c4 8F5F      		subi r24,lo8(-(1))
- 903 03c6 8F83      		std Y+7,r24
- 904 03c8 00C0      		rjmp .L42
- 905               	.L43:
- 225:usart.c       ****                         } else {
- 226:usart.c       ****                             //timeout++;
- 227:usart.c       ****                             timeout = 1;
- 907               	.LM76:
- 908 03ca 81E0      		ldi r24,lo8(1)
- 909 03cc 90E0      		ldi r25,hi8(1)
- 910 03ce 9A83      		std Y+2,r25
- 911 03d0 8983      		std Y+1,r24
- 912               	.L42:
- 217:usart.c       ****                     while((bytesRecieved < size+1) && (timeout < 50)){  //1 for crc
- 914               	.LM77:
- 915 03d2 8F81      		ldd r24,Y+7
- 916 03d4 282F      		mov r18,r24
- 917 03d6 3327      		clr r19
- 918 03d8 27FD      		sbrc r18,7
- 919 03da 3095      		com r19
- 920 03dc 8D81      		ldd r24,Y+5
- 921 03de 9927      		clr r25
- 922 03e0 87FD      		sbrc r24,7
- 923 03e2 9095      		com r25
- 924 03e4 0196      		adiw r24,1
- 925 03e6 2817      		cp r18,r24
- 926 03e8 3907      		cpc r19,r25
- 927 03ea 04F4      		brge .L44
- 928 03ec 8981      		ldd r24,Y+1
- 929 03ee 9A81      		ldd r25,Y+2
- 930 03f0 8233      		cpi r24,50
- 931 03f2 9105      		cpc r25,__zero_reg__
- 932 03f4 00F0      		brlo .L45
- 933               	.L44:
- 228:usart.c       ****                         }
- 229:usart.c       ****                     } 
- 230:usart.c       ****                     if(timeout >= 50){
- 935               	.LM78:
- 936 03f6 8981      		ldd r24,Y+1
- 937 03f8 9A81      		ldd r25,Y+2
- 938 03fa 8233      		cpi r24,50
- 939 03fc 9105      		cpc r25,__zero_reg__
- 940 03fe 00F4      		brsh .L41
- 231:usart.c       ****                         break;
- 232:usart.c       ****                     }
- 233:usart.c       ****                     if(calcChecksum(buffer,size) != buffer[size]){
- 942               	.LM79:
- 943 0400 2D81      		ldd r18,Y+5
- 944 0402 CE01      		movw r24,r28
- 945 0404 0896      		adiw r24,8
- 946 0406 622F      		mov r22,r18
- 947 0408 0E94 0000 		call calcChecksum
- 948 040c 482F      		mov r20,r24
- 949 040e 8D81      		ldd r24,Y+5
- 950 0410 282F      		mov r18,r24
- 951 0412 3327      		clr r19
- 952 0414 27FD      		sbrc r18,7
- 953 0416 3095      		com r19
- 954 0418 CE01      		movw r24,r28
- 955 041a 0896      		adiw r24,8
- 956 041c FC01      		movw r30,r24
- 957 041e E20F      		add r30,r18
- 958 0420 F31F      		adc r31,r19
- 959 0422 8081      		ld r24,Z
- 960 0424 4817      		cp r20,r24
- 961 0426 01F0      		breq .L46
- 234:usart.c       ****                         sendNACK();
- 963               	.LM80:
- 964 0428 0E94 0000 		call sendNACK
- 235:usart.c       ****                         bytesRecieved = 0;
- 966               	.LM81:
- 967 042c 1F82      		std Y+7,__zero_reg__
- 968 042e 00C0      		rjmp .L42
- 969               	.L46:
- 236:usart.c       ****                     } else {
- 237:usart.c       ****                         //PORTB = buffer[0];
- 238:usart.c       ****                         sendACK();
- 971               	.LM82:
- 972 0430 0E94 0000 		call sendACK
- 239:usart.c       ****                         memcpy(command.payload,buffer,size);
- 974               	.LM83:
- 975 0434 8D81      		ldd r24,Y+5
- 976 0436 482F      		mov r20,r24
- 977 0438 5527      		clr r21
- 978 043a 47FD      		sbrc r20,7
- 979 043c 5095      		com r21
- 980 043e CE01      		movw r24,r28
- 981 0440 4096      		adiw r24,16
- 982 0442 0396      		adiw r24,3
- 983 0444 9E01      		movw r18,r28
- 984 0446 285F      		subi r18,lo8(-(8))
- 985 0448 3F4F      		sbci r19,hi8(-(8))
- 986 044a B901      		movw r22,r18
- 987 044c 0E94 0000 		call memcpy
- 988               	.L41:
- 240:usart.c       ****                         break;
- 241:usart.c       ****                     }
- 242:usart.c       ****                 }
- 243:usart.c       ****             }
- 244:usart.c       ****             processCommand(&command,&response);
- 990               	.LM84:
- 991 0450 CE01      		movw r24,r28
- 992 0452 4096      		adiw r24,16
- 993 0454 9E01      		movw r18,r28
- 994 0456 2D5C      		subi r18,lo8(-(51))
- 995 0458 3F4F      		sbci r19,hi8(-(51))
- 996 045a B901      		movw r22,r18
- 997 045c 0E94 0000 		call processCommand
- 245:usart.c       ****             sendResponse(&response);
- 999               	.LM85:
- 1000 0460 CE01      		movw r24,r28
- 1001 0462 C396      		adiw r24,51
- 1002 0464 0E94 0000 		call sendResponse
- 1003 0468 00C0      		rjmp .L48
- 1016               	.Lscope12:
- 1018               		.stabd	78,0,0
- 1021               	.global	sendResponse
- 1023               	sendResponse:
- 1024               		.stabd	46,0,0
- 246:usart.c       **** 
- 247:usart.c       ****         }
- 248:usart.c       **** 
- 249:usart.c       ****     }
- 250:usart.c       **** 
- 251:usart.c       **** }
- 252:usart.c       **** 
- 253:usart.c       **** void sendResponse(Response* response){
- 1026               	.LM86:
- 1027               	.LFBB13:
- 1028 046a DF93      		push r29
- 1029 046c CF93      		push r28
- 1030 046e 00D0      		rcall .
- 1031 0470 00D0      		rcall .
- 1032 0472 CDB7      		in r28,__SP_L__
- 1033 0474 DEB7      		in r29,__SP_H__
- 1034               	/* prologue: function */
- 1035               	/* frame size = 6 */
- 1036 0476 9E83      		std Y+6,r25
- 1037 0478 8D83      		std Y+5,r24
- 1038               	.L52:
- 254:usart.c       ****     char checksumBuffer[2];
- 255:usart.c       ****     int i;
- 256:usart.c       ****     while(1){
- 257:usart.c       ****         USART_AddToQueue(response->commandBack);
- 1040               	.LM87:
- 1041 047a ED81      		ldd r30,Y+5
- 1042 047c FE81      		ldd r31,Y+6
- 1043 047e 8081      		ld r24,Z
- 1044 0480 0E94 0000 		call USART_AddToQueue
- 258:usart.c       ****         USART_AddToQueue(response->size);
- 1046               	.LM88:
- 1047 0484 ED81      		ldd r30,Y+5
- 1048 0486 FE81      		ldd r31,Y+6
- 1049 0488 8181      		ldd r24,Z+1
- 1050 048a 0E94 0000 		call USART_AddToQueue
- 259:usart.c       ****         checksumBuffer[0] = response->commandBack;
- 1052               	.LM89:
- 1053 048e ED81      		ldd r30,Y+5
- 1054 0490 FE81      		ldd r31,Y+6
- 1055 0492 8081      		ld r24,Z
- 1056 0494 8B83      		std Y+3,r24
- 260:usart.c       ****         checksumBuffer[1] = response->size;
- 1058               	.LM90:
- 1059 0496 ED81      		ldd r30,Y+5
- 1060 0498 FE81      		ldd r31,Y+6
- 1061 049a 8181      		ldd r24,Z+1
- 1062 049c 8C83      		std Y+4,r24
- 261:usart.c       ****         USART_AddToQueue(calcChecksum(checksumBuffer,2));
- 1064               	.LM91:
- 1065 049e CE01      		movw r24,r28
- 1066 04a0 0396      		adiw r24,3
- 1067 04a2 62E0      		ldi r22,lo8(2)
- 1068 04a4 0E94 0000 		call calcChecksum
- 1069 04a8 0E94 0000 		call USART_AddToQueue
- 262:usart.c       ****         if(waitForChecksum() == 0){
- 1071               	.LM92:
- 1072 04ac 0E94 0000 		call waitForChecksum
- 1073 04b0 8823      		tst r24
- 1074 04b2 01F4      		brne .L52
- 1075               	.L51:
- 263:usart.c       ****             break;
- 264:usart.c       ****         }
- 265:usart.c       ****     }
+ 180:usart.c       **** void vTaskUSARTRead(void *pvParameters){
+ 912               	.LM64:
+ 913               	.LFBB13:
+ 914 0384 CF93      		push r28
+ 915 0386 DF93      		push r29
+ 916 0388 CDB7      		in r28,__SP_L__
+ 917 038a DEB7      		in r29,__SP_H__
+ 918 038c C455      		subi r28,84
+ 919 038e D109      		sbc r29,__zero_reg__
+ 920 0390 0FB6      		in __tmp_reg__,__SREG__
+ 921 0392 F894      		cli
+ 922 0394 DEBF      		out __SP_H__,r29
+ 923 0396 0FBE      		out __SREG__,__tmp_reg__
+ 924 0398 CDBF      		out __SP_L__,r28
+ 925               	/* prologue: function */
+ 926               	/* frame size = 84 */
+ 927               	/* stack size = 86 */
+ 928               	.L__stack_usage = 86
+ 929 039a 9E01      		movw r18,r28
+ 930 039c 2D5A      		subi r18,-83
+ 931 039e 3F4F      		sbci r19,-1
+ 932 03a0 F901      		movw r30,r18
+ 933 03a2 9183      		std Z+1,r25
+ 934 03a4 8083      		st Z,r24
+ 181:usart.c       **** 
+ 182:usart.c       ****     char bytesRecieved;
+ 183:usart.c       ****     uint8_t rxData;
+ 184:usart.c       ****     uint8_t buffer[8];
+ 185:usart.c       ****     char size;
+ 186:usart.c       ****     char groupID;
+ 187:usart.c       ****     char cmd;
+ 188:usart.c       ****     unsigned int timeout;
+ 189:usart.c       **** 
+ 190:usart.c       ****     PORTB = 0;
+ 936               	.LM65:
+ 937 03a6 85E2      		ldi r24,lo8(37)
+ 938 03a8 90E0      		ldi r25,0
+ 939 03aa FC01      		movw r30,r24
+ 940 03ac 1082      		st Z,__zero_reg__
+ 941               	.L44:
+ 191:usart.c       **** 
+ 192:usart.c       ****     Command command;
+ 193:usart.c       ****     Response response;
+ 194:usart.c       ****     while(1){
+ 195:usart.c       ****         //PORTB = 0;
+ 196:usart.c       ****         //Get Header
+ 197:usart.c       ****         bytesRecieved = 0;
+ 943               	.LM66:
+ 944 03ae 1982      		std Y+1,__zero_reg__
+ 198:usart.c       ****         timeout = 0;
+ 946               	.LM67:
+ 947 03b0 1B82      		std Y+3,__zero_reg__
+ 948 03b2 1A82      		std Y+2,__zero_reg__
+ 199:usart.c       ****         while(bytesRecieved < 4){
+ 950               	.LM68:
+ 951 03b4 00C0      		rjmp .L29
+ 952               	.L32:
+ 200:usart.c       ****             //if there is data to be read...
+ 201:usart.c       ****             //if((UCSR1A & (1<<RXC1))){
+ 202:usart.c       ****             //    rxData = UDR1;
+ 203:usart.c       ****             if((rxData = USART_GetChar()) != 255){
+ 954               	.LM69:
+ 955 03b6 0E94 0000 		call USART_GetChar
+ 956 03ba 8C83      		std Y+4,r24
+ 957 03bc 8C81      		ldd r24,Y+4
+ 958 03be 8F3F      		cpi r24,lo8(-1)
+ 959 03c0 01F0      		breq .L30
+ 204:usart.c       ****             //if(xQueueReceive(USART_ReadQueue,&rxData,portMAX_DELAY) == pdTRUE){
+ 205:usart.c       ****                 buffer[bytesRecieved] = rxData;
+ 961               	.LM70:
+ 962 03c2 8981      		ldd r24,Y+1
+ 963 03c4 9927      		clr r25
+ 964 03c6 87FD      		sbrc r24,7
+ 965 03c8 9095      		com r25
+ 966 03ca 9E01      		movw r18,r28
+ 967 03cc 2A5F      		subi r18,-6
+ 968 03ce 3F4F      		sbci r19,-1
+ 969 03d0 820F      		add r24,r18
+ 970 03d2 931F      		adc r25,r19
+ 971 03d4 2C81      		ldd r18,Y+4
+ 972 03d6 FC01      		movw r30,r24
+ 973 03d8 2083      		st Z,r18
+ 206:usart.c       ****                 //USART_AddToQueue(rxData);
+ 207:usart.c       ****                 bytesRecieved++;
+ 975               	.LM71:
+ 976 03da 8981      		ldd r24,Y+1
+ 977 03dc 8F5F      		subi r24,lo8(-(1))
+ 978 03de 8983      		std Y+1,r24
+ 979 03e0 00C0      		rjmp .L31
+ 980               	.L30:
+ 208:usart.c       ****                 //timeout = 0;
+ 209:usart.c       ****             } else {
+ 210:usart.c       ****                 timeout++;
+ 982               	.LM72:
+ 983 03e2 8A81      		ldd r24,Y+2
+ 984 03e4 9B81      		ldd r25,Y+3
+ 985 03e6 0196      		adiw r24,1
+ 986 03e8 9B83      		std Y+3,r25
+ 987 03ea 8A83      		std Y+2,r24
+ 211:usart.c       ****                 PORTB = 0xFF;
+ 989               	.LM73:
+ 990 03ec 85E2      		ldi r24,lo8(37)
+ 991 03ee 90E0      		ldi r25,0
+ 992 03f0 2FEF      		ldi r18,lo8(-1)
+ 993 03f2 FC01      		movw r30,r24
+ 994 03f4 2083      		st Z,r18
+ 995               	.L31:
+ 212:usart.c       ****             }
+ 213:usart.c       ****             if(timeout > 50000){
+ 997               	.LM74:
+ 998 03f6 8A81      		ldd r24,Y+2
+ 999 03f8 9B81      		ldd r25,Y+3
+ 1000 03fa 8135      		cpi r24,81
+ 1001 03fc F3EC      		ldi r31,-61
+ 1002 03fe 9F07      		cpc r25,r31
+ 1003 0400 00F0      		brlo .L29
+ 214:usart.c       ****                 timeout = 0;
+ 1005               	.LM75:
+ 1006 0402 1B82      		std Y+3,__zero_reg__
+ 1007 0404 1A82      		std Y+2,__zero_reg__
+ 215:usart.c       ****                 bytesRecieved = 0;
+ 1009               	.LM76:
+ 1010 0406 1982      		std Y+1,__zero_reg__
+ 1011               	.L29:
+ 199:usart.c       ****         while(bytesRecieved < 4){
+ 1013               	.LM77:
+ 1014 0408 8981      		ldd r24,Y+1
+ 1015 040a 8430      		cpi r24,lo8(4)
+ 1016 040c 04F0      		brlt .L32
+ 216:usart.c       ****             }
+ 217:usart.c       ****         }
+ 218:usart.c       ****         //PORTB = 0;
+ 219:usart.c       ****         if(calcChecksum(buffer,3) != buffer[3]){
+ 1018               	.LM78:
+ 1019 040e CE01      		movw r24,r28
+ 1020 0410 0696      		adiw r24,6
+ 1021 0412 63E0      		ldi r22,lo8(3)
+ 1022 0414 0E94 0000 		call calcChecksum
+ 1023 0418 982F      		mov r25,r24
+ 1024 041a 8985      		ldd r24,Y+9
+ 1025 041c 9817      		cp r25,r24
+ 1026 041e 01F0      		breq .L33
+ 220:usart.c       ****             sendNACK();
+ 1028               	.LM79:
+ 1029 0420 0E94 0000 		call sendNACK
+ 221:usart.c       ****         } else {
+ 222:usart.c       ****             sendACK();
+ 223:usart.c       ****             bytesRecieved = 0;
+ 224:usart.c       ****             command.groupID = buffer[0];
+ 225:usart.c       ****             command.cmd = buffer[1];
+ 226:usart.c       ****             command.crc = buffer[3];
+ 227:usart.c       ****             size = buffer[2];
+ 228:usart.c       ****             timeout = 0;
+ 229:usart.c       ****             if(size != 0){
+ 230:usart.c       ****                 while(1) {
+ 231:usart.c       ****                     while((bytesRecieved < size+1) && (timeout < 50)){  //1 for crc
+ 232:usart.c       ****                         if(UCSR1A & (1<<RXC1)){
+ 233:usart.c       ****                             rxData = UDR1;
+ 234:usart.c       **** 
+ 235:usart.c       ****                             //PORTB = 0xFF;
+ 236:usart.c       ****                         //if(xQueueReceive(USART_ReadQueue,&rxData,portMAX_DELAY) == pdTRUE){
+ 237:usart.c       ****                             buffer[bytesRecieved] = rxData;
+ 238:usart.c       ****                             bytesRecieved++;
+ 239:usart.c       ****                         } else {
+ 240:usart.c       ****                             //timeout++;
+ 241:usart.c       ****                             timeout = 1;
+ 242:usart.c       ****                         }
+ 243:usart.c       ****                     } 
+ 244:usart.c       ****                     if(timeout >= 50){
+ 245:usart.c       ****                         break;
+ 246:usart.c       ****                     }
+ 247:usart.c       ****                     if(calcChecksum(buffer,size) != buffer[size]){
+ 248:usart.c       ****                         sendNACK();
+ 249:usart.c       ****                         bytesRecieved = 0;
+ 250:usart.c       ****                     } else {
+ 251:usart.c       ****                         //PORTB = buffer[0];
+ 252:usart.c       ****                         sendACK();
+ 253:usart.c       ****                         memcpy(command.payload,buffer,size);
+ 254:usart.c       ****                         break;
+ 255:usart.c       ****                     }
+ 256:usart.c       ****                 }
+ 257:usart.c       ****             }
+ 258:usart.c       ****             processCommand(&command,&response);
+ 259:usart.c       ****             sendResponse(&response);
+ 260:usart.c       **** 
+ 261:usart.c       ****         }
+ 262:usart.c       **** 
+ 263:usart.c       ****     }
+ 1031               	.LM80:
+ 1032 0424 00C0      		rjmp .L44
+ 1033               	.L33:
+ 1034               	.LBB2:
+ 222:usart.c       ****             sendACK();
+ 1036               	.LM81:
+ 1037 0426 0E94 0000 		call sendACK
+ 223:usart.c       ****             bytesRecieved = 0;
+ 1039               	.LM82:
+ 1040 042a 1982      		std Y+1,__zero_reg__
+ 224:usart.c       ****             command.groupID = buffer[0];
+ 1042               	.LM83:
+ 1043 042c 8E81      		ldd r24,Y+6
+ 1044 042e 8E87      		std Y+14,r24
+ 225:usart.c       ****             command.cmd = buffer[1];
+ 1046               	.LM84:
+ 1047 0430 8F81      		ldd r24,Y+7
+ 1048 0432 8F87      		std Y+15,r24
+ 226:usart.c       ****             command.crc = buffer[3];
+ 1050               	.LM85:
+ 1051 0434 8985      		ldd r24,Y+9
+ 1052 0436 888B      		std Y+16,r24
+ 227:usart.c       ****             size = buffer[2];
+ 1054               	.LM86:
+ 1055 0438 8885      		ldd r24,Y+8
+ 1056 043a 8D83      		std Y+5,r24
+ 228:usart.c       ****             timeout = 0;
+ 1058               	.LM87:
+ 1059 043c 1B82      		std Y+3,__zero_reg__
+ 1060 043e 1A82      		std Y+2,__zero_reg__
+ 229:usart.c       ****             if(size != 0){
+ 1062               	.LM88:
+ 1063 0440 8D81      		ldd r24,Y+5
+ 1064 0442 8823      		tst r24
+ 1065 0444 01F4      		brne .+2
+ 1066 0446 00C0      		rjmp .L35
+ 1067               	.L43:
+ 231:usart.c       ****                     while((bytesRecieved < size+1) && (timeout < 50)){  //1 for crc
+ 1069               	.LM89:
+ 1070 0448 00C0      		rjmp .L36
+ 1071               	.L39:
+ 232:usart.c       ****                         if(UCSR1A & (1<<RXC1)){
+ 1073               	.LM90:
+ 1074 044a 88EC      		ldi r24,lo8(-56)
+ 1075 044c 90E0      		ldi r25,0
+ 1076 044e FC01      		movw r30,r24
+ 1077 0450 8081      		ld r24,Z
+ 1078 0452 8823      		tst r24
+ 1079 0454 04F4      		brge .L37
+ 233:usart.c       ****                             rxData = UDR1;
+ 1081               	.LM91:
+ 1082 0456 8EEC      		ldi r24,lo8(-50)
+ 1083 0458 90E0      		ldi r25,0
+ 1084 045a FC01      		movw r30,r24
+ 1085 045c 8081      		ld r24,Z
+ 1086 045e 8C83      		std Y+4,r24
+ 237:usart.c       ****                             buffer[bytesRecieved] = rxData;
+ 1088               	.LM92:
+ 1089 0460 8981      		ldd r24,Y+1
+ 1090 0462 9927      		clr r25
+ 1091 0464 87FD      		sbrc r24,7
+ 1092 0466 9095      		com r25
+ 1093 0468 9E01      		movw r18,r28
+ 1094 046a 2A5F      		subi r18,-6
+ 1095 046c 3F4F      		sbci r19,-1
+ 1096 046e 820F      		add r24,r18
+ 1097 0470 931F      		adc r25,r19
+ 1098 0472 2C81      		ldd r18,Y+4
+ 1099 0474 FC01      		movw r30,r24
+ 1100 0476 2083      		st Z,r18
+ 238:usart.c       ****                             bytesRecieved++;
+ 1102               	.LM93:
+ 1103 0478 8981      		ldd r24,Y+1
+ 1104 047a 8F5F      		subi r24,lo8(-(1))
+ 1105 047c 8983      		std Y+1,r24
+ 1106 047e 00C0      		rjmp .L36
+ 1107               	.L37:
+ 241:usart.c       ****                             timeout = 1;
+ 1109               	.LM94:
+ 1110 0480 81E0      		ldi r24,lo8(1)
+ 1111 0482 90E0      		ldi r25,0
+ 1112 0484 9B83      		std Y+3,r25
+ 1113 0486 8A83      		std Y+2,r24
+ 1114               	.L36:
+ 231:usart.c       ****                     while((bytesRecieved < size+1) && (timeout < 50)){  //1 for crc
+ 1116               	.LM95:
+ 1117 0488 8981      		ldd r24,Y+1
+ 1118 048a 282F      		mov r18,r24
+ 1119 048c 3327      		clr r19
+ 1120 048e 27FD      		sbrc r18,7
+ 1121 0490 3095      		com r19
+ 1122 0492 8D81      		ldd r24,Y+5
+ 1123 0494 9927      		clr r25
+ 1124 0496 87FD      		sbrc r24,7
+ 1125 0498 9095      		com r25
+ 1126 049a 0196      		adiw r24,1
+ 1127 049c 2817      		cp r18,r24
+ 1128 049e 3907      		cpc r19,r25
+ 1129 04a0 04F4      		brge .L38
+ 231:usart.c       ****                     while((bytesRecieved < size+1) && (timeout < 50)){  //1 for crc
+ 1131               	.LM96:
+ 1132 04a2 8A81      		ldd r24,Y+2
+ 1133 04a4 9B81      		ldd r25,Y+3
+ 1134 04a6 8233      		cpi r24,50
+ 1135 04a8 9105      		cpc r25,__zero_reg__
+ 1136 04aa 00F0      		brlo .L39
+ 1137               	.L38:
+ 244:usart.c       ****                     if(timeout >= 50){
+ 1139               	.LM97:
+ 1140 04ac 8A81      		ldd r24,Y+2
+ 1141 04ae 9B81      		ldd r25,Y+3
+ 1142 04b0 8233      		cpi r24,50
+ 1143 04b2 9105      		cpc r25,__zero_reg__
+ 1144 04b4 00F0      		brlo .L40
+ 245:usart.c       ****                         break;
+ 1146               	.LM98:
+ 1147 04b6 00C0      		rjmp .L35
+ 1148               	.L40:
+ 247:usart.c       ****                     if(calcChecksum(buffer,size) != buffer[size]){
+ 1150               	.LM99:
+ 1151 04b8 2D81      		ldd r18,Y+5
+ 1152 04ba CE01      		movw r24,r28
+ 1153 04bc 0696      		adiw r24,6
+ 1154 04be 622F      		mov r22,r18
+ 1155 04c0 0E94 0000 		call calcChecksum
+ 1156 04c4 482F      		mov r20,r24
+ 1157 04c6 8D81      		ldd r24,Y+5
+ 1158 04c8 9927      		clr r25
+ 1159 04ca 87FD      		sbrc r24,7
+ 1160 04cc 9095      		com r25
+ 1161 04ce 9E01      		movw r18,r28
+ 1162 04d0 2A5F      		subi r18,-6
+ 1163 04d2 3F4F      		sbci r19,-1
+ 1164 04d4 820F      		add r24,r18
+ 1165 04d6 931F      		adc r25,r19
+ 1166 04d8 FC01      		movw r30,r24
+ 1167 04da 8081      		ld r24,Z
+ 1168 04dc 4817      		cp r20,r24
+ 1169 04de 01F0      		breq .L41
+ 248:usart.c       ****                         sendNACK();
+ 1171               	.LM100:
+ 1172 04e0 0E94 0000 		call sendNACK
+ 249:usart.c       ****                         bytesRecieved = 0;
+ 1174               	.LM101:
+ 1175 04e4 1982      		std Y+1,__zero_reg__
+ 256:usart.c       ****                 }
+ 1177               	.LM102:
+ 1178 04e6 00C0      		rjmp .L43
+ 1179               	.L41:
+ 1180               	.LBB3:
+ 252:usart.c       ****                         sendACK();
+ 1182               	.LM103:
+ 1183 04e8 0E94 0000 		call sendACK
+ 253:usart.c       ****                         memcpy(command.payload,buffer,size);
+ 1185               	.LM104:
+ 1186 04ec 8D81      		ldd r24,Y+5
+ 1187 04ee 482F      		mov r20,r24
+ 1188 04f0 5527      		clr r21
+ 1189 04f2 47FD      		sbrc r20,7
+ 1190 04f4 5095      		com r21
+ 1191 04f6 9E01      		movw r18,r28
+ 1192 04f8 2A5F      		subi r18,-6
+ 1193 04fa 3F4F      		sbci r19,-1
+ 1194 04fc CE01      		movw r24,r28
+ 1195 04fe 0E96      		adiw r24,14
+ 1196 0500 0396      		adiw r24,3
+ 1197 0502 B901      		movw r22,r18
+ 1198 0504 0E94 0000 		call memcpy
+ 254:usart.c       ****                         break;
+ 1200               	.LM105:
+ 1201 0508 0000      		nop
+ 1202               	.L35:
+ 1203               	.LBE3:
+ 258:usart.c       ****             processCommand(&command,&response);
+ 1205               	.LM106:
+ 1206 050a 9E01      		movw r18,r28
+ 1207 050c 2F5C      		subi r18,-49
+ 1208 050e 3F4F      		sbci r19,-1
+ 1209 0510 CE01      		movw r24,r28
+ 1210 0512 0E96      		adiw r24,14
+ 1211 0514 B901      		movw r22,r18
+ 1212 0516 0E94 0000 		call processCommand
+ 259:usart.c       ****             sendResponse(&response);
+ 1214               	.LM107:
+ 1215 051a CE01      		movw r24,r28
+ 1216 051c C196      		adiw r24,49
+ 1217 051e 0E94 0000 		call sendResponse
+ 1218               	.LBE2:
+ 1220               	.LM108:
+ 1221 0522 00C0      		rjmp .L44
+ 1232               	.Lscope13:
+ 1234               		.stabd	78,0,0
+ 1237               	.global	sendResponse
+ 1239               	sendResponse:
+ 1240               		.stabd	46,0,0
+ 264:usart.c       **** 
+ 265:usart.c       **** }
  266:usart.c       **** 
- 267:usart.c       ****     for(i=0;i<response->size;i++){
- 1077               	.LM93:
- 1078 04b4 1A82      		std Y+2,__zero_reg__
- 1079 04b6 1982      		std Y+1,__zero_reg__
- 1080 04b8 00C0      		rjmp .L53
- 1081               	.L54:
- 268:usart.c       ****         USART_AddToQueue(response->payload[i]);
- 1083               	.LM94:
- 1084 04ba 2981      		ldd r18,Y+1
- 1085 04bc 3A81      		ldd r19,Y+2
- 1086 04be 8D81      		ldd r24,Y+5
- 1087 04c0 9E81      		ldd r25,Y+6
- 1088 04c2 820F      		add r24,r18
- 1089 04c4 931F      		adc r25,r19
- 1090 04c6 FC01      		movw r30,r24
- 1091 04c8 3296      		adiw r30,2
- 1092 04ca 8081      		ld r24,Z
- 1093 04cc 0E94 0000 		call USART_AddToQueue
- 267:usart.c       ****     for(i=0;i<response->size;i++){
- 1095               	.LM95:
- 1096 04d0 8981      		ldd r24,Y+1
- 1097 04d2 9A81      		ldd r25,Y+2
- 1098 04d4 0196      		adiw r24,1
- 1099 04d6 9A83      		std Y+2,r25
- 1100 04d8 8983      		std Y+1,r24
- 1101               	.L53:
- 1102 04da ED81      		ldd r30,Y+5
- 1103 04dc FE81      		ldd r31,Y+6
- 1104 04de 8181      		ldd r24,Z+1
- 1105 04e0 282F      		mov r18,r24
- 1106 04e2 3327      		clr r19
- 1107 04e4 27FD      		sbrc r18,7
- 1108 04e6 3095      		com r19
- 1109 04e8 8981      		ldd r24,Y+1
- 1110 04ea 9A81      		ldd r25,Y+2
- 1111 04ec 8217      		cp r24,r18
- 1112 04ee 9307      		cpc r25,r19
- 1113 04f0 04F0      		brlt .L54
- 269:usart.c       ****         //USART_AddToQueue()
- 270:usart.c       ****     }
- 271:usart.c       ****     USART_AddToQueue(calcChecksum(response->payload,12));
- 1115               	.LM96:
- 1116 04f2 8D81      		ldd r24,Y+5
- 1117 04f4 9E81      		ldd r25,Y+6
- 1118 04f6 0296      		adiw r24,2
- 1119 04f8 6CE0      		ldi r22,lo8(12)
- 1120 04fa 0E94 0000 		call calcChecksum
- 1121 04fe 0E94 0000 		call USART_AddToQueue
- 1122               	/* epilogue start */
- 272:usart.c       **** 
- 273:usart.c       **** 
- 274:usart.c       **** }
- 1124               	.LM97:
- 1125 0502 2696      		adiw r28,6
- 1126 0504 0FB6      		in __tmp_reg__,__SREG__
- 1127 0506 F894      		cli
- 1128 0508 DEBF      		out __SP_H__,r29
- 1129 050a 0FBE      		out __SREG__,__tmp_reg__
- 1130 050c CDBF      		out __SP_L__,r28
- 1131 050e CF91      		pop r28
- 1132 0510 DF91      		pop r29
- 1133 0512 0895      		ret
- 1139               	.Lscope13:
- 1141               		.stabd	78,0,0
- 1143               	.global	sendACK
- 1145               	sendACK:
- 1146               		.stabd	46,0,0
- 275:usart.c       **** 
- 276:usart.c       **** void sendACK(){
- 1148               	.LM98:
- 1149               	.LFBB14:
- 1150 0514 DF93      		push r29
- 1151 0516 CF93      		push r28
- 1152 0518 CDB7      		in r28,__SP_L__
- 1153 051a DEB7      		in r29,__SP_H__
- 1154               	/* prologue: function */
- 1155               	/* frame size = 0 */
- 277:usart.c       ****     USART_AddToQueue(128);
- 1157               	.LM99:
- 1158 051c 80E8      		ldi r24,lo8(-128)
- 1159 051e 0E94 0000 		call USART_AddToQueue
- 1160               	/* epilogue start */
- 278:usart.c       **** }
- 1162               	.LM100:
- 1163 0522 CF91      		pop r28
- 1164 0524 DF91      		pop r29
- 1165 0526 0895      		ret
- 1167               	.Lscope14:
- 1169               		.stabd	78,0,0
- 1171               	.global	sendNACK
- 1173               	sendNACK:
- 1174               		.stabd	46,0,0
- 279:usart.c       **** 
- 280:usart.c       **** void sendNACK(){
- 1176               	.LM101:
- 1177               	.LFBB15:
- 1178 0528 DF93      		push r29
- 1179 052a CF93      		push r28
- 1180 052c CDB7      		in r28,__SP_L__
- 1181 052e DEB7      		in r29,__SP_H__
- 1182               	/* prologue: function */
- 1183               	/* frame size = 0 */
- 281:usart.c       ****     USART_AddToQueue(0);
- 1185               	.LM102:
- 1186 0530 80E0      		ldi r24,lo8(0)
- 1187 0532 0E94 0000 		call USART_AddToQueue
- 1188               	/* epilogue start */
- 282:usart.c       **** }
- 1190               	.LM103:
- 1191 0536 CF91      		pop r28
- 1192 0538 DF91      		pop r29
- 1193 053a 0895      		ret
- 1195               	.Lscope15:
- 1197               		.stabd	78,0,0
- 1199               	.global	waitForChecksum
- 1201               	waitForChecksum:
- 1202               		.stabd	46,0,0
- 283:usart.c       **** 
- 284:usart.c       **** char waitForChecksum(){
- 1204               	.LM104:
- 1205               	.LFBB16:
- 1206 053c DF93      		push r29
- 1207 053e CF93      		push r28
- 1208 0540 CDB7      		in r28,__SP_L__
- 1209 0542 DEB7      		in r29,__SP_H__
- 1210               	/* prologue: function */
- 1211               	/* frame size = 0 */
- 1212               	.L62:
- 285:usart.c       ****     while(1){
- 286:usart.c       ****         if(UCSR1A & (1<<RXC1)){
- 1214               	.LM105:
- 1215 0544 E8EC      		ldi r30,lo8(200)
- 1216 0546 F0E0      		ldi r31,hi8(200)
- 1217 0548 8081      		ld r24,Z
- 1218 054a 8823      		tst r24
- 1219 054c 04F4      		brge .L61
- 287:usart.c       ****             if(UDR1 = 0xFF) {
- 1221               	.LM106:
- 1222 054e EEEC      		ldi r30,lo8(206)
- 1223 0550 F0E0      		ldi r31,hi8(206)
- 1224 0552 8FEF      		ldi r24,lo8(-1)
- 1225 0554 8083      		st Z,r24
- 288:usart.c       ****                 return 0;
- 1227               	.LM107:
- 1228 0556 80E0      		ldi r24,lo8(0)
- 1229               	/* epilogue start */
- 289:usart.c       ****             } else {
- 290:usart.c       ****                 return -1;
- 291:usart.c       ****             }
- 292:usart.c       **** 
- 293:usart.c       ****         } else {
- 294:usart.c       ****             vTaskDelay(1);
- 295:usart.c       ****         }
- 296:usart.c       **** 
- 297:usart.c       ****     }
+ 267:usart.c       **** void sendResponse(Response* response){
+ 1242               	.LM109:
+ 1243               	.LFBB14:
+ 1244 0524 CF93      		push r28
+ 1245 0526 DF93      		push r29
+ 1246 0528 00D0      		rcall .
+ 1247 052a 00D0      		rcall .
+ 1248 052c CDB7      		in r28,__SP_L__
+ 1249 052e DEB7      		in r29,__SP_H__
+ 1250               	/* prologue: function */
+ 1251               	/* frame size = 6 */
+ 1252               	/* stack size = 8 */
+ 1253               	.L__stack_usage = 8
+ 1254 0530 9E83      		std Y+6,r25
+ 1255 0532 8D83      		std Y+5,r24
+ 1256               	.L48:
+ 268:usart.c       ****     char checksumBuffer[2];
+ 269:usart.c       ****     int i;
+ 270:usart.c       ****     while(1){
+ 271:usart.c       ****         USART_AddToQueue(response->commandBack);
+ 1258               	.LM110:
+ 1259 0534 8D81      		ldd r24,Y+5
+ 1260 0536 9E81      		ldd r25,Y+6
+ 1261 0538 FC01      		movw r30,r24
+ 1262 053a 8081      		ld r24,Z
+ 1263 053c 0E94 0000 		call USART_AddToQueue
+ 272:usart.c       ****         USART_AddToQueue(response->size);
+ 1265               	.LM111:
+ 1266 0540 8D81      		ldd r24,Y+5
+ 1267 0542 9E81      		ldd r25,Y+6
+ 1268 0544 FC01      		movw r30,r24
+ 1269 0546 8181      		ldd r24,Z+1
+ 1270 0548 0E94 0000 		call USART_AddToQueue
+ 273:usart.c       ****         checksumBuffer[0] = response->commandBack;
+ 1272               	.LM112:
+ 1273 054c 8D81      		ldd r24,Y+5
+ 1274 054e 9E81      		ldd r25,Y+6
+ 1275 0550 FC01      		movw r30,r24
+ 1276 0552 8081      		ld r24,Z
+ 1277 0554 8B83      		std Y+3,r24
+ 274:usart.c       ****         checksumBuffer[1] = response->size;
+ 1279               	.LM113:
+ 1280 0556 8D81      		ldd r24,Y+5
+ 1281 0558 9E81      		ldd r25,Y+6
+ 1282 055a FC01      		movw r30,r24
+ 1283 055c 8181      		ldd r24,Z+1
+ 1284 055e 8C83      		std Y+4,r24
+ 275:usart.c       ****         USART_AddToQueue(calcChecksum(checksumBuffer,2));
+ 1286               	.LM114:
+ 1287 0560 CE01      		movw r24,r28
+ 1288 0562 0396      		adiw r24,3
+ 1289 0564 62E0      		ldi r22,lo8(2)
+ 1290 0566 0E94 0000 		call calcChecksum
+ 1291 056a 0E94 0000 		call USART_AddToQueue
+ 276:usart.c       ****         if(waitForChecksum() == 0){
+ 1293               	.LM115:
+ 1294 056e 0E94 0000 		call waitForChecksum
+ 1295 0572 8823      		tst r24
+ 1296 0574 01F4      		brne .L46
+ 277:usart.c       ****             break;
+ 1298               	.LM116:
+ 1299 0576 0000      		nop
+ 278:usart.c       ****         }
+ 279:usart.c       ****     }
+ 280:usart.c       **** 
+ 281:usart.c       **** 
+ 282:usart.c       ****     for(i=0;i<response->size;i++){
+ 1301               	.LM117:
+ 1302 0578 1A82      		std Y+2,__zero_reg__
+ 1303 057a 1982      		std Y+1,__zero_reg__
+ 1304 057c 00C0      		rjmp .L49
+ 1305               	.L46:
+ 279:usart.c       ****     }
+ 1307               	.LM118:
+ 1308 057e 00C0      		rjmp .L48
+ 1309               	.L50:
+ 283:usart.c       ****         USART_AddToQueue(response->payload[i]);
+ 1311               	.LM119:
+ 1312 0580 2D81      		ldd r18,Y+5
+ 1313 0582 3E81      		ldd r19,Y+6
+ 1314 0584 8981      		ldd r24,Y+1
+ 1315 0586 9A81      		ldd r25,Y+2
+ 1316 0588 820F      		add r24,r18
+ 1317 058a 931F      		adc r25,r19
+ 1318 058c 0296      		adiw r24,2
+ 1319 058e FC01      		movw r30,r24
+ 1320 0590 8081      		ld r24,Z
+ 1321 0592 0E94 0000 		call USART_AddToQueue
+ 282:usart.c       ****     for(i=0;i<response->size;i++){
+ 1323               	.LM120:
+ 1324 0596 8981      		ldd r24,Y+1
+ 1325 0598 9A81      		ldd r25,Y+2
+ 1326 059a 0196      		adiw r24,1
+ 1327 059c 9A83      		std Y+2,r25
+ 1328 059e 8983      		std Y+1,r24
+ 1329               	.L49:
+ 282:usart.c       ****     for(i=0;i<response->size;i++){
+ 1331               	.LM121:
+ 1332 05a0 8D81      		ldd r24,Y+5
+ 1333 05a2 9E81      		ldd r25,Y+6
+ 1334 05a4 FC01      		movw r30,r24
+ 1335 05a6 8181      		ldd r24,Z+1
+ 1336 05a8 282F      		mov r18,r24
+ 1337 05aa 3327      		clr r19
+ 1338 05ac 27FD      		sbrc r18,7
+ 1339 05ae 3095      		com r19
+ 1340 05b0 8981      		ldd r24,Y+1
+ 1341 05b2 9A81      		ldd r25,Y+2
+ 1342 05b4 8217      		cp r24,r18
+ 1343 05b6 9307      		cpc r25,r19
+ 1344 05b8 04F0      		brlt .L50
+ 284:usart.c       ****         //USART_AddToQueue(0x30 | (i + 2));
+ 285:usart.c       ****         //USART_AddToQueue()
+ 286:usart.c       ****     }
+ 287:usart.c       ****     USART_AddToQueue(calcChecksum(response->payload,12));
+ 1346               	.LM122:
+ 1347 05ba 8D81      		ldd r24,Y+5
+ 1348 05bc 9E81      		ldd r25,Y+6
+ 1349 05be 0296      		adiw r24,2
+ 1350 05c0 6CE0      		ldi r22,lo8(12)
+ 1351 05c2 0E94 0000 		call calcChecksum
+ 1352 05c6 0E94 0000 		call USART_AddToQueue
+ 1353               	/* epilogue start */
+ 288:usart.c       **** 
+ 289:usart.c       **** 
+ 290:usart.c       **** }
+ 1355               	.LM123:
+ 1356 05ca 2696      		adiw r28,6
+ 1357 05cc 0FB6      		in __tmp_reg__,__SREG__
+ 1358 05ce F894      		cli
+ 1359 05d0 DEBF      		out __SP_H__,r29
+ 1360 05d2 0FBE      		out __SREG__,__tmp_reg__
+ 1361 05d4 CDBF      		out __SP_L__,r28
+ 1362 05d6 DF91      		pop r29
+ 1363 05d8 CF91      		pop r28
+ 1364 05da 0895      		ret
+ 1370               	.Lscope14:
+ 1372               		.stabd	78,0,0
+ 1374               	.global	sendACK
+ 1376               	sendACK:
+ 1377               		.stabd	46,0,0
+ 291:usart.c       **** 
+ 292:usart.c       **** void sendACK(){
+ 1379               	.LM124:
+ 1380               	.LFBB15:
+ 1381 05dc CF93      		push r28
+ 1382 05de DF93      		push r29
+ 1383 05e0 CDB7      		in r28,__SP_L__
+ 1384 05e2 DEB7      		in r29,__SP_H__
+ 1385               	/* prologue: function */
+ 1386               	/* frame size = 0 */
+ 1387               	/* stack size = 2 */
+ 1388               	.L__stack_usage = 2
+ 293:usart.c       ****     USART_AddToQueue(128);
+ 1390               	.LM125:
+ 1391 05e4 80E8      		ldi r24,lo8(-128)
+ 1392 05e6 0E94 0000 		call USART_AddToQueue
+ 1393               	/* epilogue start */
+ 294:usart.c       **** }
+ 1395               	.LM126:
+ 1396 05ea DF91      		pop r29
+ 1397 05ec CF91      		pop r28
+ 1398 05ee 0895      		ret
+ 1400               	.Lscope15:
+ 1402               		.stabd	78,0,0
+ 1404               	.global	sendNACK
+ 1406               	sendNACK:
+ 1407               		.stabd	46,0,0
+ 295:usart.c       **** 
+ 296:usart.c       **** void sendNACK(){
+ 1409               	.LM127:
+ 1410               	.LFBB16:
+ 1411 05f0 CF93      		push r28
+ 1412 05f2 DF93      		push r29
+ 1413 05f4 CDB7      		in r28,__SP_L__
+ 1414 05f6 DEB7      		in r29,__SP_H__
+ 1415               	/* prologue: function */
+ 1416               	/* frame size = 0 */
+ 1417               	/* stack size = 2 */
+ 1418               	.L__stack_usage = 2
+ 297:usart.c       ****     USART_AddToQueue(0);
+ 1420               	.LM128:
+ 1421 05f8 80E0      		ldi r24,0
+ 1422 05fa 0E94 0000 		call USART_AddToQueue
+ 1423               	/* epilogue start */
  298:usart.c       **** }
- 1231               	.LM108:
- 1232 0558 CF91      		pop r28
- 1233 055a DF91      		pop r29
- 1234 055c 0895      		ret
- 1235               	.L61:
- 294:usart.c       ****             vTaskDelay(1);
- 1237               	.LM109:
- 1238 055e 81E0      		ldi r24,lo8(1)
- 1239 0560 90E0      		ldi r25,hi8(1)
- 1240 0562 0E94 0000 		call vTaskDelay
- 1241 0566 00C0      		rjmp .L62
- 1243               	.Lscope16:
- 1245               		.stabd	78,0,0
- 1249               	.global	calcChecksum
- 1251               	calcChecksum:
- 1252               		.stabd	46,0,0
+ 1425               	.LM129:
+ 1426 05fe DF91      		pop r29
+ 1427 0600 CF91      		pop r28
+ 1428 0602 0895      		ret
+ 1430               	.Lscope16:
+ 1432               		.stabd	78,0,0
+ 1434               	.global	waitForChecksum
+ 1436               	waitForChecksum:
+ 1437               		.stabd	46,0,0
  299:usart.c       **** 
- 300:usart.c       **** uint8_t calcChecksum(uint8_t* buffer,uint8_t size){
- 1254               	.LM110:
- 1255               	.LFBB17:
- 1256 0568 DF93      		push r29
- 1257 056a CF93      		push r28
- 1258 056c 00D0      		rcall .
- 1259 056e 0F92      		push __tmp_reg__
- 1260 0570 0F92      		push __tmp_reg__
- 1261 0572 CDB7      		in r28,__SP_L__
- 1262 0574 DEB7      		in r29,__SP_H__
- 1263               	/* prologue: function */
- 1264               	/* frame size = 5 */
- 1265 0576 9B83      		std Y+3,r25
- 1266 0578 8A83      		std Y+2,r24
- 1267 057a 6C83      		std Y+4,r22
- 301:usart.c       ****     uint8_t checksum = 0;
- 1269               	.LM111:
- 1270 057c 1982      		std Y+1,__zero_reg__
- 1271 057e 00C0      		rjmp .L65
- 1272               	.L67:
- 302:usart.c       ****     while(size-- > 0){
- 303:usart.c       ****         checksum += *(buffer++);
- 1274               	.LM112:
- 1275 0580 EA81      		ldd r30,Y+2
- 1276 0582 FB81      		ldd r31,Y+3
- 1277 0584 9081      		ld r25,Z
- 1278 0586 8981      		ldd r24,Y+1
- 1279 0588 890F      		add r24,r25
- 1280 058a 8983      		std Y+1,r24
- 1281 058c 8A81      		ldd r24,Y+2
- 1282 058e 9B81      		ldd r25,Y+3
- 1283 0590 0196      		adiw r24,1
- 1284 0592 9B83      		std Y+3,r25
- 1285 0594 8A83      		std Y+2,r24
- 1286               	.L65:
- 302:usart.c       ****     while(size-- > 0){
- 1288               	.LM113:
- 1289 0596 8C81      		ldd r24,Y+4
- 1290 0598 8D83      		std Y+5,r24
- 1291 059a 8D81      		ldd r24,Y+5
- 1292 059c 8823      		tst r24
- 1293 059e 01F0      		breq .L66
- 1294 05a0 81E0      		ldi r24,lo8(1)
- 1295 05a2 8D83      		std Y+5,r24
- 1296               	.L66:
- 1297 05a4 8D81      		ldd r24,Y+5
- 1298 05a6 9C81      		ldd r25,Y+4
- 1299 05a8 9150      		subi r25,lo8(-(-1))
- 1300 05aa 9C83      		std Y+4,r25
- 1301 05ac 8823      		tst r24
- 1302 05ae 01F4      		brne .L67
- 304:usart.c       ****     }
- 305:usart.c       ****     return checksum;
- 1304               	.LM114:
- 1305 05b0 8981      		ldd r24,Y+1
- 1306               	/* epilogue start */
- 306:usart.c       **** }...
- 1308               	.LM115:
- 1309 05b2 0F90      		pop __tmp_reg__
- 1310 05b4 0F90      		pop __tmp_reg__
- 1311 05b6 0F90      		pop __tmp_reg__
- 1312 05b8 0F90      		pop __tmp_reg__
- 1313 05ba 0F90      		pop __tmp_reg__
- 1314 05bc CF91      		pop r28
- 1315 05be DF91      		pop r29
- 1316 05c0 0895      		ret
- 1321               	.Lscope17:
- 1323               		.stabd	78,0,0
- 1324               		.comm USART_WriteQueue,2,1
- 1325               		.comm USART_ReadQueue,2,1
- 1326               		.comm USART_WriteQueueLog,2,1
- 1331               	.Letext0:
- 1332               	.global __do_clear_bss
+ 300:usart.c       **** char waitForChecksum(){
+ 1439               	.LM130:
+ 1440               	.LFBB17:
+ 1441 0604 CF93      		push r28
+ 1442 0606 DF93      		push r29
+ 1443 0608 CDB7      		in r28,__SP_L__
+ 1444 060a DEB7      		in r29,__SP_H__
+ 1445               	/* prologue: function */
+ 1446               	/* frame size = 0 */
+ 1447               	/* stack size = 2 */
+ 1448               	.L__stack_usage = 2
+ 301:usart.c       ****     while(1){
+ 302:usart.c       ****         //if(UCSR1A & (1<<RXC1)){
+ 303:usart.c       ****             if(USART_GetChar() == 0xFF){
+ 1450               	.LM131:
+ 1451 060c 0E94 0000 		call USART_GetChar
+ 1452 0610 8F3F      		cpi r24,lo8(-1)
+ 1453 0612 01F4      		brne .L54
+ 304:usart.c       ****             //if(UDR1 = 0xFF) {
+ 305:usart.c       **** 
+ 306:usart.c       ****                 return 0;
+ 1455               	.LM132:
+ 1456 0614 80E0      		ldi r24,0
+ 1457 0616 00C0      		rjmp .L55
+ 1458               	.L54:
+ 307:usart.c       ****             } else {
+ 308:usart.c       ****                 return -1;
+ 1460               	.LM133:
+ 1461 0618 8FEF      		ldi r24,lo8(-1)
+ 1462               	.L55:
+ 1463               	/* epilogue start */
+ 309:usart.c       ****             }
+ 310:usart.c       **** 
+ 311:usart.c       ****         //} else {
+ 312:usart.c       ****         //    vTaskDelay(1);
+ 313:usart.c       ****         //}
+ 314:usart.c       **** 
+ 315:usart.c       ****     }
+ 316:usart.c       **** }
+ 1465               	.LM134:
+ 1466 061a DF91      		pop r29
+ 1467 061c CF91      		pop r28
+ 1468 061e 0895      		ret
+ 1470               	.Lscope17:
+ 1472               		.stabd	78,0,0
+ 1476               	.global	calcChecksum
+ 1478               	calcChecksum:
+ 1479               		.stabd	46,0,0
+ 317:usart.c       **** 
+ 318:usart.c       **** uint8_t calcChecksum(uint8_t* buffer,uint8_t size){
+ 1481               	.LM135:
+ 1482               	.LFBB18:
+ 1483 0620 CF93      		push r28
+ 1484 0622 DF93      		push r29
+ 1485 0624 00D0      		rcall .
+ 1486 0626 1F92      		push __zero_reg__
+ 1487 0628 CDB7      		in r28,__SP_L__
+ 1488 062a DEB7      		in r29,__SP_H__
+ 1489               	/* prologue: function */
+ 1490               	/* frame size = 4 */
+ 1491               	/* stack size = 6 */
+ 1492               	.L__stack_usage = 6
+ 1493 062c 9B83      		std Y+3,r25
+ 1494 062e 8A83      		std Y+2,r24
+ 1495 0630 6C83      		std Y+4,r22
+ 319:usart.c       ****     uint8_t checksum = 0;
+ 1497               	.LM136:
+ 1498 0632 1982      		std Y+1,__zero_reg__
+ 320:usart.c       ****     while(size-- > 0){
+ 1500               	.LM137:
+ 1501 0634 00C0      		rjmp .L57
+ 1502               	.L58:
+ 321:usart.c       ****         checksum += *(buffer++);
+ 1504               	.LM138:
+ 1505 0636 8A81      		ldd r24,Y+2
+ 1506 0638 9B81      		ldd r25,Y+3
+ 1507 063a 9C01      		movw r18,r24
+ 1508 063c 2F5F      		subi r18,-1
+ 1509 063e 3F4F      		sbci r19,-1
+ 1510 0640 3B83      		std Y+3,r19
+ 1511 0642 2A83      		std Y+2,r18
+ 1512 0644 FC01      		movw r30,r24
+ 1513 0646 8081      		ld r24,Z
+ 1514 0648 9981      		ldd r25,Y+1
+ 1515 064a 890F      		add r24,r25
+ 1516 064c 8983      		std Y+1,r24
+ 1517               	.L57:
+ 320:usart.c       ****     while(size-- > 0){
+ 1519               	.LM139:
+ 1520 064e 8C81      		ldd r24,Y+4
+ 1521 0650 9FEF      		ldi r25,lo8(-1)
+ 1522 0652 980F      		add r25,r24
+ 1523 0654 9C83      		std Y+4,r25
+ 1524 0656 8823      		tst r24
+ 1525 0658 01F4      		brne .L58
+ 322:usart.c       ****     }
+ 323:usart.c       ****     return checksum;
+ 1527               	.LM140:
+ 1528 065a 8981      		ldd r24,Y+1
+ 1529               	/* epilogue start */
+ 324:usart.c       **** }...
+ 1531               	.LM141:
+ 1532 065c 0F90      		pop __tmp_reg__
+ 1533 065e 0F90      		pop __tmp_reg__
+ 1534 0660 0F90      		pop __tmp_reg__
+ 1535 0662 0F90      		pop __tmp_reg__
+ 1536 0664 DF91      		pop r29
+ 1537 0666 CF91      		pop r28
+ 1538 0668 0895      		ret
+ 1543               	.Lscope18:
+ 1545               		.stabd	78,0,0
+ 1550               	.Letext0:
+ 1551               		.ident	"GCC: (GNU) 4.8.2"
+ 1552               	.global __do_clear_bss
 DEFINED SYMBOLS
-                            *ABS*:00000000 usart.c
-     /tmp/ccEcRUoP.s:2      *ABS*:0000003f __SREG__
-     /tmp/ccEcRUoP.s:3      *ABS*:0000003e __SP_H__
-     /tmp/ccEcRUoP.s:4      *ABS*:0000003d __SP_L__
-     /tmp/ccEcRUoP.s:5      *ABS*:00000034 __CCP__
-     /tmp/ccEcRUoP.s:6      *ABS*:00000000 __tmp_reg__
-     /tmp/ccEcRUoP.s:7      *ABS*:00000001 __zero_reg__
-     /tmp/ccEcRUoP.s:109    .text:00000000 USART_Init
-                            *COM*:00000002 USART_WriteQueue
-                            *COM*:00000002 USART_ReadQueue
-     /tmp/ccEcRUoP.s:252    .text:000000e2 USART_Write
-     /tmp/ccEcRUoP.s:298    .text:00000110 USART_Write_Unprotected
-     /tmp/ccEcRUoP.s:343    .text:0000013e USART_Read
-     /tmp/ccEcRUoP.s:381    .text:0000015c ISR
-     /tmp/ccEcRUoP.s:420    .text:00000182 USART_AddToQueue
-     /tmp/ccEcRUoP.s:460    .text:000001b0 USART_TransmitString
-     /tmp/ccEcRUoP.s:514    .text:000001ea vTaskUSARTWrite
-     /tmp/ccEcRUoP.s:571    .text:0000022e USART_LogChar
-                            *COM*:00000002 USART_WriteQueueLog
-     /tmp/ccEcRUoP.s:611    .text:0000025c USART_LogString
-     /tmp/ccEcRUoP.s:665    .text:00000296 vTaskUSARTLog
-     /tmp/ccEcRUoP.s:722    .text:000002da vTaskUSARTRead
-     /tmp/ccEcRUoP.s:1251   .text:00000568 calcChecksum
-     /tmp/ccEcRUoP.s:1173   .text:00000528 sendNACK
-     /tmp/ccEcRUoP.s:1145   .text:00000514 sendACK
-     /tmp/ccEcRUoP.s:1023   .text:0000046a sendResponse
-     /tmp/ccEcRUoP.s:1201   .text:0000053c waitForChecksum
+                            *ABS*:0000000000000000 usart.c
+     /tmp/cc0ZU9Qi.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/cc0ZU9Qi.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/cc0ZU9Qi.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/cc0ZU9Qi.s:5      *ABS*:000000000000003b __RAMPZ__
+     /tmp/cc0ZU9Qi.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cc0ZU9Qi.s:7      *ABS*:0000000000000001 __zero_reg__
+                            *COM*:0000000000000002 USART_WriteQueue
+                            *COM*:0000000000000002 USART_ReadQueue
+                            *COM*:0000000000000002 USART_WriteQueueLog
+     /tmp/cc0ZU9Qi.s:146    .text:0000000000000000 USART_Init
+     /tmp/cc0ZU9Qi.s:288    .text:00000000000000da USART_Write
+     /tmp/cc0ZU9Qi.s:341    .text:000000000000010e USART_Write_Unprotected
+     /tmp/cc0ZU9Qi.s:393    .text:0000000000000142 USART_Read
+     /tmp/cc0ZU9Qi.s:437    .text:0000000000000166 __vector_36
+     /tmp/cc0ZU9Qi.s:524    .text:00000000000001ec USART_AddToQueue
+     /tmp/cc0ZU9Qi.s:565    .text:0000000000000218 USART_TransmitString
+     /tmp/cc0ZU9Qi.s:625    .text:0000000000000256 vTaskUSARTWrite
+     /tmp/cc0ZU9Qi.s:690    .text:000000000000029e USART_LogChar
+     /tmp/cc0ZU9Qi.s:731    .text:00000000000002ca USART_LogString
+     /tmp/cc0ZU9Qi.s:791    .text:0000000000000308 vTaskUSARTLog
+     /tmp/cc0ZU9Qi.s:855    .text:0000000000000350 USART_GetChar
+     /tmp/cc0ZU9Qi.s:909    .text:0000000000000384 vTaskUSARTRead
+     /tmp/cc0ZU9Qi.s:1478   .text:0000000000000620 calcChecksum
+     /tmp/cc0ZU9Qi.s:1406   .text:00000000000005f0 sendNACK
+     /tmp/cc0ZU9Qi.s:1376   .text:00000000000005dc sendACK
+     /tmp/cc0ZU9Qi.s:1239   .text:0000000000000524 sendResponse
+     /tmp/cc0ZU9Qi.s:1436   .text:0000000000000604 waitForChecksum
 
 UNDEFINED SYMBOLS
 xQueueGenericCreate
 __udivmodsi4
+xQueueGenericSendFromISR
 xQueueGenericSend
 xQueueGenericReceive
 memcpy
 processCommand
-vTaskDelay
 __do_clear_bss
