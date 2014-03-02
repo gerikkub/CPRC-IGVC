@@ -1,0 +1,7 @@
+To  Compile type in
+
+be sure to get
+
+apt-get install libserial-dev
+
+g++   main.c  -lserial
