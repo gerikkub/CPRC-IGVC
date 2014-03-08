@@ -53,7 +53,7 @@ void USART_Init(uint16_t baudin, uint32_t clk_speedin) {
     UCSR1B = (1<<RXEN1)|(1<<TXEN1)|(1<<RXCIE1);
     /* Set frame format: 8data, 1stop bit */
     UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);
-	// clear U2X0 for Synchronous operation
+	 // clear U2X0 for Synchronous operation
     UCSR1A &= ~(1<<U2X1);
 
     //UCSR0B |= (1<<UDRIE0);
@@ -317,7 +317,7 @@ char waitForChecksum(){
 
 uint8_t calcChecksum(uint8_t* buffer,uint8_t size){
     uint8_t checksum = 0;
-    while(size-- > 0){
+    for(int i = 0; i < size; i++) {
         checksum += *(buffer++);
     }
     return checksum;
