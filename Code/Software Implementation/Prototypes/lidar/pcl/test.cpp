@@ -30,6 +30,7 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <boost/thread/thread.hpp>
 #include <iostream>
+#include <string>
 #include <math.h>
 using namespace pcl;
 using namespace std;
@@ -61,7 +62,14 @@ int main()
     {
 
 		std::cout << "Receive data sample ..." << std::endl;
-		laser.getData(data);
+        for(int phi =0 ; phi  < 90; phi= 10+phi)
+        {
+
+            string blah;
+            cout << "press enter\n";
+            cin >> blah;
+
+                    laser.getData(data);
 
         for(int i = 0;  i <data.dist_len1; i++)
             {
@@ -70,12 +78,14 @@ int main()
 
             double y = data.dist1[i]*sin((((((double)i)/data.dist_len1)*270)*3.14)/180);
             double x = data.dist1[i]*cos((((((double)i)/data.dist_len1)*270)*3.14)/180);
+            double z = data.dist1[i]*cos(((double) phi)*(3.14)/180);
             cout << "x :  " << x << "y:  " << y << " \n";
 
-            PointXYZ point( x,y ,0 );
+            PointXYZ point( x,y ,z );
             cloud->push_back(point);
 
             }
+        }
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_xyzrgbb (new pcl::PointCloud<pcl::PointXYZRGB>);
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr helpb (new pcl::PointCloud<pcl::PointXYZRGB>);
 
