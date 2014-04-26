@@ -1,0 +1,2 @@
+/usr/local/lib/libLMS1xx.so
+/usr/local/include/LMS1xx.h

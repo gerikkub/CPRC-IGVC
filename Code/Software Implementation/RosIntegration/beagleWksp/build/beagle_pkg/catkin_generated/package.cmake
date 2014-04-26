@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "beagle_pkg")
+set(beagle_pkg_MAINTAINER "daschulz <daschulz@calpoly.edu>")
+set(beagle_pkg_DEPRECATED "")
+set(beagle_pkg_VERSION "0.0.0")
+set(beagle_pkg_BUILD_DEPENDS "roscpp" "rospy" "std_msgs")
+set(beagle_pkg_RUN_DEPENDS "roscpp" "rospy" "std_msgs")
+set(beagle_pkg_BUILDTOOL_DEPENDS "catkin")
