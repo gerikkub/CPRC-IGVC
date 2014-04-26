@@ -3,7 +3,7 @@
 # to the root binary directory of the project as ${HELLO_BINARY_DIR}. 
 cmake_minimum_required (VERSION 2.6) 
 project (libLMS1xx)
-
+set(CMAKE_BUILD_TYPE Debug)
 OPTION( BUILD_static "Build static library" OFF )
 OPTION( BUILD_test "Build test application" OFF )
 

@@ -7,6 +7,12 @@ project (libLMS1xx)
 OPTION( BUILD_static "Build static library" OFF )
 OPTION( BUILD_test "Build test application" OFF )
 
+find_package(PCL 1.2 REQUIRED)
+
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
 if( BUILD_static )
 add_library (LMS1xx STATIC LMS1xx.cpp)
 else( BUILD_static )
@@ -15,7 +21,7 @@ endif( BUILD_static )
 
 if( BUILD_test )
 add_executable ( test test.cpp )
-target_link_libraries ( test LMS1xx )
+target_link_libraries ( test LMS1xx  ${PCL_LIBRARIES} )
 endif( BUILD_test )
 
 install( TARGETS LMS1xx LIBRARY DESTINATION lib )
