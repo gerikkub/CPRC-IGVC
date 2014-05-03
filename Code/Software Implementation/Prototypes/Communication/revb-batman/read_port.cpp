@@ -23,7 +23,7 @@ typedef  unsigned char  uchar;
 using namespace std;
 
 
-int sendCommand();
+int sendCommand(int n);
 
 void SendHeader(uchar groupid , uchar cmd, uchar size  )
 {
@@ -31,9 +31,13 @@ void SendHeader(uchar groupid , uchar cmd, uchar size  )
 
 
      RS232_SendByte(cport_nr, groupid) ;
+            usleep(1000) ;
       RS232_SendByte(cport_nr, cmd) ;
+            usleep(1000) ;
      RS232_SendByte(cport_nr, size ) ;
+            usleep(1000) ;
       RS232_SendByte(cport_nr, checksum ) ;
+            usleep(1000) ;
 }
 
 
@@ -53,22 +57,24 @@ int main()
     int runs = 0;
     int errors = 0;
 
-    for(;;){
-      if(sendCommand() == EXIT_FAILURE){
+
+    for(int i= 0; i <  100 ; i++){
+      if(sendCommand(1) == EXIT_FAILURE){
         errors++;
       }
       runs++;
 
       std::cout << ((float)(runs-errors)/runs)*100 << "%\n";
 
-      usleep(100000);
+
 
     }
 
 
+
 }
 
-int sendCommand(){
+int sendCommand(int n ){
 
 
     std::cerr << "Starting serial transmission" << std::endl;
@@ -77,21 +83,37 @@ int sendCommand(){
         SendHeader(1,1,size);
         char next_byte;
           int  y= 0;
-        while( RS232_PollComport(cport_nr, buf, 1)== 0)
-        {
-            usleep(1000) ;
 
-         y++;
-         if(y == NUMRETRYS)
-         {
-         break;
-         }
+    	int num = RS232_PollComport(cport_nr, buf, 1);
+   	cout << num; 
+        int timeoutfail = 0; 
+
+        while(  num == 0 )
+        {
+
+            usleep(1000) ;
+    	int num = RS232_PollComport(cport_nr, buf, 1);
+	cout << num; 
+if(num == 1)
+break;
+        timeoutfail++;
+        if(timeoutfail == 500)
+	{	
+     std::cerr << "timeout has occured " << std::endl;
+        SendHeader(1,1,size);
+	timeoutfail = 0; 	
+	}
+
         }
+
+     std::cerr << "recieved  the header ack " << std::endl;
+
         if((uchar)buf[0] == 128) {
             std::cerr << "good shit\n";
         } else {
 
-            std::cerr << "bad shit\n";
+            std::cerr << "bad shit " << (int)buf[0] << "\n";
+      
             return EXIT_FAILURE;
         }
 
@@ -124,20 +146,14 @@ int sendCommand(){
         //prepare to recieve header validation (3 bytes)
         char headerResponse[HEADER_RESPONSE_SIZE];
         for(int i = 0; i < HEADER_RESPONSE_SIZE; i++) {
-            int y = 0;
-
-           while(     RS232_PollComport(cport_nr,(unsigned char*) &headerResponse[i], 1)== 0);
+           while( RS232_PollComport(cport_nr,(unsigned char*) &headerResponse[i], 1)== 0);
            {
-               usleep(1000) ;
-
-            y++;
-            if(y == NUMRETRYS)
-            {
-            break;
-            }
+               usleep(100) ;
            //serial_port >> headerResponse[i];
         }
+	 std::cerr << "recieved and recieve header byte" << std::endl;
         }
+
         //check for header checksum
         uchar checksum = headerResponse[0] + headerResponse[1];
         if(checksum != headerResponse[2]) {
@@ -153,7 +169,7 @@ int sendCommand(){
               << (int)headerResponse[1] << std::endl;
            RS232_SendByte(cport_nr, 128 ) ;
         }
-        usleep(10000) ;
+        usleep(100) ;
         //recieve payload
         char *payload = (char*) malloc(sizeof(char) * headerResponse[1]);
         char payloadSum = 0;
@@ -168,13 +184,8 @@ int sendCommand(){
                 while(  RS232_PollComport(cport_nr,(unsigned char*) &payload[i], 1)==0)
                    {
 
-                    usleep(1000) ;
+                    usleep(100) ;
 
-                    y++;
-                    if(y == NUMRETRYS)
-                    {
-                    break;
-                    }
                     }
 
 
@@ -187,23 +198,20 @@ int sendCommand(){
          y = 0;
         while(RS232_PollComport(cport_nr,(unsigned char*) &payloadSentSum, 1)==0)
         {
-
-            usleep(1000) ;
-
-         y++;
-         if(y == NUMRETRYS)
-         {
-         break;
-         }
+	usleep(100) ; 
         }
 
         if(payloadSentSum != payloadSum) {
            std::cerr << "ERROR: Expected checksum of " << std::hex << (int)payloadSentSum  <<
               " and recieved " << std::hex << (int) payloadSum << std::endl;
+  	   RS232_SendByte(cport_nr, 0) ;
+            usleep(1000) ;       
            return EXIT_FAILURE;
         } else {
            std::cerr << "Correct checksum in the payload" << std::endl;
-        }
+  	   RS232_SendByte(cport_nr, 128) ;
+            usleep(1000) ;        
+}
 
 
    std::cerr << std::endl ;

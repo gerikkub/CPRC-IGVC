@@ -31,7 +31,8 @@
 #include <boost/thread/thread.hpp>
 #include <iostream>
 #include <math.h>
-
+using namespace std;
+using namespace pcl;
 int main()
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
@@ -175,69 +176,3 @@ int main()
 
 
 
-
-using namespace std;
-using namespace pcl;
-int main (int argc, char** argv)
-{
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cloudb (new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filteredb (new pcl::PointCloud<pcl::PointXYZ>);
-
-  /*string fname;
-  std::cout << ("Enter a file name : ");
-  std::cin >> fname;*/
-
-
-fflush(stdout);
-  if (pcl::io::loadPCDFile<pcl::PointXYZ> (argv[1], *cloud) == -1) //* load the file
-  {
-    PCL_ERROR ("Couldn't read the file\n");
-    return (-1);
-  }
-/*
-if (pcl::io::loadPCDFile<pcl::PointXYZ> (argv[2], *cloudb) == -1) //* load the file
-  {
-    PCL_ERROR ("Couldn't read the file\n");
-    return (-1);
-  }
-*/
-  std::cout << "Loaded "
-            << cloud->width * cloud->height
-            << " data points with the following fields: "
-            << std::endl;
-/*
- for (size_t i = 0; i < cloud->points.size (); ++i)
-    std::cout << "    " << cloud->points[i].x
-              << " "    << cloud->points[i].y
-              << " "    << cloud->points[i].z << std::endl;
-*/
-pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
-  sor.setInputCloud (cloud);
-  sor.setMeanK (10);
-  sor.setStddevMulThresh (0.1);
-  sor.filter (*cloud_filtered);
-/*
-pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sorb;
-  sorb.setInputCloud (cloudb);
-  sorb.setMeanK (10);
-  sorb.setStddevMulThresh (0.1);
-  sorb.filter (*cloud_filteredb);
-
-*/
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_xyzrgb (new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_output (new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_xyzrgbb (new pcl::PointCloud<pcl::PointXYZRGB>);
-  copyPointCloud(*cloud_filtered, *cloud_xyzrgb);
-  copyPointCloud(*cloud_filteredb, *cloud_xyzrgbb);
-
-
- for (size_t i = 0; i < cloud_xyzrgb->points.size (); ++i)
-{
-cloud_xyzrgb->points[i].r = 255;
-}
-
-
-  return (0);
-}
