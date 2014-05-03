@@ -32,13 +32,10 @@
 #include <iostream>
 #include <string>
 #include <math.h>
-<<<<<<< HEAD
-using namespace std;
-using namespace pcl;
-=======
+
 using namespace pcl;
 using namespace std;
->>>>>>> 4af93d0ec263e92735fa7617add03d5a672aeba5
+
 int main()
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
