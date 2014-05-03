@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/daschulz/igvcCode/CPRC-IGVC/Code/Software Implementation/Prototypes/lidar/reva/LMS1xx.h
+string
+-
+stdint.h
+-
+
+/home/daschulz/igvcCode/CPRC-IGVC/Code/Software Implementation/Prototypes/lidar/reva/test.cpp
+LMS1xx.h
+/home/daschulz/igvcCode/CPRC-IGVC/Code/Software Implementation/Prototypes/lidar/reva/LMS1xx.h
+iostream
+-
+

@@ -1,0 +1,8 @@
+prefix=/home/daschulz/IGVC/beagleWksp/devel
+
+Name: beagle_pkg
+Description: Description of beagle_pkg
+Version: 0.0.0
+Cflags: -I/home/daschulz/IGVC/beagleWksp/devel/include -I/home/daschulz/IGVC/beagleWksp/src/beagle_pkg/include
+Libs: -L/home/daschulz/IGVC/beagleWksp/devel/lib -lbeagle_pkg
+Requires: roscpp rospy std_msgs

@@ -1,0 +1,8 @@
+prefix=/home/daschulz/igvcCode/CPRC-IGVC/Code/Software Implementation/RosIntegration/rosWksp/install
+
+Name: beagle_pkg
+Description: Description of beagle_pkg
+Version: 0.0.0
+Cflags: -I/home/daschulz/igvcCode/CPRC-IGVC/Code/Software Implementation/RosIntegration/rosWksp/install/include
+Libs: -L/home/daschulz/igvcCode/CPRC-IGVC/Code/Software Implementation/RosIntegration/rosWksp/install/lib -lbeagle_pkg
+Requires: roscpp rospy std_msgs

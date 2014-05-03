@@ -30,12 +30,19 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <boost/thread/thread.hpp>
 #include <iostream>
+#include <string>
 #include <math.h>
+<<<<<<< HEAD
 using namespace std;
 using namespace pcl;
+=======
+using namespace pcl;
+using namespace std;
+>>>>>>> 4af93d0ec263e92735fa7617add03d5a672aeba5
 int main()
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr help (new pcl::PointCloud<pcl::PointXYZ>);
 
 	LMS1xx laser;
 	scanData data;
@@ -50,43 +57,6 @@ int main()
 	std::cout << "Connected to laser" << std::endl;
 
 	std::cout << "Loging in ..." << std::endl;
-    laser.login();
-
-	laser.stopMeas();
-
-	std::cout << "Geting scan configuration ..." << ::std::endl;
-	scanCfg c = laser.getScanCfg();
-
-	//std::cout << "Scanning Frequency : " << c.scaningFrequency/100.0 << "Hz AngleResolution : " << c.angleResolution/10000.0 << "deg " << std::endl;
-
-	c.angleResolution = 5000;
-	c.scaningFrequency = 5000;
-
-	laser.setScanCfg(c);
-
-	scanDataCfg cc;
-	cc.deviceName = false;
-	cc.encoder = 0;
-	cc.outputChannel = 3;
-	cc.remission = true;
-	cc.resolution = 0;
-	cc.position = false;
-	cc.outputInterval = 1;
-
-	laser.setScanDataCfg(cc);
-
-	int ret = 0;
-	std::cout << "Start measurements ..." << std::endl;
-	laser.startMeas();
-
-	std::cout << "Wait for ready status ..." << std::endl;
-	ret = 0;
-	while (ret != 7)
-	{
-		ret = laser.queryStatus();
-		std::cout << "status : " << ret << std::endl;
-        sleep(1);
-    }
 
 	std::cout << "Laser ready" << std::endl;
 
@@ -97,19 +67,34 @@ int main()
     {
 
 		std::cout << "Receive data sample ..." << std::endl;
-		laser.getData(data);
+        for(int phi =0 ; phi  < 90; phi= 10+phi)
+        {
 
-        for(int i = i;  i < data.dist_len1; i++)
+            string blah;
+            cout << "press enter\n";
+            cin >> blah;
+
+                    laser.getData(data);
+
+        for(int i = 0;  i <data.dist_len1; i++)
             {
-            double y = data.dist1[i]*sin(((i/data.dist_len1)*270)*3.14);
-            double x = data.dist1[i]*cos(((i/data.dist_len1)*270)*3.14);
 
-            PointXYZ point( x,y ,0 );
+            std::cout << i << "\n";
 
-            cloud->push_back(point );
+            double y = data.dist1[i]*sin((((((double)i)/data.dist_len1)*270)*3.14)/180);
+            double x = data.dist1[i]*cos((((((double)i)/data.dist_len1)*270)*3.14)/180);
+            double z = data.dist1[i]*cos(((double) phi)*(3.14)/180);
+            cout << "x :  " << x << "y:  " << y << " \n";
+
+            PointXYZ point( x,y ,z );
+            cloud->push_back(point);
+
             }
+        }
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_xyzrgbb (new pcl::PointCloud<pcl::PointXYZRGB>);
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr helpb (new pcl::PointCloud<pcl::PointXYZRGB>);
 
+        copyPointCloud(*cloud, *cloud_xyzrgbb );
 
         for (size_t i = 0; i < cloud_xyzrgbb->points.size (); ++i)
        {
@@ -117,20 +102,33 @@ int main()
 
        }
 
+        PointXYZ orgin( 0,0 ,0 );
+        help->push_back(orgin);
+        copyPointCloud(*help, *helpb );
+
+        helpb->points[0].b = 255;
+
+
+
+
          //pcl::visualization::CloudViewer viewer ("Result viewer");
          //viewer.showCloud(cloud_output);
          boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
          viewer->setBackgroundColor (0, 0, 0);
-         pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud_xyzrgb);
-         viewer->addPointCloud<pcl::PointXYZRGB> (cloud_xyzrgb, rgb, "sample cloud");
+         pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud_xyzrgbb);
+         pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> helprgb(helpb);
+
+         viewer->addPointCloud<pcl::PointXYZRGB> (cloud_xyzrgbb, rgb, "sample cloud");
+         viewer->addPointCloud<pcl::PointXYZRGB> (helpb, helprgb, "sample cloudb");
+
        /*
          pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgbb(cloud_xyzrgbb);
          viewer->addPointCloud<pcl::PointXYZRGB> (cloud_xyzrgbb, rgbb, "sample cloudb");
 
        */
-         viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "sample cloud");
+         viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "sample cloud");
+         viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "sample cloudb");
 
-        viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "sample cloudb");
 
         viewer->addCoordinateSystem 	( 	1,0,0,100);
 
@@ -141,14 +139,23 @@ int main()
 
        while (!viewer->wasStopped ())
          {
-         double x , y , z , r , b,o;
-         cout << "give x y  z \n";
-         cin >> x ;
-         cin >> y;
-         cin >> z;
 
-        viewer->setCameraPosition 	( 	x,y,z,0,0,0,0);
-        //updateCamera ();
+           laser.getData(data);
+
+           for(int i = 0;  i < data.dist_len1; i++)
+               {
+
+               std::cout << i << "gothere\n";
+
+               double y = data.dist1[i]*sin((((i/data.dist_len1)*270)*3.14)/180);
+               double x = data.dist1[i]*cos((((i/data.dist_len1)*270)*3.14)/180);
+               cout << "x :  " << x << "y:  " << y << " \n";
+
+               PointXYZ point( x,y ,0 );
+               cloud->push_back(point);
+
+               }
+        viewer->updateCamera ();
 
          }
 

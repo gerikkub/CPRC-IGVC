@@ -1,0 +1,2 @@
+set(beagle_pkg_MESSAGE_FILES "/home/daschulz/igvcCode/CPRC-IGVC/Code/Software Implementation/RosIntegration/rosWksp/src/beagle_pkg/msg/status.msg;/home/daschulz/igvcCode/CPRC-IGVC/Code/Software Implementation/RosIntegration/rosWksp/src/beagle_pkg/msg/imu_msg.msg")
+set(beagle_pkg_SERVICE_FILES "/home/daschulz/igvcCode/CPRC-IGVC/Code/Software Implementation/RosIntegration/rosWksp/src/beagle_pkg/srv/dem.srv;/home/daschulz/igvcCode/CPRC-IGVC/Code/Software Implementation/RosIntegration/rosWksp/src/beagle_pkg/srv/ard.srv")
