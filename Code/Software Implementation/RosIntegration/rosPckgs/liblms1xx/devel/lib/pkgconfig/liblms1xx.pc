@@ -1,0 +1,8 @@
+prefix=/home/daschulz/IGVC/rosLidarRepo/RCPRG_laser_drivers/liblms1xx/devel
+
+Name: liblms1xx
+Description: Description of liblms1xx
+Version: 0.0.0
+Cflags: -I/home/daschulz/IGVC/rosLidarRepo/RCPRG_laser_drivers/liblms1xx/libLMS1xx
+Libs: -L/home/daschulz/IGVC/rosLidarRepo/RCPRG_laser_drivers/liblms1xx/devel/lib -llms1xx
+Requires: roscpp sensor_msgs

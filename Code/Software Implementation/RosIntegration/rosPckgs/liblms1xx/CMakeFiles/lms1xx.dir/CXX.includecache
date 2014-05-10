@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/daschulz/IGVC/rosLidarRepo/RCPRG_laser_drivers/liblms1xx/libLMS1xx/LMS1xx.cpp
+sys/types.h
+-
+sys/socket.h
+-
+netinet/in.h
+-
+arpa/inet.h
+-
+cstdio
+-
+cstdlib
+-
+cstring
+-
+unistd.h
+-
+iostream
+-
+LMS1xx.h
+/home/daschulz/IGVC/rosLidarRepo/RCPRG_laser_drivers/liblms1xx/libLMS1xx/LMS1xx.h
+
+/home/daschulz/IGVC/rosLidarRepo/RCPRG_laser_drivers/liblms1xx/libLMS1xx/LMS1xx.h
+string
+-
+stdint.h
+-
+
