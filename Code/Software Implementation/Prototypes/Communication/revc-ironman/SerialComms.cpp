@@ -100,7 +100,7 @@ COMM_STATUS SerialComms::sendPayload(){
 		for(byteCount = 0;byteCount < packet->payloadSize; byteCount++){
 			RS232_SendByte(portNumber,packet->payload[byteCount]);
 			checksum += (unsigned char)packet->payload[byteCount];
-			usleep(3000);
+			usleep(1000);
 		}
 
 		RS232_SendByte(portNumber,checksum);
@@ -263,7 +263,7 @@ COMM_STATUS SerialComms::sendPacket(Packet *packet){
 
 	if(packet->payloadSize > 0){
 		
-		usleep(3000);
+		usleep(1000);
 
 		switch(sendPayload()){
 		case COMM_FAILURE:

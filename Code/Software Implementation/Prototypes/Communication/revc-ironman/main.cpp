@@ -13,7 +13,7 @@ using namespace std;
 int main(int argc, char** argv){
 
 	int successCount = 0,count = 0;
-	unsigned char lightState = 1;
+	unsigned char lightState = atoi(argv[1]);
 
 	Packet commPacket;
 	ReturnPayload results;
@@ -27,13 +27,13 @@ int main(int argc, char** argv){
 
 	cout << "Connection Initialized" << endl;
 
-	commPacket.groupID = 1;
-	commPacket.cmd = 8;
-	commPacket.payloadSize = 0;
+	commPacket.groupID = 7;
+	commPacket.cmd = 0;
+	commPacket.payloadSize = 1;
 	commPacket.payload = &lightState;
 
 
-	for(int i=0 ; i < atoi(argv[1]); i++){
+	for(int i=0 ; i < 1; i++){
 		if(atmega.sendPacket(&commPacket) != COMM_SUCCESS){
 			cout << "Failure sending packet\n";
 		} else {
