@@ -43,18 +43,18 @@ void USART_Init(uint16_t baudin, uint32_t clk_speedin) {
     USART_ReadQueue = xQueueCreate(8,sizeof(uint8_t));
 
     uint32_t ubrr = clk_speedin/(16UL)/baudin-1;
-    UBRR1H = (unsigned char)(ubrr>>8) ;// & 0x7F;
-    UBRR1L = (unsigned char)ubrr;
+    UBRR0H = (unsigned char)(ubrr>>8) ;// & 0x7F;
+    UBRR0L = (unsigned char)ubrr;
     
     //UBRR0H = 0; //115200
     //UBRR0L = 8;
 
     /* Enable receiver and transmitter */
-    UCSR1B = (1<<RXEN1)|(1<<TXEN1)|(1<<RXCIE1);
+    UCSR0B = (1<<RXEN1)|(1<<TXEN1)|(1<<RXCIE1);
     /* Set frame format: 8data, 1stop bit */
-    UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);
+    UCSR0C = (1<<UCSZ11)|(1<<UCSZ10);
 	 // clear U2X0 for Synchronous operation
-    UCSR1A &= ~(1<<U2X1);
+    UCSR0A &= ~(1<<U2X1);
 
     //UCSR0B |= (1<<UDRIE0);
 
@@ -138,7 +138,7 @@ void vTaskUSARTWrite(void *pvParameters){
     while(1){
     xQueueReceive(USART_WriteQueue,&data,portMAX_DELAY);
 
-        while(!(UCSR1A & (1<<UDRE1)));
+        while(!(UCSR0A & (1<<UDRE0)));
         UDR1 = data;
 
     }

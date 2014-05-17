@@ -129,11 +129,11 @@ void vTaskFunction_1(void *pvParameters)
     USART_Init(9600, 16000000);
     for(;;);
 	//static const char* str = "Hello World\n";
-	//for(;;){
+///for(;;){
 		//PORTB = 0;
 
 		//USART_TransmitString("Hello World!\n");
-	//	USART_AddToQueue('I');
+///	USART_AddToQueue('I');
 		//USART_TransmitString("H\n");
 	//	vTaskDelay(25);
 	//}

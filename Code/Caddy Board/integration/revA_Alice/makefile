@@ -171,9 +171,9 @@ LDFLAGS += -lm
 # Type: avrdude -c ?
 # to get a full listing.
 #
-AVRDUDE_PROGRAMMER =avrispmkII
+AVRDUDE_PROGRAMMER =buspirate
 
-AVRDUDE_PORT = /dev/ttyACM0	   # programmer connected to serial device
+AVRDUDE_PORT = /dev/ttyUSB1	   # programmer connected to serial device
 #AVRDUDE_PORT = lpt1	# programmer connected to parallel port
 
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex

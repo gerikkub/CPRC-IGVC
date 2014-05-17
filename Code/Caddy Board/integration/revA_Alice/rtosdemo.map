@@ -1,25 +1,25 @@
 Archive member included because of file (symbol)
 
-/usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
+/usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodsi4.o)
                               usart.o (__udivmodsi4)
-/usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
-                              /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o (exit)
-/usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
+/usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_exit.o)
+                              /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o (exit)
+/usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_copy_data.o)
                               main.o (__do_copy_data)
-/usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
+/usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_clear_bss.o)
                               main.o (__do_clear_bss)
-/usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memcpy.o)
+/usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memcpy.o)
                               ../../FreeRTOS/Source/queue.o (memcpy)
-/usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memset.o)
+/usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memset.o)
                               main.o (memset)
-/usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strncpy.o)
+/usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strncpy.o)
                               ../../FreeRTOS/Source/tasks.o (strncpy)
-/usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(itoa.o)
+/usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(itoa.o)
                               main.o (itoa)
-/usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strrev.o)
-                              /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(itoa.o) (strrev)
-/usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
-                              /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(itoa.o) (__udivmodhi4)
+/usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strrev.o)
+                              /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(itoa.o) (strrev)
+/usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodhi4.o)
+                              /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(itoa.o) (__udivmodhi4)
 
 Allocating common symbols
 Common symbol       size              file
@@ -37,18 +37,18 @@ currSonar           0x1               Components/Sonar/Sonar.o
 Memory Configuration
 
 Name             Origin             Length             Attributes
-text             0x0000000000000000 0x0000000000100000 xr
-data             0x0000000000800200 0x000000000000fe00 rw !x
-eeprom           0x0000000000810000 0x0000000000010000 rw !x
-fuse             0x0000000000820000 0x0000000000000400 rw !x
-lock             0x0000000000830000 0x0000000000000400 rw !x
-signature        0x0000000000840000 0x0000000000000400 rw !x
-*default*        0x0000000000000000 0xffffffffffffffff
+text             0x00000000         0x00100000         xr
+data             0x00800200         0x0000fe00         rw !x
+eeprom           0x00810000         0x00010000         rw !x
+fuse             0x00820000         0x00000400         rw !x
+lock             0x00830000         0x00000400         rw !x
+signature        0x00840000         0x00000400         rw !x
+*default*        0x00000000         0xffffffff
 
 Linker script and memory map
 
 Address of section .data set to 0x800200
-LOAD /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
+LOAD /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
 LOAD main.o
 LOAD ../../FreeRTOS/Source/tasks.o
 LOAD ../../FreeRTOS/Source/queue.o
@@ -66,12 +66,10 @@ LOAD Components/Lights/Lights.o
 LOAD Components/Sonar/Sonar.o
 LOAD Components/Speed/Speed.o
 LOAD Components/Steering/Steering.o
-LOAD /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libm.a
-START GROUP
-LOAD /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a
-LOAD /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libm.a
-LOAD /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a
-END GROUP
+LOAD /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libm.a
+LOAD /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a
+LOAD /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a
+LOAD /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a
 
 .hash
  *(.hash)
@@ -163,48 +161,48 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x0000000000000000     0x4148
+.text           0x00000000     0x415e
  *(.vectors)
- .vectors       0x0000000000000000       0xe4 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-                0x0000000000000000                __vectors
-                0x0000000000000000                __vector_default
+ .vectors       0x00000000       0xe4 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+                0x00000000                __vectors
+                0x00000000                __vector_default
  *(.vectors)
  *(.progmem.gcc*)
  *(.progmem*)
-                0x00000000000000e4                . = ALIGN (0x2)
-                0x00000000000000e4                __trampolines_start = .
+                0x000000e4                . = ALIGN (0x2)
+                0x000000e4                __trampolines_start = .
  *(.trampolines)
- .trampolines   0x00000000000000e4       0x14 linker stubs
+ .trampolines   0x000000e4        0x0 linker stubs
  *(.trampolines*)
-                0x00000000000000f8                __trampolines_end = .
+                0x000000e4                __trampolines_end = .
  *(.jumptables)
  *(.jumptables*)
  *(.lowtext)
  *(.lowtext*)
-                0x00000000000000f8                __ctors_start = .
+                0x000000e4                __ctors_start = .
  *(.ctors)
-                0x00000000000000f8                __ctors_end = .
-                0x00000000000000f8                __dtors_start = .
+                0x000000e4                __ctors_end = .
+                0x000000e4                __dtors_start = .
  *(.dtors)
-                0x00000000000000f8                __dtors_end = .
+                0x000000e4                __dtors_end = .
  SORT(*)(.ctors)
  SORT(*)(.dtors)
  *(.init0)
- .init0         0x00000000000000f8        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-                0x00000000000000f8                __init
+ .init0         0x000000e4        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+                0x000000e4                __init
  *(.init0)
  *(.init1)
  *(.init1)
  *(.init2)
- .init2         0x00000000000000f8       0x10 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
+ .init2         0x000000e4       0x10 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
  *(.init2)
  *(.init3)
  *(.init3)
  *(.init4)
- .init4         0x0000000000000108       0x1a /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
-                0x0000000000000108                __do_copy_data
- .init4         0x0000000000000122       0x10 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
-                0x0000000000000122                __do_clear_bss
+ .init4         0x000000f4       0x1a /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_copy_data.o)
+                0x000000f4                __do_copy_data
+ .init4         0x0000010e       0x10 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_clear_bss.o)
+                0x0000010e                __do_clear_bss
  *(.init4)
  *(.init5)
  *(.init5)
@@ -215,294 +213,234 @@ END GROUP
  *(.init8)
  *(.init8)
  *(.init9)
- .init9         0x0000000000000132        0x8 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
+ .init9         0x0000011e        0x8 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
  *(.init9)
  *(.text)
- .text          0x000000000000013a        0x4 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-                0x000000000000013a                __vector_38
-                0x000000000000013a                __vector_22
-                0x000000000000013a                __vector_28
-                0x000000000000013a                __vector_1
-                0x000000000000013a                __vector_34
-                0x000000000000013a                __vector_24
-                0x000000000000013a                __vector_12
-                0x000000000000013a                __vector_55
-                0x000000000000013a                __vector_46
-                0x000000000000013a                __bad_interrupt
-                0x000000000000013a                __vector_6
-                0x000000000000013a                __vector_31
-                0x000000000000013a                __vector_35
-                0x000000000000013a                __vector_39
-                0x000000000000013a                __vector_3
-                0x000000000000013a                __vector_23
-                0x000000000000013a                __vector_30
-                0x000000000000013a                __vector_45
-                0x000000000000013a                __vector_25
-                0x000000000000013a                __vector_54
-                0x000000000000013a                __vector_13
-                0x000000000000013a                __vector_17
-                0x000000000000013a                __vector_19
-                0x000000000000013a                __vector_56
-                0x000000000000013a                __vector_7
-                0x000000000000013a                __vector_49
-                0x000000000000013a                __vector_41
-                0x000000000000013a                __vector_43
-                0x000000000000013a                __vector_27
-                0x000000000000013a                __vector_5
-                0x000000000000013a                __vector_33
-                0x000000000000013a                __vector_47
-                0x000000000000013a                __vector_52
-                0x000000000000013a                __vector_37
-                0x000000000000013a                __vector_4
-                0x000000000000013a                __vector_44
-                0x000000000000013a                __vector_51
-                0x000000000000013a                __vector_9
-                0x000000000000013a                __vector_2
-                0x000000000000013a                __vector_21
-                0x000000000000013a                __vector_15
-                0x000000000000013a                __vector_29
-                0x000000000000013a                __vector_40
-                0x000000000000013a                __vector_8
-                0x000000000000013a                __vector_26
-                0x000000000000013a                __vector_48
-                0x000000000000013a                __vector_14
-                0x000000000000013a                __vector_53
-                0x000000000000013a                __vector_10
-                0x000000000000013a                __vector_16
-                0x000000000000013a                __vector_18
-                0x000000000000013a                __vector_20
-                0x000000000000013a                __vector_42
- .text          0x000000000000013e      0x356 main.o
-                0x000000000000013e                vApplicationTickHook
-                0x000000000000015e                vApplicationStackOverflowHook
-                0x000000000000016e                main
-                0x0000000000000294                printHex
-                0x0000000000000354                printNum
-                0x00000000000003ce                __vector_50
-                0x0000000000000438                getTimerCount2
-                0x0000000000000452                vTaskFunction_1
-                0x0000000000000474                vIO_init
- .text          0x0000000000000494     0x125a ../../FreeRTOS/Source/tasks.o
-                0x0000000000000494                xTaskGenericCreate
-                0x000000000000066e                vTaskDelayUntil
-                0x0000000000000756                vTaskDelay
-                0x00000000000007c0                vTaskSuspend
-                0x000000000000088c                xTaskIsTaskSuspended
-                0x00000000000008ea                vTaskResume
-                0x00000000000009b2                xTaskResumeFromISR
-                0x0000000000000a7e                vTaskStartScheduler
-                0x0000000000000aec                vTaskEndScheduler
-                0x0000000000000b04                vTaskSuspendAll
-                0x0000000000000b1c                xTaskResumeAll
-                0x0000000000000c30                xTaskGetTickCount
-                0x0000000000000c60                xTaskGetTickCountFromISR
-                0x0000000000000c88                uxTaskGetNumberOfTasks
-                0x0000000000000c9a                vTaskIncrementTick
-                0x0000000000000e42                vTaskSwitchContext
-                0x0000000000000f48                vTaskPlaceOnEventList
-                0x0000000000000fd8                xTaskRemoveFromEventList
-                0x00000000000010a8                vTaskSetTimeOutState
-                0x00000000000010dc                xTaskCheckForTimeOut
-                0x00000000000011aa                vTaskMissedYield
-                0x0000000000001498                uxTaskGetStackHighWaterMark
-                0x0000000000001500                xTaskGetCurrentTaskHandle
-                0x0000000000001526                vTaskPriorityInherit
-                0x0000000000001630                vTaskPriorityDisinherit
- .text          0x00000000000016ee      0xa64 ../../FreeRTOS/Source/queue.o
-                0x00000000000016ee                xQueueGenericReset
-                0x00000000000017ea                xQueueGenericCreate
-                0x00000000000018a4                xQueueCreateMutex
-                0x000000000000193e                xQueueGenericSend
-                0x0000000000001a7a                xQueueGenericSendFromISR
-                0x0000000000001b1c                xQueueGenericReceive
-                0x0000000000001cd6                xQueueReceiveFromISR
-                0x0000000000001d7c                uxQueueMessagesWaiting
-                0x0000000000001daa                uxQueueMessagesWaitingFromISR
-                0x0000000000001dce                vQueueDelete
-                0x00000000000020b8                xQueueIsQueueEmptyFromISR
-                0x0000000000002120                xQueueIsQueueFullFromISR
- .text          0x0000000000002152      0x27e ../../FreeRTOS/Source/list.o
-                0x0000000000002152                vListInitialise
-                0x00000000000021a8                vListInitialiseItem
-                0x00000000000021ca                vListInsertEnd
-                0x0000000000002260                vListInsert
-                0x0000000000002338                uxListRemove
- .text          0x00000000000023d0      0x5b2 ../../FreeRTOS/Source/croutine.o
-                0x00000000000023d0                xCoRoutineCreate
-                0x00000000000024f8                vCoRoutineAddToDelayedList
-                0x00000000000027aa                vCoRoutineSchedule
-                0x0000000000002912                xCoRoutineRemoveFromEventList
- .text          0x0000000000002982       0xda ../../FreeRTOS/Source/heap_1.o
-                0x0000000000002982                pvPortMalloc
-                0x0000000000002a0e                vPortFree
-                0x0000000000002a28                vPortInitialiseBlocks
-                0x0000000000002a3e                xPortGetFreeHeapSize
- .text          0x0000000000002a5c      0x5fa ../../FreeRTOS/Source/port.o
-                0x0000000000002a5c                pxPortInitialiseStack
-                0x0000000000002d92                xPortStartScheduler
-                0x0000000000002e04                vPortEndScheduler
-                0x0000000000002e12                vPortYield
-                0x0000000000002ed4                vPortYieldFromTick
-                0x0000000000003050                __vector_32
- .text          0x0000000000003056      0x66a usart.o
-                0x0000000000003056                USART_Init
-                0x0000000000003130                USART_Write
-                0x0000000000003164                USART_Write_Unprotected
-                0x0000000000003198                USART_Read
-                0x00000000000031bc                __vector_36
-                0x0000000000003242                USART_AddToQueue
-                0x000000000000326e                USART_TransmitString
-                0x00000000000032ac                vTaskUSARTWrite
-                0x00000000000032f4                USART_LogChar
-                0x0000000000003320                USART_LogString
-                0x000000000000335e                vTaskUSARTLog
-                0x00000000000033a6                USART_GetChar
-                0x00000000000033da                vTaskUSARTRead
-                0x000000000000357a                sendResponse
-                0x0000000000003632                sendACK
-                0x0000000000003646                sendNACK
-                0x000000000000365a                waitForChecksum
-                0x0000000000003676                calcChecksum
- .text          0x00000000000036c0      0x422 protocol.o
-                0x00000000000036c0                commandIntegCheck
-                0x00000000000036dc                processUltrasonicCommand
-                0x0000000000003772                processSpeedCommand
-                0x00000000000037e0                processSteeringCommand
-                0x00000000000038ea                processFNRCommand
-                0x0000000000003956                processBrakeCommand
-                0x00000000000039c2                processBatteryCommand
-                0x0000000000003a26                processLightCommand
-                0x0000000000003a6a                processCommand
- .text          0x0000000000003ae2       0x44 Components/Battery/Battery.o
-                0x0000000000003ae2                getBatteryVoltage
-                0x0000000000003b04                getSteeringVoltage
- .text          0x0000000000003b26       0x38 Components/Brake/Brake.o
-                0x0000000000003b26                setBrake
-                0x0000000000003b3c                getBrake
- .text          0x0000000000003b5e        0x0 Components/Error/Error.o
- .text          0x0000000000003b5e       0x38 Components/FNR/FNR.o
-                0x0000000000003b5e                setFNR
-                0x0000000000003b74                getFNR
- .text          0x0000000000003b96       0x16 Components/Lights/Lights.o
-                0x0000000000003b96                setLight
- .text          0x0000000000003bac      0x3c0 Components/Sonar/Sonar.o
-                0x0000000000003bac                setSonarData
-                0x0000000000003bd6                getSonarData
-                0x0000000000003bf4                getTimerCount
-                0x0000000000003c0a                __vector_11
-                0x0000000000003ce8                initializeSonarSensors
-                0x0000000000003d3c                vTaskSonar
-                0x0000000000003de6                getAllSensors
-                0x0000000000003e3c                getCertainSensor
-                0x0000000000003e92                getSensorGroup
- .text          0x0000000000003f6c       0x38 Components/Speed/Speed.o
-                0x0000000000003f6c                getSpeed
-                0x0000000000003f8e                setSpeed
- .text          0x0000000000003fa4       0x94 Components/Steering/Steering.o
-                0x0000000000003fa4                setAngle
-                0x0000000000003fba                getAngle
-                0x0000000000003fdc                getDesiredAngle
-                0x0000000000003ffe                changePID
-                0x000000000000401c                setLimits
- .text          0x0000000000004038        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
- .text          0x0000000000004038        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
- .text          0x0000000000004038        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
- .text          0x0000000000004038        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
- .text          0x0000000000004038        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memcpy.o)
- .text          0x0000000000004038        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memset.o)
- .text          0x0000000000004038        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strncpy.o)
- .text          0x0000000000004038        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(itoa.o)
- .text          0x0000000000004038        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strrev.o)
- .text          0x0000000000004038        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
-                0x0000000000004038                . = ALIGN (0x2)
+ .text          0x00000126        0x4 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+                0x00000126                __vector_38
+                0x00000126                __vector_22
+                0x00000126                __vector_28
+                0x00000126                __vector_1
+                0x00000126                __vector_34
+                0x00000126                __vector_24
+                0x00000126                __vector_12
+                0x00000126                __vector_55
+                0x00000126                __vector_46
+                0x00000126                __bad_interrupt
+                0x00000126                __vector_6
+                0x00000126                __vector_31
+                0x00000126                __vector_35
+                0x00000126                __vector_39
+                0x00000126                __vector_3
+                0x00000126                __vector_23
+                0x00000126                __vector_30
+                0x00000126                __vector_45
+                0x00000126                __vector_25
+                0x00000126                __vector_54
+                0x00000126                __vector_13
+                0x00000126                __vector_17
+                0x00000126                __vector_19
+                0x00000126                __vector_56
+                0x00000126                __vector_7
+                0x00000126                __vector_49
+                0x00000126                __vector_41
+                0x00000126                __vector_43
+                0x00000126                __vector_27
+                0x00000126                __vector_5
+                0x00000126                __vector_33
+                0x00000126                __vector_47
+                0x00000126                __vector_52
+                0x00000126                __vector_37
+                0x00000126                __vector_4
+                0x00000126                __vector_44
+                0x00000126                __vector_51
+                0x00000126                __vector_9
+                0x00000126                __vector_2
+                0x00000126                __vector_21
+                0x00000126                __vector_15
+                0x00000126                __vector_29
+                0x00000126                __vector_40
+                0x00000126                __vector_8
+                0x00000126                __vector_26
+                0x00000126                __vector_48
+                0x00000126                __vector_14
+                0x00000126                __vector_53
+                0x00000126                __vector_10
+                0x00000126                __vector_16
+                0x00000126                __vector_18
+                0x00000126                __vector_20
+                0x00000126                __vector_42
+ .text          0x0000012a      0x35a main.o
+                0x0000012a                vApplicationTickHook
+                0x0000014a                vApplicationStackOverflowHook
+                0x00000158                main
+                0x0000027e                printHex
+                0x00000348                printNum
+                0x000003c2                __vector_50
+                0x00000428                getTimerCount2
+                0x00000442                vTaskFunction_1
+                0x00000464                vIO_init
+ .text          0x00000484     0x125a ../../FreeRTOS/Source/tasks.o
+                0x00000484                xTaskGenericCreate
+                0x0000065e                vTaskDelayUntil
+                0x00000746                vTaskDelay
+                0x000007b0                vTaskSuspend
+                0x0000087c                xTaskIsTaskSuspended
+                0x000008da                vTaskResume
+                0x000009a2                xTaskResumeFromISR
+                0x00000a6e                vTaskStartScheduler
+                0x00000adc                vTaskEndScheduler
+                0x00000af4                vTaskSuspendAll
+                0x00000b0c                xTaskResumeAll
+                0x00000c20                xTaskGetTickCount
+                0x00000c50                xTaskGetTickCountFromISR
+                0x00000c78                uxTaskGetNumberOfTasks
+                0x00000c8a                vTaskIncrementTick
+                0x00000e32                vTaskSwitchContext
+                0x00000f38                vTaskPlaceOnEventList
+                0x00000fc8                xTaskRemoveFromEventList
+                0x00001098                vTaskSetTimeOutState
+                0x000010cc                xTaskCheckForTimeOut
+                0x0000119a                vTaskMissedYield
+                0x00001488                uxTaskGetStackHighWaterMark
+                0x000014f0                xTaskGetCurrentTaskHandle
+                0x00001516                vTaskPriorityInherit
+                0x00001620                vTaskPriorityDisinherit
+ .text          0x000016de      0xa64 ../../FreeRTOS/Source/queue.o
+                0x000016de                xQueueGenericReset
+                0x000017da                xQueueGenericCreate
+                0x00001894                xQueueCreateMutex
+                0x0000192e                xQueueGenericSend
+                0x00001a6a                xQueueGenericSendFromISR
+                0x00001b0c                xQueueGenericReceive
+                0x00001cc6                xQueueReceiveFromISR
+                0x00001d6c                uxQueueMessagesWaiting
+                0x00001d9a                uxQueueMessagesWaitingFromISR
+                0x00001dbe                vQueueDelete
+                0x000020a8                xQueueIsQueueEmptyFromISR
+                0x00002110                xQueueIsQueueFullFromISR
+ .text          0x00002142      0x27e ../../FreeRTOS/Source/list.o
+                0x00002142                vListInitialise
+                0x00002198                vListInitialiseItem
+                0x000021ba                vListInsertEnd
+                0x00002250                vListInsert
+                0x00002328                uxListRemove
+ .text          0x000023c0      0x5b2 ../../FreeRTOS/Source/croutine.o
+                0x000023c0                xCoRoutineCreate
+                0x000024e8                vCoRoutineAddToDelayedList
+                0x0000279a                vCoRoutineSchedule
+                0x00002902                xCoRoutineRemoveFromEventList
+ .text          0x00002972       0xda ../../FreeRTOS/Source/heap_1.o
+                0x00002972                pvPortMalloc
+                0x000029fe                vPortFree
+                0x00002a18                vPortInitialiseBlocks
+                0x00002a2e                xPortGetFreeHeapSize
+ .text          0x00002a4c      0x5fa ../../FreeRTOS/Source/port.o
+                0x00002a4c                pxPortInitialiseStack
+                0x00002d82                xPortStartScheduler
+                0x00002df4                vPortEndScheduler
+                0x00002e02                vPortYield
+                0x00002ec4                vPortYieldFromTick
+                0x00003040                __vector_32
+ .text          0x00003046      0x690 usart.o
+                0x00003046                USART_Init
+                0x00003120                USART_Write
+                0x00003154                USART_Write_Unprotected
+                0x00003188                USART_Read
+                0x000031ac                __vector_36
+                0x00003230                USART_AddToQueue
+                0x0000325e                USART_TransmitString
+                0x0000329c                vTaskUSARTWrite
+                0x000032e6                USART_LogChar
+                0x00003314                USART_LogString
+                0x00003352                vTaskUSARTLog
+                0x0000339c                USART_GetChar
+                0x000033d2                vTaskUSARTRead
+                0x0000357a                sendResponse
+                0x00003632                sendACK
+                0x00003646                sendNACK
+                0x0000365a                waitForChecksum
+                0x00003676                calcChecksum
+ .text          0x000036d6      0x422 protocol.o
+                0x000036d6                commandIntegCheck
+                0x000036f2                processUltrasonicCommand
+                0x00003788                processSpeedCommand
+                0x000037f6                processSteeringCommand
+                0x00003900                processFNRCommand
+                0x0000396c                processBrakeCommand
+                0x000039d8                processBatteryCommand
+                0x00003a3c                processLightCommand
+                0x00003a80                processCommand
+ .text          0x00003af8       0x44 Components/Battery/Battery.o
+                0x00003af8                getBatteryVoltage
+                0x00003b1a                getSteeringVoltage
+ .text          0x00003b3c       0x38 Components/Brake/Brake.o
+                0x00003b3c                setBrake
+                0x00003b52                getBrake
+ .text          0x00003b74        0x0 Components/Error/Error.o
+ .text          0x00003b74       0x38 Components/FNR/FNR.o
+                0x00003b74                setFNR
+                0x00003b8a                getFNR
+ .text          0x00003bac       0x16 Components/Lights/Lights.o
+                0x00003bac                setLight
+ .text          0x00003bc2      0x3c0 Components/Sonar/Sonar.o
+                0x00003bc2                setSonarData
+                0x00003bec                getSonarData
+                0x00003c0a                getTimerCount
+                0x00003c20                __vector_11
+                0x00003cfe                initializeSonarSensors
+                0x00003d52                vTaskSonar
+                0x00003dfc                getAllSensors
+                0x00003e52                getCertainSensor
+                0x00003ea8                getSensorGroup
+ .text          0x00003f82       0x38 Components/Speed/Speed.o
+                0x00003f82                getSpeed
+                0x00003fa4                setSpeed
+ .text          0x00003fba       0x94 Components/Steering/Steering.o
+                0x00003fba                setAngle
+                0x00003fd0                getAngle
+                0x00003ff2                getDesiredAngle
+                0x00004014                changePID
+                0x00004032                setLimits
+ .text          0x0000404e        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodsi4.o)
+ .text          0x0000404e        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_exit.o)
+ .text          0x0000404e        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_copy_data.o)
+ .text          0x0000404e        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_clear_bss.o)
+ .text          0x0000404e        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memcpy.o)
+ .text          0x0000404e        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memset.o)
+ .text          0x0000404e        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strncpy.o)
+ .text          0x0000404e        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(itoa.o)
+ .text          0x0000404e        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strrev.o)
+ .text          0x0000404e        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodhi4.o)
+                0x0000404e                . = ALIGN (0x2)
  *(.text.*)
- .text.libgcc.mul
-                0x0000000000004038        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
- .text.libgcc.div
-                0x0000000000004038       0x44 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
-                0x0000000000004038                __udivmodsi4
- .text.libgcc   0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
- .text.libgcc.prologue
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
- .text.libgcc.builtins
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
- .text.libgcc.fmul
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
- .text.libgcc.fixed
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
- .text.libgcc.mul
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
- .text.libgcc.div
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
- .text.libgcc   0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
- .text.libgcc.prologue
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
- .text.libgcc.builtins
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
- .text.libgcc.fmul
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
- .text.libgcc.fixed
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
- .text.libgcc.mul
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
- .text.libgcc.div
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
- .text.libgcc   0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
- .text.libgcc.prologue
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
- .text.libgcc.builtins
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
- .text.libgcc.fmul
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
- .text.libgcc.fixed
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
- .text.libgcc.mul
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
- .text.libgcc.div
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
- .text.libgcc   0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
- .text.libgcc.prologue
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
- .text.libgcc.builtins
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
- .text.libgcc.fmul
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
- .text.libgcc.fixed
-                0x000000000000407c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
+ .text.libgcc   0x0000404e       0x44 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodsi4.o)
+                0x0000404e                __udivmodsi4
+ .text.libgcc   0x00004092        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_exit.o)
+ .text.libgcc   0x00004092        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_copy_data.o)
+ .text.libgcc   0x00004092        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_clear_bss.o)
  .text.avr-libc
-                0x000000000000407c       0x12 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memcpy.o)
-                0x000000000000407c                memcpy
+                0x00004092       0x12 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memcpy.o)
+                0x00004092                memcpy
  .text.avr-libc
-                0x000000000000408e        0xe /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memset.o)
-                0x000000000000408e                memset
+                0x000040a4        0xe /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memset.o)
+                0x000040a4                memset
  .text.avr-libc
-                0x000000000000409c       0x1e /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strncpy.o)
-                0x000000000000409c                strncpy
+                0x000040b2       0x1e /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strncpy.o)
+                0x000040b2                strncpy
  .text.avr-libc
-                0x00000000000040ba       0x42 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(itoa.o)
-                0x00000000000040ba                itoa
+                0x000040d0       0x42 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(itoa.o)
+                0x000040d0                itoa
  .text.avr-libc
-                0x00000000000040fc       0x20 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strrev.o)
-                0x00000000000040fc                strrev
- .text.libgcc.mul
-                0x000000000000411c        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
- .text.libgcc.div
-                0x000000000000411c       0x28 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
-                0x000000000000411c                __udivmodhi4
- .text.libgcc   0x0000000000004144        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
- .text.libgcc.prologue
-                0x0000000000004144        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
- .text.libgcc.builtins
-                0x0000000000004144        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
- .text.libgcc.fmul
-                0x0000000000004144        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
- .text.libgcc.fixed
-                0x0000000000004144        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
-                0x0000000000004144                . = ALIGN (0x2)
+                0x00004112       0x20 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strrev.o)
+                0x00004112                strrev
+ .text.libgcc   0x00004132       0x28 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodhi4.o)
+                0x00004132                __udivmodhi4
+                0x0000415a                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x0000000000004144        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
-                0x0000000000004144                exit
-                0x0000000000004144                _exit
+ .fini9         0x0000415a        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_exit.o)
+                0x0000415a                exit
+                0x0000415a                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -521,113 +459,112 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x0000000000004144        0x4 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
+ .fini0         0x0000415a        0x4 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_exit.o)
  *(.fini0)
-                0x0000000000004148                _etext = .
+                0x0000415e                _etext = .
 
-.data           0x0000000000800200       0x24 load address 0x0000000000004148
-                0x0000000000800200                PROVIDE (__data_start, .)
+.data           0x00800200       0x24 load address 0x0000415e
+                0x00800200                PROVIDE (__data_start, .)
  *(.data)
- .data          0x0000000000800200        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
- .data          0x0000000000800200        0x0 main.o
- .data          0x0000000000800200        0x7 ../../FreeRTOS/Source/tasks.o
- .data          0x0000000000800207        0x0 ../../FreeRTOS/Source/queue.o
- .data          0x0000000000800207        0x0 ../../FreeRTOS/Source/list.o
- .data          0x0000000000800207        0x0 ../../FreeRTOS/Source/croutine.o
- .data          0x0000000000800207        0x0 ../../FreeRTOS/Source/heap_1.o
- .data          0x0000000000800207        0x0 ../../FreeRTOS/Source/port.o
- .data          0x0000000000800207        0x0 usart.o
- .data          0x0000000000800207        0x0 protocol.o
- .data          0x0000000000800207        0x0 Components/Battery/Battery.o
- .data          0x0000000000800207        0x0 Components/Brake/Brake.o
- .data          0x0000000000800207        0x0 Components/Error/Error.o
- .data          0x0000000000800207        0x0 Components/FNR/FNR.o
- .data          0x0000000000800207        0x0 Components/Lights/Lights.o
- .data          0x0000000000800207        0x0 Components/Sonar/Sonar.o
- .data          0x0000000000800207        0x0 Components/Speed/Speed.o
- .data          0x0000000000800207        0x0 Components/Steering/Steering.o
- .data          0x0000000000800207        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
- .data          0x0000000000800207        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
- .data          0x0000000000800207        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
- .data          0x0000000000800207        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
- .data          0x0000000000800207        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memcpy.o)
- .data          0x0000000000800207        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memset.o)
- .data          0x0000000000800207        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strncpy.o)
- .data          0x0000000000800207        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(itoa.o)
- .data          0x0000000000800207        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strrev.o)
- .data          0x0000000000800207        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
+ .data          0x00800200        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+ .data          0x00800200       0x1c main.o
+ .data          0x0080021c        0x7 ../../FreeRTOS/Source/tasks.o
+ .data          0x00800223        0x0 ../../FreeRTOS/Source/queue.o
+ .data          0x00800223        0x0 ../../FreeRTOS/Source/list.o
+ .data          0x00800223        0x0 ../../FreeRTOS/Source/croutine.o
+ .data          0x00800223        0x0 ../../FreeRTOS/Source/heap_1.o
+ .data          0x00800223        0x0 ../../FreeRTOS/Source/port.o
+ .data          0x00800223        0x0 usart.o
+ .data          0x00800223        0x0 protocol.o
+ .data          0x00800223        0x0 Components/Battery/Battery.o
+ .data          0x00800223        0x0 Components/Brake/Brake.o
+ .data          0x00800223        0x0 Components/Error/Error.o
+ .data          0x00800223        0x0 Components/FNR/FNR.o
+ .data          0x00800223        0x0 Components/Lights/Lights.o
+ .data          0x00800223        0x0 Components/Sonar/Sonar.o
+ .data          0x00800223        0x0 Components/Speed/Speed.o
+ .data          0x00800223        0x0 Components/Steering/Steering.o
+ .data          0x00800223        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodsi4.o)
+ .data          0x00800223        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_exit.o)
+ .data          0x00800223        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_copy_data.o)
+ .data          0x00800223        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_clear_bss.o)
+ .data          0x00800223        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memcpy.o)
+ .data          0x00800223        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memset.o)
+ .data          0x00800223        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strncpy.o)
+ .data          0x00800223        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(itoa.o)
+ .data          0x00800223        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strrev.o)
+ .data          0x00800223        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodhi4.o)
  *(.data*)
  *(.rodata)
- .rodata        0x0000000000800207       0x1c main.o
  *(.rodata*)
  *(.gnu.linkonce.d*)
-                0x0000000000800224                . = ALIGN (0x2)
- *fill*         0x0000000000800223        0x1 
-                0x0000000000800224                _edata = .
-                0x0000000000800224                PROVIDE (__data_end, .)
+                0x00800224                . = ALIGN (0x2)
+ *fill*         0x00800223        0x1 00
+                0x00800224                _edata = .
+                0x00800224                PROVIDE (__data_end, .)
 
-.bss            0x0000000000800224     0x18b5
-                0x0000000000800224                PROVIDE (__bss_start, .)
+.bss            0x00800224     0x18b5
+                0x00800224                PROVIDE (__bss_start, .)
  *(.bss)
- .bss           0x0000000000800224        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
- .bss           0x0000000000800224        0x2 main.o
-                0x0000000000800224                count
- .bss           0x0000000000800226       0x59 ../../FreeRTOS/Source/tasks.o
-                0x0000000000800226                pxCurrentTCB
- .bss           0x000000000080027f        0x0 ../../FreeRTOS/Source/queue.o
- .bss           0x000000000080027f        0x0 ../../FreeRTOS/Source/list.o
- .bss           0x000000000080027f       0x3a ../../FreeRTOS/Source/croutine.o
-                0x000000000080027f                pxCurrentCoRoutine
- .bss           0x00000000008002b9     0x1802 ../../FreeRTOS/Source/heap_1.o
- .bss           0x0000000000801abb        0x0 ../../FreeRTOS/Source/port.o
- .bss           0x0000000000801abb        0x0 usart.o
- .bss           0x0000000000801abb        0x0 protocol.o
- .bss           0x0000000000801abb        0x0 Components/Battery/Battery.o
- .bss           0x0000000000801abb        0x0 Components/Brake/Brake.o
- .bss           0x0000000000801abb        0x0 Components/Error/Error.o
- .bss           0x0000000000801abb        0x0 Components/FNR/FNR.o
- .bss           0x0000000000801abb        0x0 Components/Lights/Lights.o
- .bss           0x0000000000801abb        0x1 Components/Sonar/Sonar.o
-                0x0000000000801abb                lastSonarData
- .bss           0x0000000000801abc        0x0 Components/Speed/Speed.o
- .bss           0x0000000000801abc        0x0 Components/Steering/Steering.o
- .bss           0x0000000000801abc        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
- .bss           0x0000000000801abc        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
- .bss           0x0000000000801abc        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
- .bss           0x0000000000801abc        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
- .bss           0x0000000000801abc        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memcpy.o)
- .bss           0x0000000000801abc        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memset.o)
- .bss           0x0000000000801abc        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strncpy.o)
- .bss           0x0000000000801abc        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(itoa.o)
- .bss           0x0000000000801abc        0x0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strrev.o)
- .bss           0x0000000000801abc        0x0 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
+ .bss           0x00800224        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+ .bss           0x00800224        0x2 main.o
+                0x00800224                count
+ .bss           0x00800226       0x59 ../../FreeRTOS/Source/tasks.o
+                0x00800226                pxCurrentTCB
+ .bss           0x0080027f        0x0 ../../FreeRTOS/Source/queue.o
+ .bss           0x0080027f        0x0 ../../FreeRTOS/Source/list.o
+ .bss           0x0080027f       0x3a ../../FreeRTOS/Source/croutine.o
+                0x0080027f                pxCurrentCoRoutine
+ .bss           0x008002b9     0x1802 ../../FreeRTOS/Source/heap_1.o
+ .bss           0x00801abb        0x0 ../../FreeRTOS/Source/port.o
+ .bss           0x00801abb        0x0 usart.o
+ .bss           0x00801abb        0x0 protocol.o
+ .bss           0x00801abb        0x0 Components/Battery/Battery.o
+ .bss           0x00801abb        0x0 Components/Brake/Brake.o
+ .bss           0x00801abb        0x0 Components/Error/Error.o
+ .bss           0x00801abb        0x0 Components/FNR/FNR.o
+ .bss           0x00801abb        0x0 Components/Lights/Lights.o
+ .bss           0x00801abb        0x1 Components/Sonar/Sonar.o
+                0x00801abb                lastSonarData
+ .bss           0x00801abc        0x0 Components/Speed/Speed.o
+ .bss           0x00801abc        0x0 Components/Steering/Steering.o
+ .bss           0x00801abc        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodsi4.o)
+ .bss           0x00801abc        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_exit.o)
+ .bss           0x00801abc        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_copy_data.o)
+ .bss           0x00801abc        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_clear_bss.o)
+ .bss           0x00801abc        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memcpy.o)
+ .bss           0x00801abc        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memset.o)
+ .bss           0x00801abc        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strncpy.o)
+ .bss           0x00801abc        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(itoa.o)
+ .bss           0x00801abc        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strrev.o)
+ .bss           0x00801abc        0x0 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodhi4.o)
  *(.bss*)
  *(COMMON)
- COMMON         0x0000000000801abc        0x2 main.o
-                0x0000000000801abc                sonarTime
- COMMON         0x0000000000801abe        0x6 usart.o
-                0x0000000000801abe                USART_ReadQueue
-                0x0000000000801ac0                USART_WriteQueueLog
-                0x0000000000801ac2                USART_WriteQueue
- COMMON         0x0000000000801ac4       0x15 Components/Sonar/Sonar.o
-                0x0000000000801ac4                sonarData
-                0x0000000000801aca                sonarSemaphore
-                0x0000000000801acc                sonarDataMutex
-                0x0000000000801ad8                currSonar
-                0x0000000000801ad9                PROVIDE (__bss_end, .)
-                0x0000000000004148                __data_load_start = LOADADDR (.data)
-                0x000000000000416c                __data_load_end = (__data_load_start + SIZEOF (.data))
+ COMMON         0x00801abc        0x2 main.o
+                0x00801abc                sonarTime
+ COMMON         0x00801abe        0x6 usart.o
+                0x00801abe                USART_ReadQueue
+                0x00801ac0                USART_WriteQueueLog
+                0x00801ac2                USART_WriteQueue
+ COMMON         0x00801ac4       0x15 Components/Sonar/Sonar.o
+                0x00801ac4                sonarData
+                0x00801aca                sonarSemaphore
+                0x00801acc                sonarDataMutex
+                0x00801ad8                currSonar
+                0x00801ad9                PROVIDE (__bss_end, .)
+                0x0000415e                __data_load_start = LOADADDR (.data)
+                0x00004182                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x0000000000801ad9        0x0
-                0x0000000000801ad9                PROVIDE (__noinit_start, .)
+.noinit         0x00801ad9        0x0
+                0x00801ad9                PROVIDE (__noinit_start, .)
  *(.noinit*)
-                0x0000000000801ad9                PROVIDE (__noinit_end, .)
-                0x0000000000801ad9                _end = .
-                0x0000000000801ad9                PROVIDE (__heap_start, .)
+                0x00801ad9                PROVIDE (__noinit_end, .)
+                0x00801ad9                _end = .
+                0x00801ad9                PROVIDE (__heap_start, .)
 
-.eeprom         0x0000000000810000        0x0
+.eeprom         0x00810000        0x0
  *(.eeprom*)
-                0x0000000000810000                __eeprom_end = .
+                0x00810000                __eeprom_end = .
 
 .fuse
  *(.fuse)
@@ -641,57 +578,57 @@ END GROUP
 .signature
  *(.signature*)
 
-.stab           0x0000000000000000     0x9288
+.stab           0x00000000     0x91b0
  *(.stab)
- .stab          0x0000000000000000      0x6e4 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
- .stab          0x00000000000006e4      0xc18 main.o
-                                        0xc24 (size before relaxing)
- .stab          0x00000000000012fc     0x1fd4 ../../FreeRTOS/Source/tasks.o
-                                       0x20e8 (size before relaxing)
- .stab          0x00000000000032d0     0x1434 ../../FreeRTOS/Source/queue.o
-                                       0x168c (size before relaxing)
- .stab          0x0000000000004704      0x540 ../../FreeRTOS/Source/list.o
-                                        0x81c (size before relaxing)
- .stab          0x0000000000004c44      0x978 ../../FreeRTOS/Source/croutine.o
-                                        0xc60 (size before relaxing)
- .stab          0x00000000000055bc      0x384 ../../FreeRTOS/Source/heap_1.o
-                                        0x6d8 (size before relaxing)
- .stab          0x0000000000005940      0x990 ../../FreeRTOS/Source/port.o
-                                        0xcd8 (size before relaxing)
- .stab          0x00000000000062d0     0x1008 usart.o
-                                       0x1260 (size before relaxing)
- .stab          0x00000000000072d8      0x63c protocol.o
-                                        0x684 (size before relaxing)
- .stab          0x0000000000007914      0x1bc Components/Battery/Battery.o
-                                        0x1c8 (size before relaxing)
- .stab          0x0000000000007ad0      0x1b0 Components/Brake/Brake.o
-                                        0x1bc (size before relaxing)
- .stab          0x0000000000007c80       0xe4 Components/Error/Error.o
-                                         0xf0 (size before relaxing)
- .stab          0x0000000000007d64      0x1b0 Components/FNR/FNR.o
-                                        0x1bc (size before relaxing)
- .stab          0x0000000000007f14      0x144 Components/Lights/Lights.o
-                                        0x150 (size before relaxing)
- .stab          0x0000000000008058      0x93c Components/Sonar/Sonar.o
-                                        0xbc4 (size before relaxing)
- .stab          0x0000000000008994      0x1b0 Components/Speed/Speed.o
-                                        0x1bc (size before relaxing)
- .stab          0x0000000000008b44      0x300 Components/Steering/Steering.o
-                                        0x30c (size before relaxing)
- .stab          0x0000000000008e44       0x84 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memcpy.o)
-                                         0x90 (size before relaxing)
- .stab          0x0000000000008ec8       0x6c /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memset.o)
-                                         0x78 (size before relaxing)
- .stab          0x0000000000008f34       0xcc /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strncpy.o)
-                                         0xd8 (size before relaxing)
- .stab          0x0000000000009000      0x1b0 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(itoa.o)
-                                        0x1bc (size before relaxing)
- .stab          0x00000000000091b0       0xd8 /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strrev.o)
-                                         0xe4 (size before relaxing)
+ .stab          0x00000000      0x6e4 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+ .stab          0x000006e4      0xa8c main.o
+                                0xa98 (size before relaxing)
+ .stab          0x00001170     0x1fbc ../../FreeRTOS/Source/tasks.o
+                               0x20e8 (size before relaxing)
+ .stab          0x0000312c     0x1434 ../../FreeRTOS/Source/queue.o
+                               0x168c (size before relaxing)
+ .stab          0x00004560      0x540 ../../FreeRTOS/Source/list.o
+                                0x81c (size before relaxing)
+ .stab          0x00004aa0      0x978 ../../FreeRTOS/Source/croutine.o
+                                0xc60 (size before relaxing)
+ .stab          0x00005418      0x384 ../../FreeRTOS/Source/heap_1.o
+                                0x6d8 (size before relaxing)
+ .stab          0x0000579c      0x990 ../../FreeRTOS/Source/port.o
+                                0xcd8 (size before relaxing)
+ .stab          0x0000612c      0xeb8 usart.o
+                               0x1110 (size before relaxing)
+ .stab          0x00006fe4      0x63c protocol.o
+                                0x684 (size before relaxing)
+ .stab          0x00007620      0x1bc Components/Battery/Battery.o
+                                0x1c8 (size before relaxing)
+ .stab          0x000077dc      0x1b0 Components/Brake/Brake.o
+                                0x1bc (size before relaxing)
+ .stab          0x0000798c       0xe4 Components/Error/Error.o
+                                 0xf0 (size before relaxing)
+ .stab          0x00007a70      0x1b0 Components/FNR/FNR.o
+                                0x1bc (size before relaxing)
+ .stab          0x00007c20      0x144 Components/Lights/Lights.o
+                                0x150 (size before relaxing)
+ .stab          0x00007d64      0xb58 Components/Sonar/Sonar.o
+                                0xbc4 (size before relaxing)
+ .stab          0x000088bc      0x1b0 Components/Speed/Speed.o
+                                0x1bc (size before relaxing)
+ .stab          0x00008a6c      0x300 Components/Steering/Steering.o
+                                0x30c (size before relaxing)
+ .stab          0x00008d6c       0x84 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memcpy.o)
+                                 0x90 (size before relaxing)
+ .stab          0x00008df0       0x6c /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memset.o)
+                                 0x78 (size before relaxing)
+ .stab          0x00008e5c       0xcc /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strncpy.o)
+                                 0xd8 (size before relaxing)
+ .stab          0x00008f28      0x1b0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(itoa.o)
+                                0x1bc (size before relaxing)
+ .stab          0x000090d8       0xd8 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strrev.o)
+                                 0xe4 (size before relaxing)
 
-.stabstr        0x0000000000000000     0x491e
+.stabstr        0x00000000     0x4e85
  *(.stabstr)
- .stabstr       0x0000000000000000     0x491e /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
+ .stabstr       0x00000000     0x4e85 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
 
 .stab.excl
  *(.stab.excl)
@@ -705,12 +642,10 @@ END GROUP
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x11
+.comment        0x00000000       0x11
  *(.comment)
- .comment       0x0000000000000000       0x11 main.o
-                                         0x12 (size before relaxing)
- .comment       0x0000000000000000       0x12 usart.o
- .comment       0x0000000000000000       0x12 Components/Sonar/Sonar.o
+ .comment       0x00000000       0x11 Components/Sonar/Sonar.o
+                                 0x12 (size before relaxing)
 
 .debug
  *(.debug)
@@ -751,15 +686,6 @@ END GROUP
 
 .debug_macinfo
  *(.debug_macinfo)
-
-.debug_pubtypes
- *(.debug_pubtypes)
-
-.debug_ranges
- *(.debug_ranges)
-
-.debug_macro
- *(.debug_macro)
 OUTPUT(rtosdemo.elf elf32-avr)
 LOAD linker stubs
 
@@ -781,100 +707,100 @@ USART_Write                                       usart.o
 USART_WriteQueue                                  usart.o
 USART_WriteQueueLog                               usart.o
 USART_Write_Unprotected                           usart.o
-__bad_interrupt                                   /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__bss_end                                         /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
-__bss_start                                       /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
-__data_end                                        /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
-__data_load_start                                 /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
-__data_start                                      /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
-__do_clear_bss                                    /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_clear_bss.o)
+__bad_interrupt                                   /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__bss_end                                         /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_clear_bss.o)
+__bss_start                                       /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_clear_bss.o)
+__data_end                                        /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_copy_data.o)
+__data_load_start                                 /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_copy_data.o)
+__data_start                                      /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_copy_data.o)
+__do_clear_bss                                    /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_clear_bss.o)
                                                   Components/Sonar/Sonar.o
                                                   usart.o
                                                   ../../FreeRTOS/Source/heap_1.o
                                                   ../../FreeRTOS/Source/croutine.o
                                                   ../../FreeRTOS/Source/tasks.o
                                                   main.o
-__do_copy_data                                    /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_copy_data.o)
+__do_copy_data                                    /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_copy_data.o)
                                                   ../../FreeRTOS/Source/tasks.o
                                                   main.o
-__heap_end                                        /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__init                                            /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__stack                                           /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__udivmodhi4                                      /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodhi4.o)
-                                                  /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(itoa.o)
-__udivmodsi4                                      /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_udivmodsi4.o)
+__heap_end                                        /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__init                                            /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__stack                                           /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__udivmodhi4                                      /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodhi4.o)
+                                                  /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(itoa.o)
+__udivmodsi4                                      /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_udivmodsi4.o)
                                                   usart.o
-__vector_1                                        /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_10                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
+__vector_1                                        /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_10                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
 __vector_11                                       Components/Sonar/Sonar.o
-                                                  /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_12                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_13                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_14                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_15                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_16                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_17                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_18                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_19                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_2                                        /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_20                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_21                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_22                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_23                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_24                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_25                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_26                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_27                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_28                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_29                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_3                                        /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_30                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_31                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
+                                                  /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_12                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_13                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_14                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_15                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_16                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_17                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_18                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_19                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_2                                        /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_20                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_21                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_22                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_23                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_24                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_25                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_26                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_27                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_28                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_29                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_3                                        /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_30                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_31                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
 __vector_32                                       ../../FreeRTOS/Source/port.o
-                                                  /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_33                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_34                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_35                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
+                                                  /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_33                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_34                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_35                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
 __vector_36                                       usart.o
-                                                  /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_37                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_38                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_39                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_4                                        /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_40                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_41                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_42                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_43                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_44                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_45                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_46                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_47                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_48                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_49                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_5                                        /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
+                                                  /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_37                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_38                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_39                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_4                                        /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_40                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_41                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_42                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_43                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_44                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_45                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_46                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_47                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_48                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_49                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_5                                        /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
 __vector_50                                       main.o
-                                                  /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_51                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_52                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_53                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_54                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_55                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_56                                       /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_6                                        /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_7                                        /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_8                                        /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_9                                        /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vector_default                                  /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-__vectors                                         /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-_exit                                             /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
+                                                  /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_51                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_52                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_53                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_54                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_55                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_56                                       /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_6                                        /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_7                                        /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_8                                        /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_9                                        /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vector_default                                  /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+__vectors                                         /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+_exit                                             /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_exit.o)
 calcChecksum                                      usart.o
 changePID                                         Components/Steering/Steering.o
                                                   protocol.o
 commandIntegCheck                                 protocol.o
 count                                             main.o
 currSonar                                         Components/Sonar/Sonar.o
-exit                                              /usr/lib/gcc/avr/4.8.2/avr6/libgcc.a(_exit.o)
-                                                  /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
+exit                                              /usr/lib/gcc/avr/4.5.3/avr6/libgcc.a(_exit.o)
+                                                  /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
 getAllSensors                                     Components/Sonar/Sonar.o
                                                   protocol.o
 getAngle                                          Components/Steering/Steering.o
@@ -899,15 +825,15 @@ getSteeringVoltage                                Components/Battery/Battery.o
 getTimerCount                                     Components/Sonar/Sonar.o
 getTimerCount2                                    main.o
 initializeSonarSensors                            Components/Sonar/Sonar.o
-itoa                                              /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(itoa.o)
+itoa                                              /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(itoa.o)
                                                   main.o
 lastSonarData                                     Components/Sonar/Sonar.o
 main                                              main.o
-                                                  /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/crtm2560.o
-memcpy                                            /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memcpy.o)
+                                                  /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/crtm2560.o
+memcpy                                            /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memcpy.o)
                                                   usart.o
                                                   ../../FreeRTOS/Source/queue.o
-memset                                            /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(memset.o)
+memset                                            /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(memset.o)
                                                   ../../FreeRTOS/Source/tasks.o
                                                   main.o
 printHex                                          main.o
@@ -950,10 +876,10 @@ sonarData                                         Components/Sonar/Sonar.o
 sonarDataMutex                                    Components/Sonar/Sonar.o
 sonarSemaphore                                    Components/Sonar/Sonar.o
 sonarTime                                         main.o
-strncpy                                           /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strncpy.o)
+strncpy                                           /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strncpy.o)
                                                   ../../FreeRTOS/Source/tasks.o
-strrev                                            /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(strrev.o)
-                                                  /usr/lib/gcc/avr/4.8.2/../../../../avr/lib/avr6/libc.a(itoa.o)
+strrev                                            /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(strrev.o)
+                                                  /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr6/libc.a(itoa.o)
 uxListRemove                                      ../../FreeRTOS/Source/list.o
                                                   ../../FreeRTOS/Source/croutine.o
                                                   ../../FreeRTOS/Source/tasks.o

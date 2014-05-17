@@ -216,8 +216,9 @@ void LMS1xx::getData(scanData& data) {
 	struct timeval tv;
 	int retval, len;
 	len = 0;
-
+    int timeoutcounter = 0;
 	do {
+         timeoutcounter++;
 		FD_ZERO(&rfds);
 		FD_SET(sockDesc, &rfds);
 
@@ -227,6 +228,14 @@ void LMS1xx::getData(scanData& data) {
 		if (retval) {
 			len += read(sockDesc, buf + len, 20000 - len);
 		}
+        if(timeoutcounter == 10)
+        {
+        throw 20;
+
+        return ;
+        }
+
+              std::cout << "test";
 	} while ((buf[0] != 0x02) || (buf[len - 1] != 0x03));
 
 	//	if (debug)
