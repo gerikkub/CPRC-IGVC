@@ -4,9 +4,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "SerialComms.h"
+#include "SerialComms.hpp"
+#include "CaddyBoardControl.hpp"
 
-#define COMM_PORT_NUMBER	16        /* /dev/ttyS0 (COM1 on windows) */
+#define COMM_PORT_NUMBER	0        /* /dev/ttyS0 (COM1 on windows) */
 #define BAUD_RATE			115200
 
 using namespace std;
@@ -18,6 +19,7 @@ int main(int argc, char** argv){
 	char FNRState;
 	unsigned char cartSpeed;
 	
+	CaddyBoardControl controller;
 
 	Packet FNRPacket;
 	Packet speedPacket;
@@ -26,7 +28,7 @@ int main(int argc, char** argv){
 
 	SerialComms atmega;
 
-	if(atmega.initializeComms(COMM_PORT_NUMBER,BAUD_RATE) != COMM_SUCCESS){
+	if(controller.initializeComms(COMM_PORT_NUMBER,BAUD_RATE) != COMM_SUCCESS){
 		cout << "Unable to initialize Serial Connection\n";
 		return 1;
 	}	
@@ -69,14 +71,15 @@ int main(int argc, char** argv){
 		case '7':
 		case '8':
 		case '9':
-			cartSpeed = 12 * (input - 0x30);
-			sendPacket = speedPacket;
-			break;
+			//cartSpeed = 12 * (input - 0x30);
+			//sendPacket = speedPacket;
+			continue;
 		default:
 			continue;
 		}
 
-		while(atmega.sendPacket(&sendPacket) != COMM_SUCCESS){
+		controller.setFNR((char)FNRState);
+		/*while(atmega.sendPacket(&sendPacket) != COMM_SUCCESS){
 			cout << "Failure sending packet. Trying again\n";
 			usleep(400000);
 			count++;
@@ -88,7 +91,7 @@ int main(int argc, char** argv){
 			cout << "Command unsuccessful!\n";
 		} else {
 			cout << "Successfully sent command\n";
-		}
+		}*/
 	}
 
 	//results = atmega.getResults();
